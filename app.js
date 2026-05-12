@@ -82,8 +82,8 @@ function toast(msg){
 
     // dispositivo
     const ua = navigator.userAgent;
-    let device = "Desktop";
-    if(/Mobile|Android|iPhone/i.test(ua)) device = "Mobile";
+    let device = "PC";
+    if(/Mobile|Android|iPhone/i.test(ua)) device = "Teléfono";
     else if(/iPad|Tablet/i.test(ua)) device = "Tablet";
 
     // fecha
@@ -164,7 +164,7 @@ async function updatePlan(plan){
   if(!user) return toast("Iniciá sesión primero");
   await setDoc(doc(db, "users", user.uid), {plan});
   setPlanUI(plan);
-  toast(plan === "PRO" ? "✅ Plan PRO activado" : "✅ Plan FREE activado");
+  toast(plan === "PRO" ? "✅ ¡Plan PRO activado correctamente!" : "✅ ¡Plan FREE activado correctamente!");
   refreshDashboard();
   if(plan === "PRO") setSection("analytics");
 }
