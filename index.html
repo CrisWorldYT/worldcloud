@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cloud</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="logo">☁ World Cloud</div>
+
+    <div class="top-actions">
+        <button id="themeToggle" class="btn-ghost">🌙</button>
+
+        <div id="authBtns">
+            <button id="loginBtn" class="btn-primary">🔐 Iniciar sesión</button>
+        </div>
+
+        <div id="userInfo" class="hidden user-box">
+            <span id="userPlanBadge" class="badge">FREE</span>
+            <span id="userName"></span>
+            <button id="logoutBtn" class="btn-ghost">🚪 Salir</button>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+
+<section class="card">
+    <h2>🔗 Crear enlace</h2>
+
+    <div class="input-group">
+        <input type="url" id="urlInput" placeholder="https://tusitio.com">
+        <button id="shortBtn" class="btn-primary">⚡ Generar</button>
+    </div>
+
+    <div id="resultSection" class="hidden result-box">
+        <p>✅ Enlace generado:</p>
+        <strong id="shortLink"></strong>
+    </div>
+</section>
+
+<section class="card">
+    <h2>💎 Planes</h2>
+
+    <div class="plans-grid">
+
+        <div class="plan-card active" id="freeCard">
+            <h3>FREE</h3>
+            <p class="price">$0</p>
+
+            <ul>
+                <li>✔ 1 enlace máximo</li>
+                <li>✔ Estadísticas básicas</li>
+                <li>✖ Sin edición</li>
+                <li>✖ Sin exportación</li>
+            </ul>
+
+            <button id="selectFree" class="btn-ghost selected">
+                Plan actual
+            </button>
+        </div>
+
+        <div class="plan-card pro" id="proCard">
+            <div class="pro-badge">RECOMENDADO</div>
+            <h3>PRO</h3>
+            <p class="price">$5 / mes</p>
+
+            <ul>
+                <li>✔ Enlaces ilimitados</li>
+                <li>✔ Editar enlaces</li>
+                <li>✔ Exportar estadísticas</li>
+                <li>✔ Soporte prioritario</li>
+            </ul>
+
+            <button id="selectPro" class="btn-primary">
+                Seleccionar plan
+            </button>
+        </div>
+
+    </div>
+</section>
+
+<section class="card hidden" id="dashboard">
+    <h2>📊 Mis enlaces</h2>
+    <div id="linksList"></div>
+</section>
+
+</main>
+
+<footer class="footer">
+    © 2026 World Cloud — Creado por <strong>iCrisWorld</strong>
+</footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
