@@ -83,19 +83,90 @@ function updatePlanUI() {
   $("customSection")?.classList.toggle("hidden", !isPro);
   $("planChip").textContent = currentPlan;
 
-  // Mostrar secciones PRO
   document.querySelectorAll(".pro-only").forEach(el => {
     el.classList.toggle("hidden", !isPro);
   });
+
+  updatePlanButtons();
+}
+
+/* ================= CAMBIAR PLAN ================= */
+
+$("selectFree")?.addEventListener("click", () => changePlan("FREE"));
+$("selectPro")?.addEventListener("click", () => changePlan("PRO"));
+
+async function changePlan(newPlan) {
+
+  const user = auth.currentUser;
+  if (!user) return alert("Iniciá sesión primero");
+
+  if (currentPlan === newPlan) {
+    showToast("Ya tenés este plan 😎");
+    return;
+  }
+
+  await updateDoc(doc(db, "users", user.uid), {
+    plan: newPlan
+  });
+
+  currentPlan = newPlan;
+  updatePlanUI();
+
+  if (newPlan === "PRO") {
+    triggerProAnimation();
+  }
+
+  showToast("✅ Plan cambiado correctamente");
+}
+
+function updatePlanButtons() {
+
+  const freeBtn = $("selectFree");
+  const proBtn = $("selectPro");
+
+  if (!freeBtn || !proBtn) return;
+
+  if (currentPlan === "FREE") {
+    freeBtn.textContent = "✅ Plan actual";
+    proBtn.textContent = "Seleccionar Plan ($5)";
+  } else {
+    proBtn.textContent = "✅ Plan actual";
+    freeBtn.textContent = "Seleccionar FREE";
+  }
+}
+
+/* ================= ANIMACIÓN PRO ================= */
+
+function triggerProAnimation() {
+
+  const proCard = $("proCard");
+  const planChip = $("planChip");
+
+  if (!proCard) return;
+
+  proCard.classList.add("upgrade-flash");
+
+  setTimeout(() => {
+    proCard.classList.remove("upgrade-flash");
+    proCard.classList.add("pro-active-glow");
+  }, 900);
+
+  if (planChip) {
+    planChip.classList.add("upgrade-flash");
+
+    setTimeout(() => {
+      planChip.classList.remove("upgrade-flash");
+      planChip.classList.add("pro-active-glow");
+    }, 900);
+  }
 }
 
 /* ================= PREVIEW ================= */
 
 $("customCode")?.addEventListener("input", () => {
   const val = $("customCode").value.trim();
-  $("previewURL").textContent = val
-    ? location.origin + "/" + val
-    : "";
+  $("previewURL").textContent =
+    val ? location.origin + "/" + val : "";
 });
 
 /* ================= CREAR LINK ================= */
@@ -111,6 +182,7 @@ $("shortBtn")?.addEventListener("click", async () => {
   let code;
 
   if (currentPlan === "PRO") {
+
     const custom = $("customCode").value.trim();
 
     if (custom) {
@@ -127,6 +199,7 @@ $("shortBtn")?.addEventListener("click", async () => {
     }
 
   } else {
+
     const q = query(
       collection(db, "links"),
       where("userId", "==", user.uid)
@@ -161,6 +234,8 @@ $("shortBtn")?.addEventListener("click", async () => {
   } else {
     $("qrSection")?.classList.add("hidden");
   }
+
+  showToast("✅ Enlace creado correctamente");
 });
 
 /* ================= NAVEGACIÓN ================= */
@@ -188,14 +263,26 @@ navButtons.forEach(btn => {
   });
 });
 
-/* ================= SIDEBAR TOGGLE ================= */
-
-const sidebar = $("sidebar");
+/* ================= SIDEBAR ================= */
 
 $("sidebarToggle")?.addEventListener("click", () => {
-  sidebar.classList.toggle("open");
+  $("sidebar")?.classList.toggle("open");
 });
 
 $("sidebarToggleMobile")?.addEventListener("click", () => {
-  sidebar.classList.toggle("open");
+  $("sidebar")?.classList.toggle("open");
 });
+
+/* ================= TOAST ================= */
+
+function showToast(message) {
+  const toast = $("toast");
+  if (!toast) return;
+
+  toast.textContent = message;
+  toast.classList.remove("hidden");
+
+  setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 3000);
+}
