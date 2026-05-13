@@ -29,76 +29,50 @@ let currentPlan = "FREE";
 /* ================= REDIRECT ================= */
 
 async function handleRedirect() {
-  try {
-    const code = new URLSearchParams(location.search).get("c");
-    if (!code) return;
+  const code = new URLSearchParams(location.search).get("c");
+  if (!code) return;
 
-    console.log("Redireccionando código:", code);
+  $("redirectScreen")?.classList.remove("hidden");
 
-    $("redirectScreen")?.classList.remove("hidden");
+  const ref = doc(db, "links", code);
+  const snap = await getDoc(ref);
 
-    const ref = doc(db, "links", code);
-    const snap = await getDoc(ref);
+  if (!snap.exists()) return;
 
-    if (!snap.exists()) {
-      console.log("Código no encontrado");
-      return;
-    }
-
-    updateDoc(ref, { clicks: increment(1) }).catch(() => {});
-    setTimeout(() => {
-      location.href = snap.data().originalURL;
-    }, 300);
-
-  } catch (err) {
-    console.error("Error en redirect:", err);
-  }
+  updateDoc(ref, { clicks: increment(1) }).catch(() => {});
+  setTimeout(() => {
+    location.href = snap.data().originalURL;
+  }, 300);
 }
 
 handleRedirect();
 
 /* ================= LOGIN ================= */
 
-$("loginBtn")?.addEventListener("click", async () => {
-  try {
-    await signInWithPopup(auth, new GoogleAuthProvider());
-  } catch (err) {
-    console.error("Error login:", err);
-    alert("Error en login");
-  }
-});
+$("loginBtn")?.addEventListener("click", () =>
+  signInWithPopup(auth, new GoogleAuthProvider())
+);
 
-$("logoutBtn")?.addEventListener("click", async () => {
-  try {
-    await signOut(auth);
-  } catch (err) {
-    console.error("Error logout:", err);
-  }
-});
+$("logoutBtn")?.addEventListener("click", () =>
+  signOut(auth)
+);
 
 /* ================= AUTH STATE ================= */
 
 onAuthStateChanged(auth, async user => {
-  console.log("Auth state:", user);
-
   if (!user) return;
 
-  try {
-    const ref = doc(db, "users", user.uid);
-    const snap = await getDoc(ref);
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
 
-    if (!snap.exists()) {
-      await setDoc(ref, { plan: "FREE" });
-      currentPlan = "FREE";
-    } else {
-      currentPlan = snap.data().plan || "FREE";
-    }
-
-    updatePlanUI();
-
-  } catch (err) {
-    console.error("Error cargando usuario:", err);
+  if (!snap.exists()) {
+    await setDoc(ref, { plan: "FREE" });
+    currentPlan = "FREE";
+  } else {
+    currentPlan = snap.data().plan || "FREE";
   }
+
+  updatePlanUI();
 });
 
 /* ================= PLAN UI ================= */
@@ -106,13 +80,13 @@ onAuthStateChanged(auth, async user => {
 function updatePlanUI() {
   const isPro = currentPlan === "PRO";
 
-  console.log("Plan actual:", currentPlan);
-
   $("customSection")?.classList.toggle("hidden", !isPro);
+  $("planChip").textContent = currentPlan;
 
-  if ($("planChip")) {
-    $("planChip").textContent = currentPlan;
-  }
+  // Mostrar secciones PRO
+  document.querySelectorAll(".pro-only").forEach(el => {
+    el.classList.toggle("hidden", !isPro);
+  });
 }
 
 /* ================= PREVIEW ================= */
@@ -129,79 +103,99 @@ $("customCode")?.addEventListener("input", () => {
 $("shortBtn")?.addEventListener("click", async () => {
 
   const user = auth.currentUser;
-  if (!user) {
-    alert("Iniciá sesión primero");
-    return;
-  }
+  if (!user) return alert("Iniciá sesión primero");
 
   const url = $("urlInput").value.trim();
-  if (!url) {
-    alert("Poné una URL");
-    return;
-  }
+  if (!url) return alert("Poné una URL");
 
-  try {
+  let code;
 
-    let code;
+  if (currentPlan === "PRO") {
+    const custom = $("customCode").value.trim();
 
-    if (currentPlan === "PRO") {
-
-      const custom = $("customCode")?.value.trim();
-
-      if (custom) {
-        const check = await getDoc(doc(db, "links", custom));
-        if (check.exists()) {
-          $("customError").textContent = "Ese enlace ya existe";
-          $("customError").classList.remove("hidden");
-          return;
-        }
-        $("customError").classList.add("hidden");
-        code = custom;
-      } else {
-        code = Math.random().toString(36).substring(2, 8);
-      }
-
-    } else {
-
-      const q = query(
-        collection(db, "links"),
-        where("userId", "==", user.uid)
-      );
-
-      const snap = await getDocs(q);
-
-      if (snap.size >= 1) {
-        alert("FREE solo permite 1 enlace");
+    if (custom) {
+      const check = await getDoc(doc(db, "links", custom));
+      if (check.exists()) {
+        $("customError").textContent = "Ese enlace ya existe";
+        $("customError").classList.remove("hidden");
         return;
       }
-
+      $("customError").classList.add("hidden");
+      code = custom;
+    } else {
       code = Math.random().toString(36).substring(2, 8);
     }
 
-    await setDoc(doc(db, "links", code), {
-      originalURL: url,
-      userId: user.uid,
-      clicks: 0
-    });
+  } else {
+    const q = query(
+      collection(db, "links"),
+      where("userId", "==", user.uid)
+    );
 
-    const shortURL = location.origin + "?c=" + code;
+    const snap = await getDocs(q);
 
-    $("shortLink").textContent = shortURL;
-    $("resultSection").classList.remove("hidden");
-
-    if (currentPlan === "PRO") {
-      const qr =
-        `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shortURL)}`;
-      $("qrImage").src = qr;
-      $("qrSection").classList.remove("hidden");
-    } else {
-      $("qrSection")?.classList.add("hidden");
+    if (snap.size >= 1) {
+      alert("FREE solo permite 1 enlace");
+      return;
     }
 
-    console.log("✅ Link creado:", shortURL);
-
-  } catch (err) {
-    console.error("Error creando link:", err);
-    alert("Error creando enlace. Mirá la consola.");
+    code = Math.random().toString(36).substring(2, 8);
   }
+
+  await setDoc(doc(db, "links", code), {
+    originalURL: url,
+    userId: user.uid,
+    clicks: 0
+  });
+
+  const shortURL = location.origin + "?c=" + code;
+
+  $("shortLink").textContent = shortURL;
+  $("resultSection").classList.remove("hidden");
+
+  if (currentPlan === "PRO") {
+    const qr =
+      `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shortURL)}`;
+    $("qrImage").src = qr;
+    $("qrSection").classList.remove("hidden");
+  } else {
+    $("qrSection")?.classList.add("hidden");
+  }
+});
+
+/* ================= NAVEGACIÓN ================= */
+
+const navButtons = document.querySelectorAll(".nav-item");
+const sections = document.querySelectorAll(".section");
+
+navButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+
+    const sectionName = btn.dataset.section;
+
+    navButtons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    sections.forEach(sec => {
+      sec.classList.toggle(
+        "hidden",
+        sec.dataset.section !== sectionName
+      );
+    });
+
+    $("sectionTitle").textContent =
+      btn.textContent.replace("PRO", "").trim();
+  });
+});
+
+/* ================= SIDEBAR TOGGLE ================= */
+
+const sidebar = $("sidebar");
+
+$("sidebarToggle")?.addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+});
+
+$("sidebarToggleMobile")?.addEventListener("click", () => {
+  sidebar.classList.toggle("open");
 });
