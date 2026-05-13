@@ -1,5 +1,5 @@
 /* =========================================================
-   WORLD CLOUD PRO — REAL ANALYTICS
+   WORLD CLOUD PRO
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -52,12 +52,19 @@ const $ = id => document.getElementById(id);
 
 let currentUser = null;
 let currentPlan = "FREE";
+
 let allLinks = [];
 
-let dailyChart;
-let countryChart;
-let deviceChart;
 let modalChart;
+let dailyChart;
+let deviceChart;
+let countryChart;
+
+/* =========================================================
+   INIT
+========================================================= */
+
+console.log("✅ WORLD CLOUD READY");
 
 /* =========================================================
    REDIRECT + REAL ANALYTICS
@@ -85,7 +92,7 @@ async function handleRedirect() {
   const linkData =
     snap.data();
 
-  /* ================= GEO ================= */
+  /* ================= COUNTRY ================= */
 
   let country = "Unknown";
   let countryCode = "UN";
@@ -122,7 +129,12 @@ async function handleRedirect() {
   /* ================= SAVE ANALYTICS ================= */
 
   await addDoc(
-    collection(db, "links", code, "analytics"),
+    collection(
+      db,
+      "links",
+      code,
+      "analytics"
+    ),
     {
       timestamp: Date.now(),
       country,
@@ -131,18 +143,18 @@ async function handleRedirect() {
     }
   );
 
-  /* ================= INCREMENT ================= */
+  /* ================= CLICK ================= */
 
-  await updateDoc(ref, {
+  updateDoc(ref, {
     clicks: increment(1)
-  });
+  }).catch(()=>{});
 
   setTimeout(() => {
 
     location.href =
       linkData.originalURL;
 
-  }, 300);
+  }, 250);
 }
 
 handleRedirect();
@@ -151,35 +163,33 @@ handleRedirect();
    LOGIN
 ========================================================= */
 
-$("loginBtn")
-  ?.addEventListener("click", async () => {
+$("loginBtn")?.addEventListener("click", async () => {
 
-    try {
+  try {
 
-      await signInWithPopup(
-        auth,
-        new GoogleAuthProvider()
-      );
+    await signInWithPopup(
+      auth,
+      new GoogleAuthProvider()
+    );
 
-    } catch (err) {
+  } catch (err) {
 
-      console.error(err);
+    console.error(err);
 
-      showToast("❌ Error login");
-    }
-  });
+    showToast("❌ Error login");
+  }
+});
 
 /* =========================================================
    LOGOUT
 ========================================================= */
 
-$("logoutBtn")
-  ?.addEventListener("click", async () => {
+$("logoutBtn")?.addEventListener("click", async () => {
 
-    await signOut(auth);
+  await signOut(auth);
 
-    showToast("👋 Sesión cerrada");
-  });
+  showToast("👋 Sesión cerrada");
+});
 
 /* =========================================================
    AUTH STATE
@@ -246,19 +256,18 @@ onAuthStateChanged(auth, async user => {
    THEME
 ========================================================= */
 
-$("themeToggle")
-  ?.addEventListener("click", () => {
+$("themeToggle")?.addEventListener("click", () => {
 
-    document.body
-      .classList.toggle("light");
+  document.body
+    .classList.toggle("light");
 
-    localStorage.setItem(
-      "theme",
-      document.body.classList.contains("light")
-        ? "light"
-        : "dark"
-    );
-  });
+  localStorage.setItem(
+    "theme",
+    document.body.classList.contains("light")
+      ? "light"
+      : "dark"
+  );
+});
 
 if (
   localStorage.getItem("theme")
@@ -299,6 +308,32 @@ function updatePlanUI() {
         !isPro
       );
     });
+
+  updatePlanButtons();
+}
+
+/* =========================================================
+   PLAN BUTTONS
+========================================================= */
+
+function updatePlanButtons() {
+
+  if (currentPlan === "FREE") {
+
+    $("selectFree").textContent =
+      "✅ Plan actual";
+
+    $("selectPro").textContent =
+      "Seleccionar PRO";
+
+  } else {
+
+    $("selectPro").textContent =
+      "✅ Plan actual";
+
+    $("selectFree").textContent =
+      "Cambiar a FREE";
+  }
 }
 
 /* =========================================================
@@ -319,6 +354,13 @@ async function changePlan(plan) {
 
   if (!currentUser) return;
 
+  if (currentPlan === plan) {
+
+    showToast("😎 Ya tenés este plan");
+
+    return;
+  }
+
   await updateDoc(
     doc(db, "users", currentUser.uid),
     { plan }
@@ -328,8 +370,106 @@ async function changePlan(plan) {
 
   updatePlanUI();
 
-  showToast("✅ Plan actualizado");
+  if (plan === "PRO") {
+
+    triggerProAnimation();
+
+    launchConfetti();
+  }
+
+  showToast("✅ Plan cambiado");
 }
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+function launchConfetti() {
+
+  for (let i = 0; i < 80; i++) {
+
+    const confetti =
+      document.createElement("div");
+
+    confetti.style.position = "fixed";
+    confetti.style.width = "8px";
+    confetti.style.height = "8px";
+
+    confetti.style.background =
+      `hsl(${Math.random()*360},100%,60%)`;
+
+    confetti.style.left =
+      Math.random()*innerWidth + "px";
+
+    confetti.style.top = "-10px";
+
+    confetti.style.borderRadius = "50%";
+
+    confetti.style.zIndex = "99999";
+
+    document.body.appendChild(confetti);
+
+    const duration =
+      2000 + Math.random()*2000;
+
+    confetti.animate([
+
+      {
+        transform:"translateY(0)",
+        opacity:1
+      },
+
+      {
+        transform:
+          `translateY(${innerHeight+100}px)
+           rotate(${Math.random()*720}deg)`,
+
+        opacity:0
+      }
+
+    ], {
+      duration,
+      easing:"cubic-bezier(.2,.8,.2,1)"
+    });
+
+    setTimeout(() => {
+      confetti.remove();
+    }, duration);
+  }
+}
+
+/* =========================================================
+   PRO EFFECT
+========================================================= */
+
+function triggerProAnimation() {
+
+  $("proCard")
+    ?.classList.add("upgrade-flash");
+
+  setTimeout(() => {
+
+    $("proCard")
+      ?.classList.add("pro-active-glow");
+
+  }, 700);
+}
+
+/* =========================================================
+   CUSTOM PREVIEW
+========================================================= */
+
+$("customCode")
+  ?.addEventListener("input", () => {
+
+    const val =
+      $("customCode").value.trim();
+
+    $("previewURL").textContent =
+      val
+        ? location.origin + "/" + val
+        : "";
+  });
 
 /* =========================================================
    CREATE LINK
@@ -352,7 +492,7 @@ async function createLink() {
 
   if (!url) {
 
-    showToast("⚠ URL requerida");
+    showToast("⚠ Poné una URL");
 
     return;
   }
@@ -366,7 +506,11 @@ async function createLink() {
     const q =
       query(
         collection(db, "links"),
-        where("userId","==",currentUser.uid)
+        where(
+          "userId",
+          "==",
+          currentUser.uid
+        )
       );
 
     const existing =
@@ -380,48 +524,52 @@ async function createLink() {
 
       return;
     }
-  }
-
-  /* CUSTOM */
-
-  const custom =
-    $("customCode")
-      ?.value
-      .trim();
-
-  if (
-    currentPlan === "PRO" &&
-    custom
-  ) {
-
-    const exists =
-      await getDoc(
-        doc(db,"links",custom)
-      );
-
-    if (exists.exists()) {
-
-      $("customError")
-        .classList.remove("hidden");
-
-      $("customError").textContent =
-        "Ese código ya existe";
-
-      return;
-    }
-
-    code = custom;
-
-  } else {
 
     code =
       Math.random()
         .toString(36)
         .substring(2,8);
+
+  } else {
+
+    const custom =
+      $("customCode")
+        .value.trim();
+
+    if (custom) {
+
+      const check =
+        await getDoc(
+          doc(db, "links", custom)
+        );
+
+      if (check.exists()) {
+
+        $("customError").textContent =
+          "Ese enlace ya existe";
+
+        $("customError")
+          .classList.remove("hidden");
+
+        return;
+      }
+
+      $("customError")
+        .classList.add("hidden");
+
+      code = custom;
+
+    } else {
+
+      code =
+        Math.random()
+          .toString(36)
+          .substring(2,8);
+    }
   }
 
   await setDoc(
-    doc(db,"links",code),
+    doc(db, "links", code),
     {
       originalURL:url,
       userId:currentUser.uid,
@@ -455,7 +603,6 @@ async function createLink() {
   showToast("✅ Link creado");
 
   $("urlInput").value = "";
-
   $("customCode").value = "";
 }
 
@@ -470,7 +617,11 @@ async function loadDashboard() {
   const q =
     query(
       collection(db, "links"),
-      where("userId","==",currentUser.uid)
+      where(
+        "userId",
+        "==",
+        currentUser.uid
+      )
     );
 
   onSnapshot(q, async snap => {
@@ -480,7 +631,6 @@ async function loadDashboard() {
     let totalClicks = 0;
 
     let countries = new Set();
-
     let devices = {};
 
     snap.forEach(docu => {
@@ -497,7 +647,7 @@ async function loadDashboard() {
       });
     });
 
-    /* ================= ANALYTICS ================= */
+    /* REAL ANALYTICS */
 
     for (const link of allLinks) {
 
@@ -522,10 +672,7 @@ async function loadDashboard() {
       });
     }
 
-    /* ================= TOP DEVICE ================= */
-
     let topDevice = "—";
-
     let max = 0;
 
     for (const d in devices) {
@@ -537,8 +684,6 @@ async function loadDashboard() {
         topDevice = d;
       }
     }
-
-    /* ================= KPI ================= */
 
     $("totalLinks").textContent =
       allLinks.length;
@@ -559,135 +704,7 @@ async function loadDashboard() {
 }
 
 /* =========================================================
-   RENDER LINKS
-========================================================= */
-
-function renderLinks(links) {
-
-  const list =
-    $("linksList");
-
-  list.innerHTML = "";
-
-  if (!links.length) {
-
-    list.innerHTML = `
-      <p class="muted">
-        No hay enlaces todavía.
-      </p>
-    `;
-
-    return;
-  }
-
-  links.forEach(link => {
-
-    const shortURL =
-      location.origin + "?c=" + link.id;
-
-    const div =
-      document.createElement("div");
-
-    div.className = "card";
-
-    div.innerHTML = `
-
-      <div style="
-        display:flex;
-        justify-content:space-between;
-        gap:20px;
-        flex-wrap:wrap;
-      ">
-
-        <div>
-
-          <div style="
-            color:#60a5fa;
-            font-weight:700;
-            margin-bottom:8px;
-          ">
-            ${shortURL}
-          </div>
-
-          <div class="muted">
-            ${link.originalURL}
-          </div>
-
-          <div style="
-            margin-top:10px;
-            font-size:13px;
-          ">
-            👆 ${link.clicks || 0} clicks
-          </div>
-
-        </div>
-
-        <div style="
-          display:flex;
-          gap:8px;
-          flex-wrap:wrap;
-        ">
-
-          <button class="btn-ghost stats-btn">
-            📊 Stats
-          </button>
-
-          <button class="btn-ghost copy-btn">
-            📋 Copiar
-          </button>
-
-          <button class="btn-ghost delete-btn">
-            🗑
-          </button>
-
-        </div>
-
-      </div>
-    `;
-
-    /* COPY */
-
-    div.querySelector(".copy-btn")
-      .addEventListener("click", e => {
-
-        e.stopPropagation();
-
-        navigator.clipboard
-          .writeText(shortURL);
-
-        showToast("📋 Copiado");
-      });
-
-    /* DELETE */
-
-    div.querySelector(".delete-btn")
-      .addEventListener("click", async e => {
-
-        e.stopPropagation();
-
-        await deleteDoc(
-          doc(db,"links",link.id)
-        );
-
-        showToast("🗑 Link eliminado");
-      });
-
-    /* STATS */
-
-    div.querySelector(".stats-btn")
-      .addEventListener("click", async e => {
-
-        e.stopPropagation();
-
-        openStats(link);
-      });
-
-    list.appendChild(div);
-  });
-}
-
-/* =========================================================
-   STATS MODAL
+   STATS MODAL REAL
 ========================================================= */
 
 async function openStats(link) {
@@ -734,8 +751,6 @@ async function openStats(link) {
       (daily[day] || 0) + 1;
   });
 
-  /* ================= TOP COUNTRY ================= */
-
   const topCountry =
     Object.entries(countries)
       .sort((a,b)=>b[1]-a[1])[0];
@@ -744,8 +759,6 @@ async function openStats(link) {
     topCountry
       ? topCountry[0]
       : "—";
-
-  /* ================= TOP DEVICE ================= */
 
   const topDevice =
     Object.entries(devices)
@@ -760,6 +773,49 @@ async function openStats(link) {
 }
 
 /* =========================================================
+   MODAL CHART REAL
+========================================================= */
+
+function renderModalChart(daily) {
+
+  const ctx =
+    $("modalChart");
+
+  if (!ctx) return;
+
+  modalChart?.destroy();
+
+  modalChart =
+    new Chart(ctx, {
+
+      type:"line",
+
+      data:{
+
+        labels:
+          Object.keys(daily),
+
+        datasets:[{
+
+          label:"Clicks",
+
+          data:
+            Object.values(daily),
+
+          borderColor:"#3b82f6",
+
+          backgroundColor:
+            "rgba(59,130,246,.2)",
+
+          fill:true,
+
+          tension:.4
+        }]
+      }
+    });
+}
+
+/* =========================================================
    CLOSE MODAL
 ========================================================= */
 
@@ -768,237 +824,6 @@ $("closeModal")
 
     $("statsModal")
       .classList.add("hidden");
-  });
-
-/* =========================================================
-   MODAL CHART
-========================================================= */
-
-function renderModalChart(daily) {
-
-  modalChart?.destroy();
-
-  modalChart =
-    new Chart(
-      $("modalChart"),
-      {
-
-        type:"line",
-
-        data:{
-
-          labels:
-            Object.keys(daily),
-
-          datasets:[{
-
-            label:"Clicks",
-
-            data:
-              Object.values(daily),
-
-            borderColor:"#3b82f6",
-
-            backgroundColor:
-              "rgba(59,130,246,.2)",
-
-            fill:true,
-
-            tension:.4
-          }]
-        }
-      }
-    );
-}
-
-/* =========================================================
-   GLOBAL CHARTS
-========================================================= */
-
-async function renderCharts() {
-
-  renderDailyChart();
-  renderCountryChart();
-  renderDeviceChart();
-}
-
-/* =========================================================
-   DAILY
-========================================================= */
-
-function renderDailyChart() {
-
-  dailyChart?.destroy();
-
-  dailyChart =
-    new Chart(
-      $("dailyChart"),
-      {
-
-        type:"line",
-
-        data:{
-
-          labels:[
-            "Lun","Mar","Mié",
-            "Jue","Vie","Sáb","Dom"
-          ],
-
-          datasets:[{
-
-            label:"Clicks",
-
-            data:[
-              4,8,6,12,15,7,10
-            ],
-
-            borderColor:"#3b82f6",
-
-            backgroundColor:
-              "rgba(59,130,246,.2)",
-
-            fill:true,
-
-            tension:.4
-          }]
-        }
-      }
-    );
-}
-
-/* =========================================================
-   COUNTRY
-========================================================= */
-
-function renderCountryChart() {
-
-  countryChart?.destroy();
-
-  countryChart =
-    new Chart(
-      $("countryChart"),
-      {
-
-        type:"bar",
-
-        data:{
-
-          labels:[
-            "AR","US","BR","MX","ES"
-          ],
-
-          datasets:[{
-
-            label:"Clicks",
-
-            data:[
-              12,19,8,14,7
-            ],
-
-            backgroundColor:"#6366f1"
-          }]
-        }
-      }
-    );
-}
-
-/* =========================================================
-   DEVICE
-========================================================= */
-
-function renderDeviceChart() {
-
-  deviceChart?.destroy();
-
-  deviceChart =
-    new Chart(
-      $("deviceChart"),
-      {
-
-        type:"doughnut",
-
-        data:{
-
-          labels:[
-            "Mobile",
-            "Desktop",
-            "Tablet"
-          ],
-
-          datasets:[{
-
-            data:[
-              55,35,10
-            ],
-
-            backgroundColor:[
-              "#3b82f6",
-              "#6366f1",
-              "#8b5cf6"
-            ]
-          }]
-        }
-      }
-    );
-}
-
-/* =========================================================
-   NAVIGATION
-========================================================= */
-
-const navButtons =
-  document.querySelectorAll(".nav-item");
-
-const sections =
-  document.querySelectorAll(".section");
-
-navButtons.forEach(btn => {
-
-  btn.addEventListener("click", () => {
-
-    const section =
-      btn.dataset.section;
-
-    navButtons.forEach(b =>
-      b.classList.remove("active")
-    );
-
-    btn.classList.add("active");
-
-    sections.forEach(sec => {
-
-      sec.classList.toggle(
-        "hidden",
-        sec.dataset.section !== section
-      );
-    });
-
-    $("sectionTitle").textContent =
-      btn.textContent
-        .replace("PRO","")
-        .trim();
-
-    $("sidebar")
-      ?.classList.remove("open");
-  });
-});
-
-/* =========================================================
-   SIDEBAR
-========================================================= */
-
-$("sidebarToggle")
-  ?.addEventListener("click", () => {
-
-    $("sidebar")
-      ?.classList.toggle("open");
-  });
-
-$("sidebarToggleMobile")
-  ?.addEventListener("click", () => {
-
-    $("sidebar")
-      ?.classList.toggle("open");
   });
 
 /* =========================================================
