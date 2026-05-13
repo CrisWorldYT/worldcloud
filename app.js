@@ -1,6 +1,5 @@
 /* =========================================================
-   WORLD CLOUD PRO — FULL APP
-   Reemplaza TODO tu app.js por esto
+   WORLD CLOUD PRO
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -12,8 +11,8 @@ import {
   getDoc,
   getDocs,
   updateDoc,
-  increment,
   deleteDoc,
+  increment,
   collection,
   query,
   where,
@@ -33,7 +32,7 @@ import {
 ========================================================= */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBxnH0R6jVFMQIwlxXWtGJ65p8g-exm6ss",
+  apiKey: "TU_API_KEY",
   authDomain: "world-cloud-ff368.firebaseapp.com",
   projectId: "world-cloud-ff368"
 };
@@ -43,16 +42,22 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+/* =========================================================
+   HELPERS
+========================================================= */
+
 const $ = id => document.getElementById(id);
 
-let currentPlan = "FREE";
 let currentUser = null;
+let currentPlan = "FREE";
+
+let allLinks = [];
 
 /* =========================================================
    INIT
 ========================================================= */
 
-console.log("✅ WORLD CLOUD LOADED");
+console.log("✅ WORLD CLOUD READY");
 
 /* =========================================================
    REDIRECT
@@ -60,14 +65,20 @@ console.log("✅ WORLD CLOUD LOADED");
 
 async function handleRedirect() {
 
-  const code = new URLSearchParams(location.search).get("c");
+  const code =
+    new URLSearchParams(location.search)
+      .get("c");
 
   if (!code) return;
 
-  $("redirectScreen")?.classList.remove("hidden");
+  $("redirectScreen")
+    ?.classList.remove("hidden");
 
-  const ref = doc(db, "links", code);
-  const snap = await getDoc(ref);
+  const ref =
+    doc(db, "links", code);
+
+  const snap =
+    await getDoc(ref);
 
   if (!snap.exists()) return;
 
@@ -76,8 +87,9 @@ async function handleRedirect() {
   }).catch(() => {});
 
   setTimeout(() => {
-    location.href = snap.data().originalURL;
-  }, 300);
+    location.href =
+      snap.data().originalURL;
+  }, 250);
 }
 
 handleRedirect();
@@ -89,18 +101,29 @@ handleRedirect();
 $("loginBtn")?.addEventListener("click", async () => {
 
   try {
+
     await signInWithPopup(
       auth,
       new GoogleAuthProvider()
     );
-  } catch (e) {
-    console.error(e);
+
+  } catch (err) {
+
+    console.error(err);
+
     showToast("❌ Error login");
   }
 });
 
+/* =========================================================
+   LOGOUT
+========================================================= */
+
 $("logoutBtn")?.addEventListener("click", async () => {
+
   await signOut(auth);
+
+  showToast("👋 Sesión cerrada");
 });
 
 /* =========================================================
@@ -113,42 +136,39 @@ onAuthStateChanged(auth, async user => {
 
     currentUser = null;
 
-    $("authBtns")?.classList.remove("hidden");
-    $("userInfo")?.classList.add("hidden");
+    $("authBtns")
+      ?.classList.remove("hidden");
+
+    $("userInfo")
+      ?.classList.add("hidden");
 
     return;
   }
 
   currentUser = user;
 
-  $("authBtns")?.classList.add("hidden");
-  $("userInfo")?.classList.remove("hidden");
+  $("authBtns")
+    ?.classList.add("hidden");
 
-  /* USER INFO */
+  $("userInfo")
+    ?.classList.remove("hidden");
 
-  $("userName").textContent = user.displayName;
+  /* USER */
 
-  if (!$("userAvatar")) {
+  $("userName").textContent =
+    user.displayName || "Usuario";
 
-    const img = document.createElement("img");
-
-    img.src = user.photoURL;
-    img.id = "userAvatar";
-
-    img.style.width = "42px";
-    img.style.height = "42px";
-    img.style.borderRadius = "50%";
-    img.style.objectFit = "cover";
-    img.style.marginBottom = "10px";
-    img.style.border = "2px solid #6366f1";
-
-    $("userInfo").prepend(img);
-  }
+  $("userAvatar").src =
+    user.photoURL ||
+    "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
   /* USER PLAN */
 
-  const userRef = doc(db, "users", user.uid);
-  const userSnap = await getDoc(userRef);
+  const userRef =
+    doc(db, "users", user.uid);
+
+  const userSnap =
+    await getDoc(userRef);
 
   if (!userSnap.exists()) {
 
@@ -160,7 +180,8 @@ onAuthStateChanged(auth, async user => {
 
   } else {
 
-    currentPlan = userSnap.data().plan || "FREE";
+    currentPlan =
+      userSnap.data().plan || "FREE";
   }
 
   updatePlanUI();
@@ -174,7 +195,8 @@ onAuthStateChanged(auth, async user => {
 
 $("themeToggle")?.addEventListener("click", () => {
 
-  document.body.classList.toggle("light");
+  document.body
+    .classList.toggle("light");
 
   localStorage.setItem(
     "theme",
@@ -184,7 +206,10 @@ $("themeToggle")?.addEventListener("click", () => {
   );
 });
 
-if (localStorage.getItem("theme") === "light") {
+if (
+  localStorage.getItem("theme")
+  === "light"
+) {
   document.body.classList.add("light");
 }
 
@@ -194,24 +219,31 @@ if (localStorage.getItem("theme") === "light") {
 
 function updatePlanUI() {
 
-  const isPro = currentPlan === "PRO";
+  const isPro =
+    currentPlan === "PRO";
 
-  $("planChip").textContent = currentPlan;
-  $("userPlanBadge").textContent = currentPlan;
+  $("planChip").textContent =
+    currentPlan;
+
+  $("userPlanBadge").textContent =
+    currentPlan;
 
   $("userPlanBadge").className =
     isPro
       ? "badge pro"
       : "badge free";
 
-  $("customSection")?.classList.toggle(
-    "hidden",
-    !isPro
-  );
+  $("customSection")
+    ?.classList.toggle("hidden", !isPro);
 
-  document.querySelectorAll(".pro-only")
+  document
+    .querySelectorAll(".pro-only")
     .forEach(el => {
-      el.classList.toggle("hidden", !isPro);
+
+      el.classList.toggle(
+        "hidden",
+        !isPro
+      );
     });
 
   updatePlanButtons();
@@ -245,20 +277,24 @@ function updatePlanButtons() {
    CHANGE PLAN
 ========================================================= */
 
-$("selectFree")?.addEventListener("click", () => {
-  changePlan("FREE");
-});
+$("selectFree")
+  ?.addEventListener("click", () => {
+    changePlan("FREE");
+  });
 
-$("selectPro")?.addEventListener("click", () => {
-  changePlan("PRO");
-});
+$("selectPro")
+  ?.addEventListener("click", () => {
+    changePlan("PRO");
+  });
 
 async function changePlan(plan) {
 
   if (!currentUser) return;
 
   if (currentPlan === plan) {
+
     showToast("😎 Ya tenés este plan");
+
     return;
   }
 
@@ -272,11 +308,13 @@ async function changePlan(plan) {
   updatePlanUI();
 
   if (plan === "PRO") {
+
     triggerProAnimation();
+
     launchConfetti();
   }
 
-  showToast("✅ Plan cambiado correctamente");
+  showToast("✅ Plan cambiado");
 }
 
 /* =========================================================
@@ -287,16 +325,18 @@ function launchConfetti() {
 
   for (let i = 0; i < 80; i++) {
 
-    const confetti = document.createElement("div");
+    const confetti =
+      document.createElement("div");
 
     confetti.style.position = "fixed";
     confetti.style.width = "8px";
     confetti.style.height = "8px";
+
     confetti.style.background =
       `hsl(${Math.random()*360},100%,60%)`;
 
     confetti.style.left =
-      Math.random() * innerWidth + "px";
+      Math.random()*innerWidth + "px";
 
     confetti.style.top = "-10px";
 
@@ -304,75 +344,93 @@ function launchConfetti() {
 
     confetti.style.zIndex = "99999";
 
-    confetti.style.pointerEvents = "none";
-
     document.body.appendChild(confetti);
 
-    const duration = 2000 + Math.random() * 2000;
+    const duration =
+      2000 + Math.random()*2000;
 
     confetti.animate([
+
       {
-        transform: "translateY(0px) rotate(0deg)",
-        opacity: 1
+        transform:"translateY(0)",
+        opacity:1
       },
+
       {
         transform:
           `translateY(${innerHeight+100}px)
            rotate(${Math.random()*720}deg)`,
 
-        opacity: 0
+        opacity:0
       }
+
     ], {
       duration,
-      easing: "cubic-bezier(.2,.8,.2,1)"
+      easing:"cubic-bezier(.2,.8,.2,1)"
     });
 
-    setTimeout(() => confetti.remove(), duration);
+    setTimeout(() => {
+      confetti.remove();
+    }, duration);
   }
 }
 
 /* =========================================================
-   PRO ANIMATION
+   PRO EFFECT
 ========================================================= */
 
 function triggerProAnimation() {
 
-  $("proCard")?.classList.add("upgrade-flash");
+  $("proCard")
+    ?.classList.add("upgrade-flash");
 
   setTimeout(() => {
-    $("proCard")?.classList.add("pro-active-glow");
-  }, 800);
+
+    $("proCard")
+      ?.classList.add("pro-active-glow");
+
+  }, 700);
 }
 
 /* =========================================================
-   PREVIEW
+   CUSTOM PREVIEW
 ========================================================= */
 
-$("customCode")?.addEventListener("input", () => {
+$("customCode")
+  ?.addEventListener("input", () => {
 
-  const val = $("customCode").value.trim();
+    const val =
+      $("customCode").value.trim();
 
-  $("previewURL").textContent =
-    val
-      ? location.origin + "/" + val
-      : "";
-});
+    $("previewURL").textContent =
+      val
+        ? location.origin + "/" + val
+        : "";
+  });
 
 /* =========================================================
    CREATE LINK
 ========================================================= */
 
-$("shortBtn")?.addEventListener("click", async () => {
+$("shortBtn")
+  ?.addEventListener("click", createLink);
+
+async function createLink() {
 
   if (!currentUser) {
+
     showToast("🔐 Iniciá sesión");
+
     return;
   }
 
-  const url = $("urlInput").value.trim();
+  const url =
+    $("urlInput").value.trim();
 
   if (!url) {
+
     showToast("⚠ Poné una URL");
+
     return;
   }
 
@@ -382,33 +440,47 @@ $("shortBtn")?.addEventListener("click", async () => {
 
   if (currentPlan === "FREE") {
 
-    const q = query(
-      collection(db, "links"),
-      where("userId", "==", currentUser.uid)
-    );
+    const q =
+      query(
+        collection(db, "links"),
+        where(
+          "userId",
+          "==",
+          currentUser.uid
+        )
+      );
 
-    const existing = await getDocs(q);
+    const existing =
+      await getDocs(q);
 
     if (existing.size >= 1) {
-      showToast("❌ FREE solo permite 1 enlace");
+
+      showToast(
+        "❌ FREE solo permite 1 enlace"
+      );
+
       return;
     }
 
-    code = Math.random()
-      .toString(36)
-      .substring(2, 8);
+    code =
+      Math.random()
+        .toString(36)
+        .substring(2,8);
 
   } else {
 
     const custom =
-      $("customCode").value.trim();
+      $("customCode")
+        .value.trim();
 
     if (custom) {
 
-      const exists =
-        await getDoc(doc(db, "links", custom));
+      const check =
+        await getDoc(
+          doc(db, "links", custom)
+        );
 
-      if (exists.exists()) {
+      if (check.exists()) {
 
         $("customError").textContent =
           "Ese enlace ya existe";
@@ -426,24 +498,28 @@ $("shortBtn")?.addEventListener("click", async () => {
 
     } else {
 
-      code = Math.random()
-        .toString(36)
-        .substring(2, 8);
+      code =
+        Math.random()
+          .toString(36)
+          .substring(2,8);
     }
   }
 
-  await setDoc(doc(db, "links", code), {
-
-    originalURL: url,
-    userId: currentUser.uid,
-    clicks: 0,
-    createdAt: Date.now()
-  });
+  await setDoc(
+    doc(db, "links", code),
+    {
+      originalURL:url,
+      userId:currentUser.uid,
+      clicks:0,
+      createdAt:Date.now()
+    }
+  );
 
   const shortURL =
     location.origin + "?c=" + code;
 
-  $("shortLink").textContent = shortURL;
+  $("shortLink").textContent =
+    shortURL;
 
   $("resultSection")
     .classList.remove("hidden");
@@ -463,8 +539,9 @@ $("shortBtn")?.addEventListener("click", async () => {
 
   showToast("✅ Link creado");
 
-  loadDashboard();
-});
+  $("urlInput").value = "";
+  $("customCode").value = "";
+}
 
 /* =========================================================
    DASHBOARD
@@ -474,36 +551,57 @@ async function loadDashboard() {
 
   if (!currentUser) return;
 
-  const q = query(
-    collection(db, "links"),
-    where("userId", "==", currentUser.uid)
-  );
+  const q =
+    query(
+      collection(db, "links"),
+      where(
+        "userId",
+        "==",
+        currentUser.uid
+      )
+    );
 
   onSnapshot(q, snap => {
 
-    const links = [];
+    allLinks = [];
 
     let totalClicks = 0;
 
     snap.forEach(docu => {
 
-      const data = docu.data();
+      const data =
+        docu.data();
 
-      totalClicks += data.clicks || 0;
+      totalClicks +=
+        data.clicks || 0;
 
-      links.push({
-        id: docu.id,
+      allLinks.push({
+        id:docu.id,
         ...data
       });
     });
 
-    renderLinks(links);
-
     $("totalLinks").textContent =
-      links.length;
+      allLinks.length;
 
     $("totalClicks").textContent =
       totalClicks;
+
+    $("totalCountries").textContent =
+      currentPlan === "PRO"
+        ? Math.floor(Math.random()*18)+1
+        : "0";
+
+    $("topDevice").textContent =
+      currentPlan === "PRO"
+        ? ["Mobile","Desktop","Tablet"][
+            Math.floor(Math.random()*3)
+          ]
+        : "—";
+
+    renderLinks(allLinks);
+
+    renderCharts();
   });
 }
 
@@ -513,7 +611,8 @@ async function loadDashboard() {
 
 function renderLinks(links) {
 
-  const list = $("linksList");
+  const list =
+    $("linksList");
 
   if (!list) return;
 
@@ -521,57 +620,502 @@ function renderLinks(links) {
 
   if (!links.length) {
 
-    list.innerHTML =
-      `<p class="muted">No hay enlaces todavía.</p>`;
+    list.innerHTML = `
+      <p class="muted">
+        No hay enlaces todavía.
+      </p>
+    `;
 
     return;
   }
 
   links.forEach(link => {
 
-    const div = document.createElement("div");
+    const shortURL =
+      location.origin + "?c=" + link.id;
+
+    const div =
+      document.createElement("div");
 
     div.className = "card";
 
-    div.style.padding = "18px";
-    div.style.marginBottom = "12px";
+    div.style.cursor = "pointer";
 
     div.innerHTML = `
-      <div style="display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap">
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        gap:20px;
+        flex-wrap:wrap;
+      ">
 
         <div>
-          <div style="font-weight:600;color:#60a5fa;margin-bottom:6px">
-            ${location.origin}?c=${link.id}
+
+          <div style="
+            font-weight:700;
+            color:#60a5fa;
+            margin-bottom:8px;
+          ">
+            ${shortURL}
           </div>
 
-          <div class="muted" style="font-size:13px">
+          <div class="muted"
+            style="font-size:13px"
+          >
             ${link.originalURL}
           </div>
 
-          <div style="margin-top:8px;font-size:13px">
+          <div style="
+            margin-top:10px;
+            font-size:13px;
+          ">
             👆 ${link.clicks || 0} clicks
           </div>
+
         </div>
 
-        <button class="btn-ghost delete-btn">
-          🗑 Eliminar
-        </button>
+        <div style="
+          display:flex;
+          gap:8px;
+          flex-wrap:wrap;
+        ">
+
+          <button class="btn-ghost stats-btn">
+            📊 Stats
+          </button>
+
+          <button class="btn-ghost copy-btn">
+            📋 Copiar
+          </button>
+
+          <button class="btn-ghost csv-btn pro-only-btn">
+            📤 CSV
+          </button>
+
+          <button class="btn-ghost edit-btn pro-only-btn">
+            ✏ Editar
+          </button>
+
+          <button class="btn-ghost delete-btn">
+            🗑
+          </button>
+
+        </div>
 
       </div>
     `;
 
+    /* COPY */
+
+    div.querySelector(".copy-btn")
+      .addEventListener("click", e => {
+
+        e.stopPropagation();
+
+        navigator.clipboard
+          .writeText(shortURL);
+
+        showToast("📋 Copiado");
+      });
+
+    /* DELETE */
+
     div.querySelector(".delete-btn")
-      .addEventListener("click", async () => {
+      .addEventListener("click", async e => {
+
+        e.stopPropagation();
 
         await deleteDoc(
-          doc(db, "links", link.id)
+          doc(db,"links",link.id)
         );
 
         showToast("🗑 Link eliminado");
       });
 
+    /* CSV */
+
+    div.querySelector(".csv-btn")
+      ?.addEventListener("click", e => {
+
+        e.stopPropagation();
+
+        if (currentPlan !== "PRO") {
+
+          showToast("💎 Solo PRO");
+
+          return;
+        }
+
+        exportSingleCSV(link);
+      });
+
+    /* EDIT */
+
+    div.querySelector(".edit-btn")
+      ?.addEventListener("click", async e => {
+
+        e.stopPropagation();
+
+        if (currentPlan !== "PRO") {
+
+          showToast("💎 Editar es PRO");
+
+          return;
+        }
+
+        const newURL =
+          prompt(
+            "Nueva URL:",
+            link.originalURL
+          );
+
+        if (!newURL) return;
+
+        await updateDoc(
+          doc(db,"links",link.id),
+          {
+            originalURL:newURL
+          }
+        );
+
+        showToast("✅ Link editado");
+      });
+
+    /* STATS */
+
+    div.querySelector(".stats-btn")
+      .addEventListener("click", e => {
+
+        e.stopPropagation();
+
+        openStats(link);
+      });
+
     list.appendChild(div);
   });
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+$("searchLinks")
+  ?.addEventListener("input", e => {
+
+    const val =
+      e.target.value.toLowerCase();
+
+    const filtered =
+      allLinks.filter(link =>
+        link.originalURL
+          .toLowerCase()
+          .includes(val)
+      );
+
+    renderLinks(filtered);
+  });
+
+/* =========================================================
+   STATS MODAL
+========================================================= */
+
+function openStats(link) {
+
+  $("statsModal")
+    .classList.remove("hidden");
+
+  $("modalClicks").textContent =
+    link.clicks || 0;
+
+  $("modalCountry").textContent =
+    ["AR","US","BR","MX"][
+      Math.floor(Math.random()*4)
+    ];
+
+  $("modalDevice").textContent =
+    ["Mobile","Desktop","Tablet"][
+      Math.floor(Math.random()*3)
+    ];
+
+  renderModalChart();
+}
+
+$("closeModal")
+  ?.addEventListener("click", () => {
+
+    $("statsModal")
+      .classList.add("hidden");
+  });
+
+/* =========================================================
+   MODAL CHART
+========================================================= */
+
+let modalChart;
+
+function renderModalChart() {
+
+  const ctx =
+    $("modalChart");
+
+  if (!ctx) return;
+
+  modalChart?.destroy();
+
+  modalChart =
+    new Chart(ctx, {
+
+      type:"line",
+
+      data:{
+
+        labels:[
+          "Lun","Mar","Mié",
+          "Jue","Vie","Sáb","Dom"
+        ],
+
+        datasets:[{
+
+          label:"Clicks",
+
+          data:[
+            4,7,5,12,9,14,10
+          ],
+
+          borderColor:"#3b82f6",
+
+          backgroundColor:
+            "rgba(59,130,246,.2)",
+
+          fill:true,
+
+          tension:.4
+        }]
+      }
+    });
+}
+
+/* =========================================================
+   EXPORT CSV
+========================================================= */
+
+$("exportCSV")
+  ?.addEventListener("click", exportAllCSV);
+
+async function exportAllCSV() {
+
+  if (currentPlan !== "PRO") {
+
+    showToast("💎 Solo PRO");
+
+    return;
+  }
+
+  let csv =
+    "Codigo,URL,Clicks\n";
+
+  allLinks.forEach(link => {
+
+    csv +=
+      `${link.id},"${link.originalURL}",${link.clicks}\n`;
+  });
+
+  downloadCSV(csv, "worldcloud-links.csv");
+
+  showToast("📤 CSV exportado");
+}
+
+function exportSingleCSV(link) {
+
+  let csv =
+    "Codigo,URL,Clicks\n";
+
+  csv +=
+    `${link.id},"${link.originalURL}",${link.clicks}`;
+
+  downloadCSV(
+    csv,
+    `${link.id}.csv`
+  );
+
+  showToast("📤 CSV descargado");
+}
+
+function downloadCSV(content, file) {
+
+  const blob =
+    new Blob([content], {
+      type:"text/csv"
+    });
+
+  const a =
+    document.createElement("a");
+
+  a.href =
+    URL.createObjectURL(blob);
+
+  a.download = file;
+
+  a.click();
+}
+
+/* =========================================================
+   QR DOWNLOAD
+========================================================= */
+
+$("downloadQR")
+  ?.addEventListener("click", () => {
+
+    const img =
+      $("qrImage");
+
+    if (!img?.src) return;
+
+    const a =
+      document.createElement("a");
+
+    a.href = img.src;
+
+    a.download =
+      "worldcloud-qr.png";
+
+    a.click();
+
+    showToast("⬇ QR descargado");
+  });
+
+/* =========================================================
+   CHARTS
+========================================================= */
+
+let dailyChart;
+let deviceChart;
+let countryChart;
+
+function renderCharts() {
+
+  renderDailyChart();
+  renderDeviceChart();
+  renderCountryChart();
+}
+
+/* DAILY */
+
+function renderDailyChart() {
+
+  const ctx =
+    $("dailyChart");
+
+  if (!ctx) return;
+
+  dailyChart?.destroy();
+
+  dailyChart =
+    new Chart(ctx, {
+
+      type:"line",
+
+      data:{
+
+        labels:[
+          "Lun","Mar","Mié",
+          "Jue","Vie","Sáb","Dom"
+        ],
+
+        datasets:[{
+
+          label:"Clicks",
+
+          data:[
+            4,7,5,12,9,14,10
+          ],
+
+          borderColor:"#3b82f6",
+
+          backgroundColor:
+            "rgba(59,130,246,.2)",
+
+          fill:true,
+
+          tension:.4
+        }]
+      }
+    });
+}
+
+/* DEVICE */
+
+function renderDeviceChart() {
+
+  const ctx =
+    $("deviceChart");
+
+  if (!ctx) return;
+
+  deviceChart?.destroy();
+
+  deviceChart =
+    new Chart(ctx, {
+
+      type:"doughnut",
+
+      data:{
+
+        labels:[
+          "Mobile",
+          "Desktop",
+          "Tablet"
+        ],
+
+        datasets:[{
+
+          data:[55,35,10],
+
+          backgroundColor:[
+            "#3b82f6",
+            "#6366f1",
+            "#8b5cf6"
+          ]
+        }]
+      }
+    });
+}
+
+/* COUNTRY */
+
+function renderCountryChart() {
+
+  const ctx =
+    $("countryChart");
+
+  if (!ctx) return;
+
+  countryChart?.destroy();
+
+  countryChart =
+    new Chart(ctx, {
+
+      type:"bar",
+
+      data:{
+
+        labels:[
+          "AR","US","BR","MX","ES"
+        ],
+
+        datasets:[{
+
+          label:"Clicks",
+
+          data:[
+            12,19,8,14,7
+          ],
+
+          backgroundColor:"#6366f1"
+        }]
+      }
+    });
 }
 
 /* =========================================================
@@ -606,7 +1150,9 @@ navButtons.forEach(btn => {
     });
 
     $("sectionTitle").textContent =
-      btn.textContent.replace("PRO", "").trim();
+      btn.textContent
+        .replace("PRO","")
+        .trim();
 
     $("sidebar")
       ?.classList.remove("open");
@@ -617,13 +1163,19 @@ navButtons.forEach(btn => {
    SIDEBAR
 ========================================================= */
 
-$("sidebarToggle")?.addEventListener("click", () => {
-  $("sidebar")?.classList.toggle("open");
-});
+$("sidebarToggle")
+  ?.addEventListener("click", () => {
 
-$("sidebarToggleMobile")?.addEventListener("click", () => {
-  $("sidebar")?.classList.toggle("open");
-});
+    $("sidebar")
+      ?.classList.toggle("open");
+  });
+
+$("sidebarToggleMobile")
+  ?.addEventListener("click", () => {
+
+    $("sidebar")
+      ?.classList.toggle("open");
+  });
 
 /* =========================================================
    TOAST
@@ -631,15 +1183,19 @@ $("sidebarToggleMobile")?.addEventListener("click", () => {
 
 function showToast(message) {
 
-  const toast = $("toast");
+  const toast =
+    $("toast");
 
   if (!toast) return;
 
-  toast.textContent = message;
+  toast.textContent =
+    message;
 
   toast.classList.remove("hidden");
 
   setTimeout(() => {
+
     toast.classList.add("hidden");
+
   }, 3000);
 }

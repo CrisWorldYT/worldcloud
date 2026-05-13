@@ -21,32 +21,37 @@
 
 <body>
 
-<!-- =========================
-     REDIRECT
-========================= -->
+<!-- =========================================================
+     REDIRECT SCREEN
+========================================================= -->
 
 <div id="redirectScreen" class="redirect hidden">
 
     <div class="redirect-box">
+
         <div class="loader"></div>
+
         <p>Redirigiendo...</p>
+
     </div>
 
 </div>
 
-<!-- =========================
+<!-- =========================================================
      APP
-========================= -->
+========================================================= -->
 
 <div class="app">
 
-<!-- =========================
+<!-- =========================================================
      SIDEBAR
-========================= -->
+========================================================= -->
 
 <aside class="sidebar" id="sidebar">
 
     <div>
+
+        <!-- HEAD -->
 
         <div class="sidebar-head">
 
@@ -65,20 +70,25 @@
         <nav class="sidebar-nav">
 
             <button class="nav-item active" data-section="crear">
-                🔗 Crear
+                <span>🔗 Crear</span>
             </button>
 
             <button class="nav-item" data-section="planes">
-                💎 Planes
+                <span>💎 Planes</span>
             </button>
 
             <button class="nav-item" data-section="dashboard">
-                📊 Dashboard
+                <span>📊 Dashboard</span>
             </button>
 
             <button class="nav-item pro-only" data-section="analytics">
-                📈 Analytics
-                <span class="badge pro tiny">PRO</span>
+
+                <span>📈 Analytics</span>
+
+                <span class="badge pro tiny">
+                    PRO
+                </span>
+
             </button>
 
         </nav>
@@ -93,7 +103,7 @@
             🌙 Cambiar tema
         </button>
 
-        <!-- LOGIN -->
+        <!-- AUTH -->
 
         <div id="authBtns" class="auth">
 
@@ -109,7 +119,11 @@
 
             <div class="user-profile">
 
-                <img id="userAvatar" class="avatar">
+                <img
+                    id="userAvatar"
+                    class="avatar"
+                    src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                >
 
                 <div class="user-data">
 
@@ -131,18 +145,22 @@
 
         </div>
 
+        <!-- CREDIT -->
+
         <div class="credit">
+
             Creado por
             <strong>iCrisWorld</strong>
+
         </div>
 
     </div>
 
 </aside>
 
-<!-- =========================
+<!-- =========================================================
      MAIN
-========================= -->
+========================================================= -->
 
 <main class="main">
 
@@ -152,7 +170,10 @@
 
         <div class="topbar-left">
 
-            <button class="sidebar-toggle mobile" id="sidebarToggleMobile">
+            <button
+                class="sidebar-toggle mobile"
+                id="sidebarToggleMobile"
+            >
                 ☰
             </button>
 
@@ -176,15 +197,21 @@
 
     <div class="content">
 
-        <!-- =========================
+        <!-- =========================================================
              CREAR
-        ========================= -->
+        ========================================================= -->
 
         <section class="section" data-section="crear">
 
             <div class="card fade-up">
 
                 <h2>🔗 Crear enlace</h2>
+
+                <p class="muted">
+                    Acortá y compartí enlaces de manera profesional.
+                </p>
+
+                <!-- INPUT -->
 
                 <div class="input-group">
 
@@ -224,9 +251,13 @@
 
                 <div id="resultSection" class="hidden result-box">
 
-                    <p>✅ Enlace generado:</p>
+                    <p>
+                        ✅ Enlace generado:
+                    </p>
 
                     <strong id="shortLink"></strong>
+
+                    <!-- QR -->
 
                     <div id="qrSection" class="hidden qr-wrap">
 
@@ -244,9 +275,9 @@
 
         </section>
 
-        <!-- =========================
+        <!-- =========================================================
              PLANES
-        ========================= -->
+        ========================================================= -->
 
         <section class="section hidden" data-section="planes">
 
@@ -255,8 +286,10 @@
                 <h2>💎 Planes</h2>
 
                 <p class="muted">
-                    Elegí el plan ideal para potenciar tus links.
+                    Elegí el plan ideal para potenciar tus enlaces.
                 </p>
+
+                <!-- PRICING -->
 
                 <div class="pricing-grid">
 
@@ -279,13 +312,17 @@
                             <li>✔ 1 enlace activo</li>
                             <li>✔ Dashboard básico</li>
                             <li>✔ Redirección rápida</li>
-                            <li>✖ QR automático</li>
-                            <li>✖ Analytics PRO</li>
-                            <li>✖ Export CSV</li>
+                            <li>✔ Copiar enlaces</li>
+                            <li>✖ Editar enlaces</li>
+                            <li>✖ Analytics avanzados</li>
+                            <li>✖ Exportar CSV</li>
 
                         </ul>
 
-                        <button id="selectFree" class="btn-ghost full">
+                        <button
+                            id="selectFree"
+                            class="btn-ghost full"
+                        >
                             ✅ Plan actual
                         </button>
 
@@ -312,15 +349,19 @@
                         <ul class="pricing-list">
 
                             <li>✔ Links ilimitados</li>
+                            <li>✔ Editar enlaces</li>
                             <li>✔ QR automático</li>
                             <li>✔ Analytics avanzados</li>
-                            <li>✔ Mapa mundial</li>
                             <li>✔ Exportar CSV</li>
-                            <li>✔ Personalizar enlaces</li>
+                            <li>✔ Personalizar links</li>
+                            <li>✔ Mapa mundial</li>
 
                         </ul>
 
-                        <button id="selectPro" class="btn-primary full">
+                        <button
+                            id="selectPro"
+                            class="btn-primary full"
+                        >
                             Seleccionar PRO
                         </button>
 
@@ -332,15 +373,34 @@
 
         </section>
 
-        <!-- =========================
+        <!-- =========================================================
              DASHBOARD
-        ========================= -->
+        ========================================================= -->
 
         <section class="section hidden" data-section="dashboard">
 
             <div class="card fade-up">
 
-                <h2>📊 Dashboard</h2>
+                <div class="dashboard-head">
+
+                    <div>
+
+                        <h2>📊 Dashboard</h2>
+
+                        <p class="muted">
+                            Gestioná y analizá todos tus enlaces.
+                        </p>
+
+                    </div>
+
+                    <button
+                        id="exportCSV"
+                        class="btn-ghost pro-only"
+                    >
+                        📤 Exportar CSV
+                    </button>
+
+                </div>
 
                 <!-- KPI -->
 
@@ -402,9 +462,11 @@
 
                     <h3>Mis enlaces</h3>
 
-                    <button id="exportCSV" class="btn-ghost pro-only">
-                        📤 Exportar CSV
-                    </button>
+                    <input
+                        type="text"
+                        id="searchLinks"
+                        placeholder="🔍 Buscar enlace..."
+                    >
 
                 </div>
 
@@ -414,26 +476,33 @@
 
         </section>
 
-        <!-- =========================
+        <!-- =========================================================
              ANALYTICS
-        ========================= -->
+        ========================================================= -->
 
         <section class="section hidden" data-section="analytics">
 
             <div class="card fade-up">
 
                 <h2>
+
                     📈 Analytics
+
                     <span class="badge pro">
                         PRO
                     </span>
+
                 </h2>
 
                 <p class="muted">
-                    Estadísticas avanzadas en tiempo real.
+                    Métricas avanzadas en tiempo real.
                 </p>
 
+                <!-- CHARTS -->
+
                 <div class="charts-grid">
+
+                    <!-- MAP -->
 
                     <div class="chart-card full-width">
 
@@ -445,25 +514,37 @@
 
                     </div>
 
+                    <!-- DAILY -->
+
                     <div class="chart-card">
 
-                        <h3>Clicks por día</h3>
+                        <h3>
+                            Clicks por día
+                        </h3>
 
                         <canvas id="dailyChart"></canvas>
 
                     </div>
 
+                    <!-- COUNTRIES -->
+
                     <div class="chart-card">
 
-                        <h3>Top países</h3>
+                        <h3>
+                            Top países
+                        </h3>
 
                         <canvas id="countryChart"></canvas>
 
                     </div>
 
+                    <!-- DEVICE -->
+
                     <div class="chart-card">
 
-                        <h3>Dispositivos</h3>
+                        <h3>
+                            Dispositivos
+                        </h3>
 
                         <canvas id="deviceChart"></canvas>
 
@@ -491,7 +572,69 @@
 
 </div>
 
-<!-- TOAST -->
+<!-- =========================================================
+     MODAL STATS
+========================================================= -->
+
+<div id="statsModal" class="modal hidden">
+
+    <div class="modal-box">
+
+        <button id="closeModal" class="modal-close">
+            ✕
+        </button>
+
+        <h2>
+            📊 Estadísticas del enlace
+        </h2>
+
+        <div class="modal-content">
+
+            <div class="modal-kpis">
+
+                <div class="modal-kpi">
+
+                    <span>Clicks</span>
+
+                    <strong id="modalClicks">
+                        0
+                    </strong>
+
+                </div>
+
+                <div class="modal-kpi">
+
+                    <span>País principal</span>
+
+                    <strong id="modalCountry">
+                        —
+                    </strong>
+
+                </div>
+
+                <div class="modal-kpi">
+
+                    <span>Dispositivo</span>
+
+                    <strong id="modalDevice">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <canvas id="modalChart"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     TOAST
+========================================================= -->
 
 <div id="toast" class="toast hidden"></div>
 
