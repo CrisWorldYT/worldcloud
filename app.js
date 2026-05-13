@@ -14,7 +14,7 @@ import {
 console.log("✅ JS cargado");
 
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
+  apiKey: "AIzaSyBxnH0R6jVFMQIwlxXWtGJ65p8g-exm6ss",
   authDomain: "world-cloud-ff368.firebaseapp.com",
   projectId: "world-cloud-ff368"
 };
