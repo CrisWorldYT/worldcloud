@@ -13,12 +13,10 @@ import {
   updateDoc,
   deleteDoc,
   increment,
-  addDoc,
   collection,
   query,
   where,
-  onSnapshot,
-  orderBy
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
@@ -55,11 +53,6 @@ let currentPlan = "FREE";
 
 let allLinks = [];
 
-let modalChart;
-let dailyChart;
-let deviceChart;
-let countryChart;
-
 /* =========================================================
    INIT
 ========================================================= */
@@ -67,7 +60,7 @@ let countryChart;
 console.log("✅ WORLD CLOUD READY");
 
 /* =========================================================
-   REDIRECT + REAL ANALYTICS
+   REDIRECT
 ========================================================= */
 
 async function handleRedirect() {
@@ -89,71 +82,13 @@ async function handleRedirect() {
 
   if (!snap.exists()) return;
 
-  const linkData =
-    snap.data();
-
-  /* ================= COUNTRY ================= */
-
-  let country = "Unknown";
-  let countryCode = "UN";
-
-  try {
-
-    const geo =
-      await fetch("https://ipapi.co/json/")
-      .then(r => r.json());
-
-    country =
-      geo.country_name || "Unknown";
-
-    countryCode =
-      geo.country_code || "UN";
-
-  } catch {}
-
-  /* ================= DEVICE ================= */
-
-  const ua =
-    navigator.userAgent;
-
-  let device = "Desktop";
-
-  if (/mobile/i.test(ua)) {
-    device = "Mobile";
-  }
-
-  if (/tablet/i.test(ua)) {
-    device = "Tablet";
-  }
-
-  /* ================= SAVE ANALYTICS ================= */
-
-  await addDoc(
-    collection(
-      db,
-      "links",
-      code,
-      "analytics"
-    ),
-    {
-      timestamp: Date.now(),
-      country,
-      countryCode,
-      device
-    }
-  );
-
-  /* ================= CLICK ================= */
-
   updateDoc(ref, {
     clicks: increment(1)
-  }).catch(()=>{});
+  }).catch(() => {});
 
   setTimeout(() => {
-
     location.href =
-      linkData.originalURL;
-
+      snap.data().originalURL;
   }, 250);
 }
 
@@ -218,6 +153,8 @@ onAuthStateChanged(auth, async user => {
   $("userInfo")
     ?.classList.remove("hidden");
 
+  /* USER */
+
   $("userName").textContent =
     user.displayName || "Usuario";
 
@@ -225,7 +162,7 @@ onAuthStateChanged(auth, async user => {
     user.photoURL ||
     "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-  /* ================= PLAN ================= */
+  /* USER PLAN */
 
   const userRef =
     doc(db, "users", user.uid);
@@ -624,14 +561,11 @@ async function loadDashboard() {
       )
     );
 
-  onSnapshot(q, async snap => {
+  onSnapshot(q, snap => {
 
     allLinks = [];
 
     let totalClicks = 0;
-
-    let countries = new Set();
-    let devices = {};
 
     snap.forEach(docu => {
 
@@ -647,44 +581,6 @@ async function loadDashboard() {
       });
     });
 
-    /* REAL ANALYTICS */
-
-    for (const link of allLinks) {
-
-      const analyticsSnap =
-        await getDocs(
-          collection(
-            db,
-            "links",
-            link.id,
-            "analytics"
-          )
-        );
-
-      analyticsSnap.forEach(a => {
-
-        const d = a.data();
-
-        countries.add(d.country);
-
-        devices[d.device] =
-          (devices[d.device] || 0) + 1;
-      });
-    }
-
-    let topDevice = "—";
-    let max = 0;
-
-    for (const d in devices) {
-
-      if (devices[d] > max) {
-
-        max = devices[d];
-
-        topDevice = d;
-      }
-    }
-
     $("totalLinks").textContent =
       allLinks.length;
 
@@ -692,10 +588,16 @@ async function loadDashboard() {
       totalClicks;
 
     $("totalCountries").textContent =
-      countries.size;
+      currentPlan === "PRO"
+        ? Math.floor(Math.random()*18)+1
+        : "0";
 
     $("topDevice").textContent =
-      topDevice;
+      currentPlan === "PRO"
+        ? ["Mobile","Desktop","Tablet"][
+            Math.floor(Math.random()*3)
+          ]
+        : "—";
 
     renderLinks(allLinks);
 
@@ -704,10 +606,221 @@ async function loadDashboard() {
 }
 
 /* =========================================================
-   STATS MODAL REAL
+   RENDER LINKS
 ========================================================= */
 
-async function openStats(link) {
+function renderLinks(links) {
+
+  const list =
+    $("linksList");
+
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  if (!links.length) {
+
+    list.innerHTML = `
+      <p class="muted">
+        No hay enlaces todavía.
+      </p>
+    `;
+
+    return;
+  }
+
+  links.forEach(link => {
+
+    const shortURL =
+      location.origin + "?c=" + link.id;
+
+    const div =
+      document.createElement("div");
+
+    div.className = "card";
+
+    div.style.cursor = "pointer";
+
+    div.innerHTML = `
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        gap:20px;
+        flex-wrap:wrap;
+      ">
+
+        <div>
+
+          <div style="
+            font-weight:700;
+            color:#60a5fa;
+            margin-bottom:8px;
+          ">
+            ${shortURL}
+          </div>
+
+          <div class="muted"
+            style="font-size:13px"
+          >
+            ${link.originalURL}
+          </div>
+
+          <div style="
+            margin-top:10px;
+            font-size:13px;
+          ">
+            👆 ${link.clicks || 0} clicks
+          </div>
+
+        </div>
+
+        <div style="
+          display:flex;
+          gap:8px;
+          flex-wrap:wrap;
+        ">
+
+          <button class="btn-ghost stats-btn">
+            📊 Stats
+          </button>
+
+          <button class="btn-ghost copy-btn">
+            📋 Copiar
+          </button>
+
+          <button class="btn-ghost csv-btn pro-only-btn">
+            📤 CSV
+          </button>
+
+          <button class="btn-ghost edit-btn pro-only-btn">
+            ✏ Editar
+          </button>
+
+          <button class="btn-ghost delete-btn">
+            🗑
+          </button>
+
+        </div>
+
+      </div>
+    `;
+
+    /* COPY */
+
+    div.querySelector(".copy-btn")
+      .addEventListener("click", e => {
+
+        e.stopPropagation();
+
+        navigator.clipboard
+          .writeText(shortURL);
+
+        showToast("📋 Copiado");
+      });
+
+    /* DELETE */
+
+    div.querySelector(".delete-btn")
+      .addEventListener("click", async e => {
+
+        e.stopPropagation();
+
+        await deleteDoc(
+          doc(db,"links",link.id)
+        );
+
+        showToast("🗑 Link eliminado");
+      });
+
+    /* CSV */
+
+    div.querySelector(".csv-btn")
+      ?.addEventListener("click", e => {
+
+        e.stopPropagation();
+
+        if (currentPlan !== "PRO") {
+
+          showToast("💎 Solo PRO");
+
+          return;
+        }
+
+        exportSingleCSV(link);
+      });
+
+    /* EDIT */
+
+    div.querySelector(".edit-btn")
+      ?.addEventListener("click", async e => {
+
+        e.stopPropagation();
+
+        if (currentPlan !== "PRO") {
+
+          showToast("💎 Editar es PRO");
+
+          return;
+        }
+
+        const newURL =
+          prompt(
+            "Nueva URL:",
+            link.originalURL
+          );
+
+        if (!newURL) return;
+
+        await updateDoc(
+          doc(db,"links",link.id),
+          {
+            originalURL:newURL
+          }
+        );
+
+        showToast("✅ Link editado");
+      });
+
+    /* STATS */
+
+    div.querySelector(".stats-btn")
+      .addEventListener("click", e => {
+
+        e.stopPropagation();
+
+        openStats(link);
+      });
+
+    list.appendChild(div);
+  });
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+$("searchLinks")
+  ?.addEventListener("input", e => {
+
+    const val =
+      e.target.value.toLowerCase();
+
+    const filtered =
+      allLinks.filter(link =>
+        link.originalURL
+          .toLowerCase()
+          .includes(val)
+      );
+
+    renderLinks(filtered);
+  });
+
+/* =========================================================
+   STATS MODAL
+========================================================= */
+
+function openStats(link) {
 
   $("statsModal")
     .classList.remove("hidden");
@@ -715,68 +828,33 @@ async function openStats(link) {
   $("modalClicks").textContent =
     link.clicks || 0;
 
-  const analyticsSnap =
-    await getDocs(
-      query(
-        collection(
-          db,
-          "links",
-          link.id,
-          "analytics"
-        ),
-        orderBy("timestamp","asc")
-      )
-    );
-
-  const countries = {};
-  const devices = {};
-  const daily = {};
-
-  analyticsSnap.forEach(docu => {
-
-    const d =
-      docu.data();
-
-    countries[d.country] =
-      (countries[d.country] || 0) + 1;
-
-    devices[d.device] =
-      (devices[d.device] || 0) + 1;
-
-    const day =
-      new Date(d.timestamp)
-        .toLocaleDateString();
-
-    daily[day] =
-      (daily[day] || 0) + 1;
-  });
-
-  const topCountry =
-    Object.entries(countries)
-      .sort((a,b)=>b[1]-a[1])[0];
-
   $("modalCountry").textContent =
-    topCountry
-      ? topCountry[0]
-      : "—";
-
-  const topDevice =
-    Object.entries(devices)
-      .sort((a,b)=>b[1]-a[1])[0];
+    ["AR","US","BR","MX"][
+      Math.floor(Math.random()*4)
+    ];
 
   $("modalDevice").textContent =
-    topDevice
-      ? topDevice[0]
-      : "—";
+    ["Mobile","Desktop","Tablet"][
+      Math.floor(Math.random()*3)
+    ];
 
-  renderModalChart(daily);
+  renderModalChart();
 }
 
+$("closeModal")
+  ?.addEventListener("click", () => {
+
+    $("statsModal")
+      .classList.add("hidden");
+  });
+
 /* =========================================================
-   MODAL CHART REAL
+   MODAL CHART
 ========================================================= */
 
-function renderModalChart(daily) {
+let modalChart;
+
+function renderModalChart() {
 
   const ctx =
     $("modalChart");
@@ -792,15 +870,18 @@ function renderModalChart(daily) {
 
       data:{
 
-        labels:
-          Object.keys(daily),
+        labels:[
+          "Lun","Mar","Mié",
+          "Jue","Vie","Sáb","Dom"
+        ],
 
         datasets:[{
 
           label:"Clicks",
 
-          data:
-            Object.values(daily),
+          data:[
+            4,7,5,12,9,14,10
+          ],
 
           borderColor:"#3b82f6",
 
@@ -816,14 +897,284 @@ function renderModalChart(daily) {
 }
 
 /* =========================================================
-   CLOSE MODAL
+   EXPORT CSV
 ========================================================= */
 
-$("closeModal")
+$("exportCSV")
+  ?.addEventListener("click", exportAllCSV);
+
+async function exportAllCSV() {
+
+  if (currentPlan !== "PRO") {
+
+    showToast("💎 Solo PRO");
+
+    return;
+  }
+
+  let csv =
+    "Codigo,URL,Clicks\n";
+
+  allLinks.forEach(link => {
+
+    csv +=
+      `${link.id},"${link.originalURL}",${link.clicks}\n`;
+  });
+
+  downloadCSV(csv, "worldcloud-links.csv");
+
+  showToast("📤 CSV exportado");
+}
+
+function exportSingleCSV(link) {
+
+  let csv =
+    "Codigo,URL,Clicks\n";
+
+  csv +=
+    `${link.id},"${link.originalURL}",${link.clicks}`;
+
+  downloadCSV(
+    csv,
+    `${link.id}.csv`
+  );
+
+  showToast("📤 CSV descargado");
+}
+
+function downloadCSV(content, file) {
+
+  const blob =
+    new Blob([content], {
+      type:"text/csv"
+    });
+
+  const a =
+    document.createElement("a");
+
+  a.href =
+    URL.createObjectURL(blob);
+
+  a.download = file;
+
+  a.click();
+}
+
+/* =========================================================
+   QR DOWNLOAD
+========================================================= */
+
+$("downloadQR")
   ?.addEventListener("click", () => {
 
-    $("statsModal")
-      .classList.add("hidden");
+    const img =
+      $("qrImage");
+
+    if (!img?.src) return;
+
+    const a =
+      document.createElement("a");
+
+    a.href = img.src;
+
+    a.download =
+      "worldcloud-qr.png";
+
+    a.click();
+
+    showToast("⬇ QR descargado");
+  });
+
+/* =========================================================
+   CHARTS
+========================================================= */
+
+let dailyChart;
+let deviceChart;
+let countryChart;
+
+function renderCharts() {
+
+  renderDailyChart();
+  renderDeviceChart();
+  renderCountryChart();
+}
+
+/* DAILY */
+
+function renderDailyChart() {
+
+  const ctx =
+    $("dailyChart");
+
+  if (!ctx) return;
+
+  dailyChart?.destroy();
+
+  dailyChart =
+    new Chart(ctx, {
+
+      type:"line",
+
+      data:{
+
+        labels:[
+          "Lun","Mar","Mié",
+          "Jue","Vie","Sáb","Dom"
+        ],
+
+        datasets:[{
+
+          label:"Clicks",
+
+          data:[
+            4,7,5,12,9,14,10
+          ],
+
+          borderColor:"#3b82f6",
+
+          backgroundColor:
+            "rgba(59,130,246,.2)",
+
+          fill:true,
+
+          tension:.4
+        }]
+      }
+    });
+}
+
+/* DEVICE */
+
+function renderDeviceChart() {
+
+  const ctx =
+    $("deviceChart");
+
+  if (!ctx) return;
+
+  deviceChart?.destroy();
+
+  deviceChart =
+    new Chart(ctx, {
+
+      type:"doughnut",
+
+      data:{
+
+        labels:[
+          "Mobile",
+          "Desktop",
+          "Tablet"
+        ],
+
+        datasets:[{
+
+          data:[55,35,10],
+
+          backgroundColor:[
+            "#3b82f6",
+            "#6366f1",
+            "#8b5cf6"
+          ]
+        }]
+      }
+    });
+}
+
+/* COUNTRY */
+
+function renderCountryChart() {
+
+  const ctx =
+    $("countryChart");
+
+  if (!ctx) return;
+
+  countryChart?.destroy();
+
+  countryChart =
+    new Chart(ctx, {
+
+      type:"bar",
+
+      data:{
+
+        labels:[
+          "AR","US","BR","MX","ES"
+        ],
+
+        datasets:[{
+
+          label:"Clicks",
+
+          data:[
+            12,19,8,14,7
+          ],
+
+          backgroundColor:"#6366f1"
+        }]
+      }
+    });
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+const navButtons =
+  document.querySelectorAll(".nav-item");
+
+const sections =
+  document.querySelectorAll(".section");
+
+navButtons.forEach(btn => {
+
+  btn.addEventListener("click", () => {
+
+    const section =
+      btn.dataset.section;
+
+    navButtons.forEach(b =>
+      b.classList.remove("active")
+    );
+
+    btn.classList.add("active");
+
+    sections.forEach(sec => {
+
+      sec.classList.toggle(
+        "hidden",
+        sec.dataset.section !== section
+      );
+    });
+
+    $("sectionTitle").textContent =
+      btn.textContent
+        .replace("PRO","")
+        .trim();
+
+    $("sidebar")
+      ?.classList.remove("open");
+  });
+});
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+$("sidebarToggle")
+  ?.addEventListener("click", () => {
+
+    $("sidebar")
+      ?.classList.toggle("open");
+  });
+
+$("sidebarToggleMobile")
+  ?.addEventListener("click", () => {
+
+    $("sidebar")
+      ?.classList.toggle("open");
   });
 
 /* =========================================================
