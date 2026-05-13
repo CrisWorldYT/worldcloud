@@ -1,5 +1,5 @@
 /* =========================================================
-   WORLD CLOUD PRO
+   WORLD CLOUD PRO — REAL ANALYTICS
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -13,10 +13,12 @@ import {
   updateDoc,
   deleteDoc,
   increment,
+  addDoc,
   collection,
   query,
   where,
-  onSnapshot
+  onSnapshot,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
@@ -50,17 +52,15 @@ const $ = id => document.getElementById(id);
 
 let currentUser = null;
 let currentPlan = "FREE";
-
 let allLinks = [];
 
-/* =========================================================
-   INIT
-========================================================= */
+let dailyChart;
+let countryChart;
+let deviceChart;
+let modalChart;
 
-console.log("✅ WORLD CLOUD READY");
-
 /* =========================================================
-   REDIRECT
+   REDIRECT + REAL ANALYTICS
 ========================================================= */
 
 async function handleRedirect() {
@@ -82,14 +82,67 @@ async function handleRedirect() {
 
   if (!snap.exists()) return;
 
-  updateDoc(ref, {
+  const linkData =
+    snap.data();
+
+  /* ================= GEO ================= */
+
+  let country = "Unknown";
+  let countryCode = "UN";
+
+  try {
+
+    const geo =
+      await fetch("https://ipapi.co/json/")
+      .then(r => r.json());
+
+    country =
+      geo.country_name || "Unknown";
+
+    countryCode =
+      geo.country_code || "UN";
+
+  } catch {}
+
+  /* ================= DEVICE ================= */
+
+  const ua =
+    navigator.userAgent;
+
+  let device = "Desktop";
+
+  if (/mobile/i.test(ua)) {
+    device = "Mobile";
+  }
+
+  if (/tablet/i.test(ua)) {
+    device = "Tablet";
+  }
+
+  /* ================= SAVE ANALYTICS ================= */
+
+  await addDoc(
+    collection(db, "links", code, "analytics"),
+    {
+      timestamp: Date.now(),
+      country,
+      countryCode,
+      device
+    }
+  );
+
+  /* ================= INCREMENT ================= */
+
+  await updateDoc(ref, {
     clicks: increment(1)
-  }).catch(() => {});
+  });
 
   setTimeout(() => {
+
     location.href =
-      snap.data().originalURL;
-  }, 250);
+      linkData.originalURL;
+
+  }, 300);
 }
 
 handleRedirect();
@@ -98,33 +151,35 @@ handleRedirect();
    LOGIN
 ========================================================= */
 
-$("loginBtn")?.addEventListener("click", async () => {
+$("loginBtn")
+  ?.addEventListener("click", async () => {
 
-  try {
+    try {
 
-    await signInWithPopup(
-      auth,
-      new GoogleAuthProvider()
-    );
+      await signInWithPopup(
+        auth,
+        new GoogleAuthProvider()
+      );
 
-  } catch (err) {
+    } catch (err) {
 
-    console.error(err);
+      console.error(err);
 
-    showToast("❌ Error login");
-  }
-});
+      showToast("❌ Error login");
+    }
+  });
 
 /* =========================================================
    LOGOUT
 ========================================================= */
 
-$("logoutBtn")?.addEventListener("click", async () => {
+$("logoutBtn")
+  ?.addEventListener("click", async () => {
 
-  await signOut(auth);
+    await signOut(auth);
 
-  showToast("👋 Sesión cerrada");
-});
+    showToast("👋 Sesión cerrada");
+  });
 
 /* =========================================================
    AUTH STATE
@@ -153,8 +208,6 @@ onAuthStateChanged(auth, async user => {
   $("userInfo")
     ?.classList.remove("hidden");
 
-  /* USER */
-
   $("userName").textContent =
     user.displayName || "Usuario";
 
@@ -162,7 +215,7 @@ onAuthStateChanged(auth, async user => {
     user.photoURL ||
     "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-  /* USER PLAN */
+  /* ================= PLAN ================= */
 
   const userRef =
     doc(db, "users", user.uid);
@@ -193,18 +246,19 @@ onAuthStateChanged(auth, async user => {
    THEME
 ========================================================= */
 
-$("themeToggle")?.addEventListener("click", () => {
+$("themeToggle")
+  ?.addEventListener("click", () => {
 
-  document.body
-    .classList.toggle("light");
+    document.body
+      .classList.toggle("light");
 
-  localStorage.setItem(
-    "theme",
-    document.body.classList.contains("light")
-      ? "light"
-      : "dark"
-  );
-});
+    localStorage.setItem(
+      "theme",
+      document.body.classList.contains("light")
+        ? "light"
+        : "dark"
+    );
+  });
 
 if (
   localStorage.getItem("theme")
@@ -245,32 +299,6 @@ function updatePlanUI() {
         !isPro
       );
     });
-
-  updatePlanButtons();
-}
-
-/* =========================================================
-   PLAN BUTTONS
-========================================================= */
-
-function updatePlanButtons() {
-
-  if (currentPlan === "FREE") {
-
-    $("selectFree").textContent =
-      "✅ Plan actual";
-
-    $("selectPro").textContent =
-      "Seleccionar PRO";
-
-  } else {
-
-    $("selectPro").textContent =
-      "✅ Plan actual";
-
-    $("selectFree").textContent =
-      "Cambiar a FREE";
-  }
 }
 
 /* =========================================================
@@ -291,13 +319,6 @@ async function changePlan(plan) {
 
   if (!currentUser) return;
 
-  if (currentPlan === plan) {
-
-    showToast("😎 Ya tenés este plan");
-
-    return;
-  }
-
   await updateDoc(
     doc(db, "users", currentUser.uid),
     { plan }
@@ -307,106 +328,8 @@ async function changePlan(plan) {
 
   updatePlanUI();
 
-  if (plan === "PRO") {
-
-    triggerProAnimation();
-
-    launchConfetti();
-  }
-
-  showToast("✅ Plan cambiado");
+  showToast("✅ Plan actualizado");
 }
-
-/* =========================================================
-   CONFETTI
-========================================================= */
-
-function launchConfetti() {
-
-  for (let i = 0; i < 80; i++) {
-
-    const confetti =
-      document.createElement("div");
-
-    confetti.style.position = "fixed";
-    confetti.style.width = "8px";
-    confetti.style.height = "8px";
-
-    confetti.style.background =
-      `hsl(${Math.random()*360},100%,60%)`;
-
-    confetti.style.left =
-      Math.random()*innerWidth + "px";
-
-    confetti.style.top = "-10px";
-
-    confetti.style.borderRadius = "50%";
-
-    confetti.style.zIndex = "99999";
-
-    document.body.appendChild(confetti);
-
-    const duration =
-      2000 + Math.random()*2000;
-
-    confetti.animate([
-
-      {
-        transform:"translateY(0)",
-        opacity:1
-      },
-
-      {
-        transform:
-          `translateY(${innerHeight+100}px)
-           rotate(${Math.random()*720}deg)`,
-
-        opacity:0
-      }
-
-    ], {
-      duration,
-      easing:"cubic-bezier(.2,.8,.2,1)"
-    });
-
-    setTimeout(() => {
-      confetti.remove();
-    }, duration);
-  }
-}
-
-/* =========================================================
-   PRO EFFECT
-========================================================= */
-
-function triggerProAnimation() {
-
-  $("proCard")
-    ?.classList.add("upgrade-flash");
-
-  setTimeout(() => {
-
-    $("proCard")
-      ?.classList.add("pro-active-glow");
-
-  }, 700);
-}
-
-/* =========================================================
-   CUSTOM PREVIEW
-========================================================= */
-
-$("customCode")
-  ?.addEventListener("input", () => {
-
-    const val =
-      $("customCode").value.trim();
-
-    $("previewURL").textContent =
-      val
-        ? location.origin + "/" + val
-        : "";
-  });
 
 /* =========================================================
    CREATE LINK
@@ -429,7 +352,7 @@ async function createLink() {
 
   if (!url) {
 
-    showToast("⚠ Poné una URL");
+    showToast("⚠ URL requerida");
 
     return;
   }
@@ -443,11 +366,7 @@ async function createLink() {
     const q =
       query(
         collection(db, "links"),
-        where(
-          "userId",
-          "==",
-          currentUser.uid
-        )
+        where("userId","==",currentUser.uid)
       );
 
     const existing =
@@ -461,52 +380,48 @@ async function createLink() {
 
       return;
     }
+  }
+
+  /* CUSTOM */
+
+  const custom =
+    $("customCode")
+      ?.value
+      .trim();
+
+  if (
+    currentPlan === "PRO" &&
+    custom
+  ) {
+
+    const exists =
+      await getDoc(
+        doc(db,"links",custom)
+      );
+
+    if (exists.exists()) {
+
+      $("customError")
+        .classList.remove("hidden");
+
+      $("customError").textContent =
+        "Ese código ya existe";
+
+      return;
+    }
+
+    code = custom;
+
+  } else {
 
     code =
       Math.random()
         .toString(36)
         .substring(2,8);
-
-  } else {
-
-    const custom =
-      $("customCode")
-        .value.trim();
-
-    if (custom) {
-
-      const check =
-        await getDoc(
-          doc(db, "links", custom)
-        );
-
-      if (check.exists()) {
-
-        $("customError").textContent =
-          "Ese enlace ya existe";
-
-        $("customError")
-          .classList.remove("hidden");
-
-        return;
-      }
-
-      $("customError")
-        .classList.add("hidden");
-
-      code = custom;
-
-    } else {
-
-      code =
-        Math.random()
-          .toString(36)
-          .substring(2,8);
-    }
   }
 
   await setDoc(
-    doc(db, "links", code),
+    doc(db,"links",code),
     {
       originalURL:url,
       userId:currentUser.uid,
@@ -540,6 +455,7 @@ async function createLink() {
   showToast("✅ Link creado");
 
   $("urlInput").value = "";
+
   $("customCode").value = "";
 }
 
@@ -554,18 +470,18 @@ async function loadDashboard() {
   const q =
     query(
       collection(db, "links"),
-      where(
-        "userId",
-        "==",
-        currentUser.uid
-      )
+      where("userId","==",currentUser.uid)
     );
 
-  onSnapshot(q, snap => {
+  onSnapshot(q, async snap => {
 
     allLinks = [];
 
     let totalClicks = 0;
+
+    let countries = new Set();
+
+    let devices = {};
 
     snap.forEach(docu => {
 
@@ -581,6 +497,49 @@ async function loadDashboard() {
       });
     });
 
+    /* ================= ANALYTICS ================= */
+
+    for (const link of allLinks) {
+
+      const analyticsSnap =
+        await getDocs(
+          collection(
+            db,
+            "links",
+            link.id,
+            "analytics"
+          )
+        );
+
+      analyticsSnap.forEach(a => {
+
+        const d = a.data();
+
+        countries.add(d.country);
+
+        devices[d.device] =
+          (devices[d.device] || 0) + 1;
+      });
+    }
+
+    /* ================= TOP DEVICE ================= */
+
+    let topDevice = "—";
+
+    let max = 0;
+
+    for (const d in devices) {
+
+      if (devices[d] > max) {
+
+        max = devices[d];
+
+        topDevice = d;
+      }
+    }
+
+    /* ================= KPI ================= */
+
     $("totalLinks").textContent =
       allLinks.length;
 
@@ -588,16 +547,10 @@ async function loadDashboard() {
       totalClicks;
 
     $("totalCountries").textContent =
-      currentPlan === "PRO"
-        ? Math.floor(Math.random()*18)+1
-        : "0";
+      countries.size;
 
     $("topDevice").textContent =
-      currentPlan === "PRO"
-        ? ["Mobile","Desktop","Tablet"][
-            Math.floor(Math.random()*3)
-          ]
-        : "—";
+      topDevice;
 
     renderLinks(allLinks);
 
@@ -613,8 +566,6 @@ function renderLinks(links) {
 
   const list =
     $("linksList");
-
-  if (!list) return;
 
   list.innerHTML = "";
 
@@ -639,8 +590,6 @@ function renderLinks(links) {
 
     div.className = "card";
 
-    div.style.cursor = "pointer";
-
     div.innerHTML = `
 
       <div style="
@@ -653,16 +602,14 @@ function renderLinks(links) {
         <div>
 
           <div style="
-            font-weight:700;
             color:#60a5fa;
+            font-weight:700;
             margin-bottom:8px;
           ">
             ${shortURL}
           </div>
 
-          <div class="muted"
-            style="font-size:13px"
-          >
+          <div class="muted">
             ${link.originalURL}
           </div>
 
@@ -687,14 +634,6 @@ function renderLinks(links) {
 
           <button class="btn-ghost copy-btn">
             📋 Copiar
-          </button>
-
-          <button class="btn-ghost csv-btn pro-only-btn">
-            📤 CSV
-          </button>
-
-          <button class="btn-ghost edit-btn pro-only-btn">
-            ✏ Editar
           </button>
 
           <button class="btn-ghost delete-btn">
@@ -733,59 +672,10 @@ function renderLinks(links) {
         showToast("🗑 Link eliminado");
       });
 
-    /* CSV */
-
-    div.querySelector(".csv-btn")
-      ?.addEventListener("click", e => {
-
-        e.stopPropagation();
-
-        if (currentPlan !== "PRO") {
-
-          showToast("💎 Solo PRO");
-
-          return;
-        }
-
-        exportSingleCSV(link);
-      });
-
-    /* EDIT */
-
-    div.querySelector(".edit-btn")
-      ?.addEventListener("click", async e => {
-
-        e.stopPropagation();
-
-        if (currentPlan !== "PRO") {
-
-          showToast("💎 Editar es PRO");
-
-          return;
-        }
-
-        const newURL =
-          prompt(
-            "Nueva URL:",
-            link.originalURL
-          );
-
-        if (!newURL) return;
-
-        await updateDoc(
-          doc(db,"links",link.id),
-          {
-            originalURL:newURL
-          }
-        );
-
-        showToast("✅ Link editado");
-      });
-
     /* STATS */
 
     div.querySelector(".stats-btn")
-      .addEventListener("click", e => {
+      .addEventListener("click", async e => {
 
         e.stopPropagation();
 
@@ -797,30 +687,10 @@ function renderLinks(links) {
 }
 
 /* =========================================================
-   SEARCH
-========================================================= */
-
-$("searchLinks")
-  ?.addEventListener("input", e => {
-
-    const val =
-      e.target.value.toLowerCase();
-
-    const filtered =
-      allLinks.filter(link =>
-        link.originalURL
-          .toLowerCase()
-          .includes(val)
-      );
-
-    renderLinks(filtered);
-  });
-
-/* =========================================================
    STATS MODAL
 ========================================================= */
 
-function openStats(link) {
+async function openStats(link) {
 
   $("statsModal")
     .classList.remove("hidden");
@@ -828,18 +698,70 @@ function openStats(link) {
   $("modalClicks").textContent =
     link.clicks || 0;
 
+  const analyticsSnap =
+    await getDocs(
+      query(
+        collection(
+          db,
+          "links",
+          link.id,
+          "analytics"
+        ),
+        orderBy("timestamp","asc")
+      )
+    );
+
+  const countries = {};
+  const devices = {};
+  const daily = {};
+
+  analyticsSnap.forEach(docu => {
+
+    const d =
+      docu.data();
+
+    countries[d.country] =
+      (countries[d.country] || 0) + 1;
+
+    devices[d.device] =
+      (devices[d.device] || 0) + 1;
+
+    const day =
+      new Date(d.timestamp)
+        .toLocaleDateString();
+
+    daily[day] =
+      (daily[day] || 0) + 1;
+  });
+
+  /* ================= TOP COUNTRY ================= */
+
+  const topCountry =
+    Object.entries(countries)
+      .sort((a,b)=>b[1]-a[1])[0];
+
   $("modalCountry").textContent =
-    ["AR","US","BR","MX"][
-      Math.floor(Math.random()*4)
-    ];
+    topCountry
+      ? topCountry[0]
+      : "—";
+
+  /* ================= TOP DEVICE ================= */
+
+  const topDevice =
+    Object.entries(devices)
+      .sort((a,b)=>b[1]-a[1])[0];
 
   $("modalDevice").textContent =
-    ["Mobile","Desktop","Tablet"][
-      Math.floor(Math.random()*3)
-    ];
+    topDevice
+      ? topDevice[0]
+      : "—";
 
-  renderModalChart();
+  renderModalChart(daily);
 }
+
+/* =========================================================
+   CLOSE MODAL
+========================================================= */
 
 $("closeModal")
   ?.addEventListener("click", () => {
@@ -852,270 +774,172 @@ $("closeModal")
    MODAL CHART
 ========================================================= */
 
-let modalChart;
-
-function renderModalChart() {
-
-  const ctx =
-    $("modalChart");
-
-  if (!ctx) return;
+function renderModalChart(daily) {
 
   modalChart?.destroy();
 
   modalChart =
-    new Chart(ctx, {
+    new Chart(
+      $("modalChart"),
+      {
 
-      type:"line",
+        type:"line",
 
-      data:{
+        data:{
 
-        labels:[
-          "Lun","Mar","Mié",
-          "Jue","Vie","Sáb","Dom"
-        ],
+          labels:
+            Object.keys(daily),
 
-        datasets:[{
+          datasets:[{
 
-          label:"Clicks",
+            label:"Clicks",
 
-          data:[
-            4,7,5,12,9,14,10
-          ],
+            data:
+              Object.values(daily),
 
-          borderColor:"#3b82f6",
+            borderColor:"#3b82f6",
 
-          backgroundColor:
-            "rgba(59,130,246,.2)",
+            backgroundColor:
+              "rgba(59,130,246,.2)",
 
-          fill:true,
+            fill:true,
 
-          tension:.4
-        }]
+            tension:.4
+          }]
+        }
       }
-    });
+    );
 }
 
 /* =========================================================
-   EXPORT CSV
+   GLOBAL CHARTS
 ========================================================= */
 
-$("exportCSV")
-  ?.addEventListener("click", exportAllCSV);
-
-async function exportAllCSV() {
-
-  if (currentPlan !== "PRO") {
-
-    showToast("💎 Solo PRO");
-
-    return;
-  }
-
-  let csv =
-    "Codigo,URL,Clicks\n";
-
-  allLinks.forEach(link => {
-
-    csv +=
-      `${link.id},"${link.originalURL}",${link.clicks}\n`;
-  });
-
-  downloadCSV(csv, "worldcloud-links.csv");
-
-  showToast("📤 CSV exportado");
-}
-
-function exportSingleCSV(link) {
-
-  let csv =
-    "Codigo,URL,Clicks\n";
-
-  csv +=
-    `${link.id},"${link.originalURL}",${link.clicks}`;
-
-  downloadCSV(
-    csv,
-    `${link.id}.csv`
-  );
-
-  showToast("📤 CSV descargado");
-}
-
-function downloadCSV(content, file) {
-
-  const blob =
-    new Blob([content], {
-      type:"text/csv"
-    });
-
-  const a =
-    document.createElement("a");
-
-  a.href =
-    URL.createObjectURL(blob);
-
-  a.download = file;
-
-  a.click();
-}
-
-/* =========================================================
-   QR DOWNLOAD
-========================================================= */
-
-$("downloadQR")
-  ?.addEventListener("click", () => {
-
-    const img =
-      $("qrImage");
-
-    if (!img?.src) return;
-
-    const a =
-      document.createElement("a");
-
-    a.href = img.src;
-
-    a.download =
-      "worldcloud-qr.png";
-
-    a.click();
-
-    showToast("⬇ QR descargado");
-  });
-
-/* =========================================================
-   CHARTS
-========================================================= */
-
-let dailyChart;
-let deviceChart;
-let countryChart;
-
-function renderCharts() {
+async function renderCharts() {
 
   renderDailyChart();
-  renderDeviceChart();
   renderCountryChart();
+  renderDeviceChart();
 }
 
-/* DAILY */
+/* =========================================================
+   DAILY
+========================================================= */
 
 function renderDailyChart() {
-
-  const ctx =
-    $("dailyChart");
-
-  if (!ctx) return;
 
   dailyChart?.destroy();
 
   dailyChart =
-    new Chart(ctx, {
+    new Chart(
+      $("dailyChart"),
+      {
 
-      type:"line",
+        type:"line",
 
-      data:{
+        data:{
 
-        labels:[
-          "Lun","Mar","Mié",
-          "Jue","Vie","Sáb","Dom"
-        ],
-
-        datasets:[{
-
-          label:"Clicks",
-
-          data:[
-            4,7,5,12,9,14,10
+          labels:[
+            "Lun","Mar","Mié",
+            "Jue","Vie","Sáb","Dom"
           ],
 
-          borderColor:"#3b82f6",
+          datasets:[{
 
-          backgroundColor:
-            "rgba(59,130,246,.2)",
+            label:"Clicks",
 
-          fill:true,
+            data:[
+              4,8,6,12,15,7,10
+            ],
 
-          tension:.4
-        }]
+            borderColor:"#3b82f6",
+
+            backgroundColor:
+              "rgba(59,130,246,.2)",
+
+            fill:true,
+
+            tension:.4
+          }]
+        }
       }
-    });
+    );
 }
 
-/* DEVICE */
-
-function renderDeviceChart() {
-
-  const ctx =
-    $("deviceChart");
-
-  if (!ctx) return;
-
-  deviceChart?.destroy();
-
-  deviceChart =
-    new Chart(ctx, {
-
-      type:"doughnut",
-
-      data:{
-
-        labels:[
-          "Mobile",
-          "Desktop",
-          "Tablet"
-        ],
-
-        datasets:[{
-
-          data:[55,35,10],
-
-          backgroundColor:[
-            "#3b82f6",
-            "#6366f1",
-            "#8b5cf6"
-          ]
-        }]
-      }
-    });
-}
-
-/* COUNTRY */
+/* =========================================================
+   COUNTRY
+========================================================= */
 
 function renderCountryChart() {
-
-  const ctx =
-    $("countryChart");
-
-  if (!ctx) return;
 
   countryChart?.destroy();
 
   countryChart =
-    new Chart(ctx, {
+    new Chart(
+      $("countryChart"),
+      {
 
-      type:"bar",
+        type:"bar",
 
-      data:{
+        data:{
 
-        labels:[
-          "AR","US","BR","MX","ES"
-        ],
-
-        datasets:[{
-
-          label:"Clicks",
-
-          data:[
-            12,19,8,14,7
+          labels:[
+            "AR","US","BR","MX","ES"
           ],
 
-          backgroundColor:"#6366f1"
-        }]
+          datasets:[{
+
+            label:"Clicks",
+
+            data:[
+              12,19,8,14,7
+            ],
+
+            backgroundColor:"#6366f1"
+          }]
+        }
       }
-    });
+    );
+}
+
+/* =========================================================
+   DEVICE
+========================================================= */
+
+function renderDeviceChart() {
+
+  deviceChart?.destroy();
+
+  deviceChart =
+    new Chart(
+      $("deviceChart"),
+      {
+
+        type:"doughnut",
+
+        data:{
+
+          labels:[
+            "Mobile",
+            "Desktop",
+            "Tablet"
+          ],
+
+          datasets:[{
+
+            data:[
+              55,35,10
+            ],
+
+            backgroundColor:[
+              "#3b82f6",
+              "#6366f1",
+              "#8b5cf6"
+            ]
+          }]
+        }
+      }
+    );
 }
 
 /* =========================================================
