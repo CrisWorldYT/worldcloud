@@ -3,212 +3,202 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>World Cloud</title>
+<title>World Cloud Pro</title>
+<link rel="icon" type="image/png" href="worldcloud-logo.png">
 <link rel="stylesheet" href="style.css">
-<link rel="icon" type="image/png" sizes="32x32" href="worldcloud-logo.png">
-<link rel="apple-touch-icon" href="worldcloud-logo.png">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-geo"></script>
 </head>
 <body>
 
+<div id="redirectScreen" class="redirect hidden">
+    <div class="redirect-box">
+        <div class="loader"></div>
+        <p>Redirigiendo...</p>
+    </div>
+</div>
+
 <div class="app">
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
     <div class="sidebar-head">
-      <div class="logo">☁ World Cloud</div>
-      <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+        <div class="logo">☁ World Cloud</div>
+        <button class="sidebar-toggle" id="sidebarToggle">☰</button>
     </div>
 
     <nav class="sidebar-nav">
-      <button class="nav-item active" data-section="crear">🔗 Crear</button>
-      <button class="nav-item" data-section="planes">💎 Planes</button>
-      <button class="nav-item" data-section="dashboard">📊 Dashboard</button>
-      <button class="nav-item pro-only" data-section="analytics">📈 Analytics <span class="badge pro tiny">PRO</span></button>
+        <button class="nav-item active" data-section="crear">🔗 Crear</button>
+        <button class="nav-item" data-section="planes">💎 Planes</button>
+        <button class="nav-item" data-section="dashboard">📊 Dashboard</button>
+        <button class="nav-item pro-only" data-section="analytics">📈 Analytics <span class="badge pro tiny">PRO</span></button>
     </nav>
 
     <div class="sidebar-foot">
-      <button id="themeToggle" class="btn-ghost full">🌙 Tema</button>
-      <div id="authBtns" class="auth">
-        <button id="loginBtn" class="btn-primary full">🔐 Iniciar sesión</button>
-      </div>
-      <div id="userInfo" class="hidden user-box">
-        <div class="user-meta">
-          <span id="userName"></span>
-          <span id="userPlanBadge" class="badge free">FREE</span>
+        <button id="themeToggle" class="btn-ghost full">🌙 Tema</button>
+        <div id="authBtns" class="auth">
+            <button id="loginBtn" class="btn-primary full">🔐 Iniciar sesión</button>
         </div>
-        <button id="logoutBtn" class="btn-ghost full">🚪 Salir</button>
-      </div>
-      <div class="credit"><strong>iCrisWorld</strong></div>
+        <div id="userInfo" class="hidden user-box">
+            <div class="user-meta">
+                <span id="userName"></span>
+                <span id="userPlanBadge" class="badge free">FREE</span>
+            </div>
+            <button id="logoutBtn" class="btn-ghost full">🚪 Salir</button>
+        </div>
+        <div class="credit">Creado por <strong>iCrisWorld</strong></div>
     </div>
-  </aside>
+</aside>
 
-  <!-- MAIN -->
-  <main class="main">
+<!-- MAIN -->
+<main class="main">
     <header class="topbar">
-      <div class="topbar-left">
-        <button class="sidebar-toggle mobile" id="sidebarToggleMobile">☰</button>
-        <h1 id="sectionTitle">Crear enlace</h1>
-      </div>
-      <div class="topbar-right">
-        <span class="plan-chip" id="planChip">FREE</span>
-      </div>
+        <div class="topbar-left">
+            <button class="sidebar-toggle mobile" id="sidebarToggleMobile">☰</button>
+            <h1 id="sectionTitle">Crear enlace</h1>
+        </div>
+        <div class="topbar-right">
+            <span class="plan-chip" id="planChip">FREE</span>
+        </div>
     </header>
 
     <div class="content">
 
-      <!-- CREAR -->
-      <section class="section" data-section="crear">
-        <div class="card fade-up">
-          <h2>🔗 Crear enlace</h2>
-          <div class="input-group">
-            <input type="url" id="urlInput" placeholder="https://tusitio.com">
-            <button id="shortBtn" class="btn-primary">⚡ Generar</button>
-          </div>
+        <!-- CREAR -->
+        <section class="section" data-section="crear">
+            <div class="card fade-up">
+                <h2>🔗 Crear enlace</h2>
+                <div class="input-group">
+                    <input type="url" id="urlInput" placeholder="https://tusitio.com">
+                    <button id="shortBtn" class="btn-primary">⚡ Generar</button>
+                </div>
+                <!-- PERSONALIZAR SOLO PRO -->
+<div id="customSection" class="custom-box hidden">
+    <h3>✨ Personalizar enlace (PRO)</h3>
+    <input type="text" id="customCode" placeholder="ej: mi-link-2026">
+    <div id="previewURL" class="preview-url"></div>
+    <p id="customError" class="error hidden"></p>
+</div>
 
-          <div id="resultSection" class="hidden result-box">
-            <p>✅ Enlace generado:</p>
-            <strong id="shortLink"></strong>
+                <div id="resultSection" class="hidden result-box">
+                    <p>✅ Enlace generado:</p>
+                    <strong id="shortLink"></strong>
 
-            <div id="qrSection" class="hidden qr-wrap">
-              <img id="qrImage" alt="QR">
-              <button id="downloadQR" class="btn-primary">⬇ Descargar QR</button>
+                    <div id="qrSection" class="hidden qr-wrap">
+                        <img id="qrImage" alt="QR">
+                        <button id="downloadQR" class="btn-primary">⬇ Descargar QR</button>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- PLANES (TIPO STRIPE) -->
-      <section class="section hidden" data-section="planes">
-        <div class="card fade-up">
-          <h2>💎 Planes</h2>
-          <p class="muted">Elige el plan que mejor se adapte a tu proyecto. <strong>Activación inmediata</strong> (demo sin pago).</p>
+        <!-- PLANES -->
+        <section class="section hidden" data-section="planes">
+            <div class="card fade-up">
+                <h2>💎 Planes</h2>
+                <p class="muted">Elige el plan que mejor se adapte. <strong></strong></p>
 
-          <div class="pricing-grid">
-            <!-- FREE -->
-            <div class="pricing-card" id="freeCard">
-              <div class="pricing-head">
-                <h3>FREE</h3>
-                <div class="pricing-price">$0<span>/mes</span></div>
-                <div class="pricing-tag">Para empezar</div>
-              </div>
-              <ul class="pricing-list">
-                <li>✔ 1 enlace activo</li>
-                <li>✔ Redirección + contador</li>
-                <li>✔ Dashboard básico</li>
-                <li>✖ QR automático</li>
-                <li>✖ Gráficos</li>
-                <li>✖ País</li>
-                <li>✖ Dispositivo</li>
-              </ul>
-              <button id="selectFree" class="btn-ghost full selected">Plan actual</button>
-            </div>
+                <div class="pricing-grid">
+                    <div class="pricing-card" id="freeCard">
+                        <div class="pricing-head">
+                            <h3>FREE</h3>
+                            <div class="pricing-price">$0<span>/mes</span></div>
+                        </div>
+                        <ul class="pricing-list">
+                            <li>✔ 1 enlace activo</li>
+                            <li>✔ Redirección + contador</li>
+                            <li>✔ Dashboard básico</li>
+                            <li>✖ QR automático</li>
+                            <li>✖ Mapa mundial</li>
+                            <li>✖ Exportar CSV</li>
+                        </ul>
+                        <button id="selectFree" class="btn-ghost full selected">Plan actual</button>
+                    </div>
 
-            <!-- PRO -->
-            <div class="pricing-card pro" id="proCard">
-              <div class="pricing-head">
-                <div class="pro-badge">RECOMENDADO</div>
-                <h3>PRO</h3>
-                <div class="pricing-price">$5<span>/mes</span></div>
-                <div class="pricing-tag">Para creadores y negocios</div>
-              </div>
-              <ul class="pricing-list">
-                <li>✔ Enlaces ilimitados</li>
-                <li>✔ QR automático + descarga</li>
-                <li>✔ Dashboard avanzado</li>
-                <li>✔ Gráfico de clicks por día</li>
-                <li>✔ Usuarios por país</li>
-                <li>✔ Dispositivos (PC/Teléfono/Tablet)</li>
-                <li>✔ Soporte prioritario</li>
-              </ul>
-              <button id="selectPro" class="btn-primary full">Seleccionar Plan ($5)</button>
-              <p class="tiny muted center"></p>
+                    <div class="pricing-card pro" id="proCard">
+                        <div class="pricing-head">
+                            <div class="pro-badge">RECOMENDADO</div>
+                            <h3>PRO</h3>
+                            <div class="pricing-price">$5<span>/mes</span></div>
+                        </div>
+                        <ul class="pricing-list">
+                            <li>✔ Enlaces ilimitados</li>
+                            <li>✔ QR automático + descarga</li>
+                            <li>✔ Mapa mundial de clicks</li>
+                            <li>✔ Exportar CSV</li>
+                            <li>✔ Gráficos avanzados</li>
+                            <li>✔ País + dispositivo</li>
+                        </ul>
+                        <button id="selectPro" class="btn-primary full">Seleccionar Plan ($5)</button>
+                        <p class="tiny muted center" style="margin-top:10px"></p>
+                    </div>
+                </div>
             </div>
-          </div>
+        </section>
 
-          <div class="compare card-inner fade-up">
-            <h3>📊 Comparativa</h3>
-            <div class="compare-grid">
-              <div>
-                <h4>FREE</h4>
-                <ul>
-                  <li>1 link</li>
-                  <li>Clicks básicos</li>
-                  <li>Sin QR</li>
-                </ul>
-              </div>
-              <div class="pro">
-                <h4>PRO</h4>
-                <ul>
-                  <li>Ilimitado</li>
-                  <li>QR + descarga</li>
-                  <li>País + dispositivo</li>
-                  <li>Gráfico diario</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+        <!-- DASHBOARD -->
+        <section class="section hidden" data-section="dashboard">
+            <div class="card fade-up">
+                <h2>📊 Dashboard</h2>
 
-      <!-- DASHBOARD -->
-      <section class="section hidden" data-section="dashboard">
-        <div class="card fade-up">
-          <h2>📊 Dashboard</h2>
+                <div class="kpi-grid">
+                    <div class="kpi">
+                        <span class="kpi-label">Enlaces</span>
+                        <span class="kpi-value" id="totalLinks">0</span>
+                    </div>
+                    <div class="kpi">
+                        <span class="kpi-label">Clicks totales</span>
+                        <span class="kpi-value" id="totalClicks">0</span>
+                    </div>
+                    <div class="kpi pro-only">
+                        <span class="kpi-label">Países</span>
+                        <span class="kpi-value" id="totalCountries">0</span>
+                    </div>
+                    <div class="kpi pro-only">
+                        <span class="kpi-label">Dispositivo principal</span>
+                        <span class="kpi-value tiny" id="topDevice">—</span>
+                    </div>
+                </div>
 
-          <div class="kpi-grid">
-            <div class="kpi">
-              <span class="kpi-label">Enlaces</span>
-              <span class="kpi-value" id="totalLinks">0</span>
+                <div class="links-head">
+                    <h3>Mis enlaces</h3>
+                    <button id="exportCSV" class="btn-ghost pro-only">📤 Exportar CSV</button>
+                </div>
+                <div id="linksList" class="links-list"></div>
             </div>
-            <div class="kpi">
-              <span class="kpi-label">Clicks totales</span>
-              <span class="kpi-value" id="totalClicks">0</span>
-            </div>
-            <div class="kpi pro-only">
-              <span class="kpi-label">Países</span>
-              <span class="kpi-value" id="totalCountries">0</span>
-            </div>
-            <div class="kpi pro-only">
-              <span class="kpi-label">Dispositivo principal</span>
-              <span class="kpi-value tiny" id="topDevice">—</span>
-            </div>
-          </div>
+        </section>
 
-          <div class="links-head">
-            <h3>Mis enlaces</h3>
-            <span class="muted tiny">Solo tú puedes verlos</span>
-          </div>
-          <div id="linksList" class="links-list"></div>
-        </div>
-      </section>
+        <!-- ANALYTICS PRO -->
+        <section class="section hidden" data-section="analytics">
+            <div class="card fade-up">
+                <h2>📈 Analytics <span class="badge pro">PRO</span></h2>
+                <p class="muted">Métricas en tiempo real de todos tus enlaces.</p>
 
-      <!-- ANALYTICS (PRO) -->
-      <section class="section hidden" data-section="analytics">
-        <div class="card fade-up">
-          <h2>📈 Analytics <span class="badge pro">PRO</span></h2>
-          <p class="muted">Métricas en tiempo real derivadas de tus enlaces.</p>
-
-          <div class="charts-grid">
-            <div class="chart-card">
-              <h3>Clicks por día</h3>
-              <canvas id="dailyChart"></canvas>
+                <div class="charts-grid">
+                    <div class="chart-card full-width">
+                        <h3>🗺️ Mapa mundial de clicks</h3>
+                        <canvas id="worldMap"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Clicks por día</h3>
+                        <canvas id="dailyChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Países top</h3>
+                        <canvas id="countryChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Dispositivos</h3>
+                        <canvas id="deviceChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="chart-card">
-              <h3>Usuarios por país</h3>
-              <canvas id="countryChart"></canvas>
-            </div>
-            <div class="chart-card">
-              <h3>Dispositivos</h3>
-              <canvas id="deviceChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
 
     </div>
 
     <footer class="footer">© 2026 World Cloud - Made by: <strong>iCrisWorld</strong></footer>
-  </main>
+</main>
 </div>
 
 <div id="toast" class="toast hidden"></div>
