@@ -887,6 +887,13 @@ body.light .modal-kpi{
   display:none;
 }
 
+@media(max-width:900px){
+
+  .sidebar-toggle.mobile{
+    display:block;
+  }
+}
+
 /* =========================================================
    RESPONSIVE
 ========================================================= */
@@ -2437,5 +2444,259 @@ body.light .preview-url{
     flex-direction:column;
     align-items:flex-end;
     gap:8px;
+  }
+}
+
+/* =========================================================
+   MOBILE FULL FIX
+========================================================= */
+
+@media(max-width:900px){
+
+  /* APP */
+
+  .app{
+    flex-direction:column;
+  }
+
+  /* SIDEBAR */
+
+  .sidebar{
+
+    position:fixed;
+
+    left:-270px;
+    top:0;
+
+    width:270px;
+    height:100vh;
+
+    z-index:99999;
+
+    transition:left .3s ease;
+  }
+
+  .sidebar.open{
+    left:0;
+  }
+
+  /* MOBILE BTN */
+
+  .sidebar-toggle.mobile{
+    display:block !important;
+  }
+
+  /* TOPBAR */
+
+  .topbar{
+
+    padding:14px 18px;
+  }
+
+  .topbar h1{
+
+    font-size:18px;
+  }
+
+  .topbar-right{
+
+    gap:8px;
+  }
+
+  /* CONTENT */
+
+  .content{
+
+    padding:18px 14px;
+  }
+
+  /* CARDS */
+
+  .card{
+
+    padding:22px;
+    border-radius:22px;
+  }
+
+  .card h2{
+
+    font-size:22px;
+  }
+
+  /* KPI */
+
+  .kpi-grid{
+
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+
+  .kpi{
+
+    padding:18px;
+  }
+
+  .kpi-value{
+
+    font-size:24px;
+  }
+
+  /* INPUT GROUP */
+
+  .input-group{
+
+    flex-direction:column;
+  }
+
+  /* BUTTONS */
+
+  .btn-primary,
+  .btn-ghost{
+
+    width:100%;
+  }
+
+  /* LINKS */
+
+  .links-head{
+
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  /* SEARCH */
+
+  #searchLinks{
+
+    width:100%;
+    max-width:100%;
+  }
+
+  /* PRICING */
+
+  .pricing-grid{
+
+    grid-template-columns:1fr;
+  }
+
+  /* CHARTS */
+
+  .charts-grid{
+
+    grid-template-columns:1fr;
+  }
+
+  .chart-card{
+
+    padding:18px;
+  }
+
+  /* MODAL */
+
+  .modal{
+
+    padding:14px;
+  }
+
+  .modal-box{
+
+    padding:22px;
+    border-radius:22px;
+  }
+
+  .modal-kpis{
+
+    grid-template-columns:1fr;
+  }
+
+  /* QR */
+
+  .qr-wrap img{
+
+    width:100%;
+    max-width:220px;
+  }
+
+  /* FOOTER */
+
+  .footer{
+
+    padding:20px 14px;
+  }
+}
+
+/* =========================================================
+   SMALL PHONES
+========================================================= */
+
+@media(max-width:480px){
+
+  /* TOPBAR */
+
+  .topbar{
+
+    padding:12px 14px;
+  }
+
+  .topbar h1{
+
+    font-size:16px;
+  }
+
+  /* PLAN CHIP */
+
+  .plan-chip{
+
+    font-size:11px;
+
+    padding:6px 12px;
+  }
+
+  /* CARD */
+
+  .card{
+
+    padding:18px;
+  }
+
+  .card h2{
+
+    font-size:20px;
+  }
+
+  /* KPI */
+
+  .kpi-grid{
+
+    grid-template-columns:1fr;
+  }
+
+  /* KPI VALUE */
+
+  .kpi-value{
+
+    font-size:22px;
+  }
+
+  /* BUTTONS */
+
+  .btn-primary,
+  .btn-ghost{
+
+    padding:13px 14px;
+  }
+
+  /* LOGO */
+
+  .logo{
+
+    font-size:18px;
+  }
+
+  /* SIDEBAR */
+
+  .sidebar{
+
+    width:240px;
   }
 }
