@@ -125,11 +125,11 @@ async function handleStripeSuccess() {
 
 async function handleRedirect() {
 
-  const code =
-    new URLSearchParams(location.search)
-      .get("c");
+// Detecta lo que hay después del / (ejemplo: /promo -> promo)
+const code = location.pathname.slice(1); 
 
-  if (!code) return;
+// Evitamos que intente redirigir si estás en la página principal o en el admin
+if (!code || code === "admin" || code === "admin.html") return;
 
   $("redirectScreen")
     ?.classList.remove("hidden");
@@ -1188,7 +1188,7 @@ $("customCode")
 
     $("previewURL").textContent =
       val
-        ? location.origin + "?c=" + val
+        ? location.origin + "/" + val
         : "";
   });
 
@@ -1328,7 +1328,7 @@ async function createLink() {
   );
 
   const shortURL =
-    location.origin + "?c=" + code;
+    location.origin + "/" + code;
 
   $("shortLink").textContent =
     shortURL;
@@ -1518,7 +1518,7 @@ function renderLinks(links) {
   links.forEach(link => {
 
     const shortURL =
-      location.origin + "?c=" + link.id;
+      location.origin + "/" + link.id;
 
     const isExpired =
       link.expiresAt &&
