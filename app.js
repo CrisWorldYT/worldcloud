@@ -958,7 +958,7 @@ async function changePlan(plan) {
 
   if (currentPlan === plan) {
 
-    showToast("😎 Ya tenés este plan");
+    showToast("El plan seleccionado ya está en uso.");
 
     return;
   }
@@ -1132,7 +1132,7 @@ $("customCode")
 
     $("previewURL").textContent =
       val
-        ? location.origin + "/" + val
+        ? location.origin + "?c=" + val
         : "";
   });
 
