@@ -24,1394 +24,1166 @@
 <body>
 
 <!-- =========================================================
-	 REDIRECT
+     REDIRECT
 ========================================================= -->
 
 <div id="redirectScreen" class="redirect hidden">
 
-	<div class="redirect-box">
+    <div class="redirect-box">
 
-		<div class="loader"></div>
+        <div class="loader"></div>
 
-		<p>Redirigiendo...</p>
+        <p>Redirigiendo...</p>
 
-	</div>
+    </div>
 
 </div>
 
 <!-- =========================================================
-	 APP
+     APP
 ========================================================= -->
 
 <div class="app">
 
 <!-- =========================================================
-	 SIDEBAR
+     SIDEBAR
 ========================================================= -->
 
 <aside class="sidebar" id="sidebar">
 
-	<div>
+    <div>
 
-		<!-- HEAD -->
+        <!-- HEAD -->
 
-		<div class="sidebar-head">
+        <div class="sidebar-head">
 
-			<div class="logo">
-				☁ World Cloud
-			</div>
+            <div class="logo">
+                ☁ World Cloud
+            </div>
 
-			<button class="sidebar-toggle" id="sidebarToggle">
-				☰
-			</button>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                ☰
+            </button>
 
-		</div>
+        </div>
 
-		<!-- NAV -->
+        <!-- NAV -->
 
-		<nav class="sidebar-nav">
+        <nav class="sidebar-nav">
 
-			<button class="nav-item active" data-section="crear">
+            <button class="nav-item active" data-section="crear">
 
-				<span>🔗 Crear</span>
+                <span>🔗 Crear</span>
 
-			</button>
+            </button>
 
-			<button class="nav-item" data-section="planes">
+            <button class="nav-item" data-section="planes">
 
-				<span>💎 Planes</span>
+                <span>💎 Planes</span>
 
-			</button>
+            </button>
 
-			<button class="nav-item" data-section="dashboard">
+            <button class="nav-item" data-section="dashboard">
 
-				<span>📊 Dashboard</span>
+                <span>📊 Dashboard</span>
 
-			</button>
+            </button>
 
-			<button class="nav-item pro-only" data-section="analytics">
+            <button class="nav-item pro-only" data-section="analytics">
 
-				<span>📈 Analytics</span>
+                <span>📈 Analytics</span>
 
-				<span class="badge pro tiny">
-					PRO
-				</span>
+                <span class="badge pro tiny">
+                    PRO
+                </span>
 
-			</button>
+            </button>
 
-		</nav>
+        </nav>
 
-	</div>
+    </div>
 
-	<!-- FOOT -->
+    <!-- FOOT -->
 
-	<div class="sidebar-foot">
+    <div class="sidebar-foot">
 
-		<!-- THEME -->
+        <!-- THEME -->
 
-		<button id="themeToggle" class="btn-ghost full">
-			🌙 Cambiar tema
-		</button>
+        <button id="themeToggle" class="btn-ghost full">
+            🌙 Cambiar tema
+        </button>
 
-		<!-- LOGIN -->
+        <!-- LOGIN -->
 
-		<div id="authBtns" class="auth">
+        <div id="authBtns" class="auth">
 
-			<button id="loginBtn" class="btn-primary full">
-				🔐 Iniciar sesión
-			</button>
+            <button id="loginBtn" class="btn-primary full">
+                🔐 Iniciar sesión
+            </button>
 
-		</div>
+        </div>
 
-		<!-- USER -->
+        <!-- USER -->
 
-		<div id="userInfo" class="hidden user-box">
+        <div id="userInfo" class="hidden user-box">
 
-			<div class="user-profile">
+            <div class="user-profile">
 
-				<img
-					id="userAvatar"
-					class="avatar"
-					src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-				>
+                <img
+                    id="userAvatar"
+                    class="avatar"
+                    src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                >
 
-				<div class="user-data">
+                <div class="user-data">
 
-					<span id="userName">
-						Usuario
-					</span>
+                    <span id="userName">
+                        Usuario
+                    </span>
 
-					<span id="userPlanBadge" class="badge free">
-						FREE
-					</span>
+                    <span id="userPlanBadge" class="badge free">
+                        FREE
+                    </span>
 
-				</div>
+                </div>
 
-			</div>
+            </div>
 
-			<button id="logoutBtn" class="btn-ghost full">
-				🚪 Cerrar sesión
-			</button>
+            <button id="logoutBtn" class="btn-ghost full">
+                🚪 Cerrar sesión
+            </button>
 
-		</div>
+        </div>
 
-		<!-- CREDIT -->
+        <!-- CREDIT -->
 
-		<div class="credit">
+        <div class="credit">
 
-			Made By
-			<strong>iCrisWorld</strong>
+            Made By
+            <strong>iCrisWorld</strong>
 
-		</div>
+        </div>
 
-	</div>
+    </div>
 
 </aside>
 
 <!-- =========================================================
-	 MAIN
+     MAIN
 ========================================================= -->
 
 <main class="main">
 
-	<!-- =========================================================
-		 TOPBAR
-	========================================================= -->
-
-	<header class="topbar">
-
-		<div class="topbar-left">
-
-			<button
-				class="sidebar-toggle mobile"
-				id="sidebarToggleMobile"
-			>
-				☰
-			</button>
-
-			<h1 id="sectionTitle">
-				Crear enlace
-			</h1>
-
-		</div>
-
-		<div class="topbar-right">
-
-			<!-- LIVE -->
-
-			<div class="realtime-badge pro-only">
-
-				<span class="live-dot"></span>
-
-				<span>
-					Analytics Live
-				</span>
-
-			</div>
-
-			<!-- PLAN -->
-
-			<span class="plan-chip" id="planChip">
-				FREE
-			</span>
-
-		</div>
-
-	</header>
-
-	<!-- =========================================================
-		 CONTENT
-	========================================================= -->
-
-	<div class="content">
-
-		<!-- =========================================================
-			 CREAR
-		========================================================= -->
-
-		<section class="section" data-section="crear">
-
-			<div class="card fade-up">
-
-				<h2>
-					🔗 Crear enlace
-				</h2>
-
-				<p class="muted">
-					Acortá tus enlaces con resultados maravillosos con World Cloud.
-				</p>
-
-				<!-- INPUT -->
-
-				<div class="input-group">
-
-					<input
-						type="url"
-						id="urlInput"
-						placeholder="https://tusitio.com"
-					>
-
-					<button
-						id="shortBtn"
-						class="btn-primary"
-					>
-						⚡ Generar
-					</button>
-
-				</div>
-
-				<!-- CUSTOM -->
-
-				<div
-					id="customSection"
-					class="custom-box hidden"
-				>
-
-					<h3>
-						✨ Personalizar enlace (PRO)
-					</h3>
-
-					<input
-						type="text"
-						id="customCode"
-						placeholder="ej: mi-link-2026"
-					>
-
-					<div id="previewURL" class="preview-url"></div>
-
-					<p id="customError" class="error hidden"></p>
-
-					<div class="pro-only" style="margin-top:16px">
-
-	<label class="muted" style="display:block;margin-bottom:8px">
-
-		🔒 Contraseña del enlace (opcional)
-
-	</label>
-
-	<input
-		type="password"
-		id="linkPassword"
-		placeholder="Ej: 1234"
-	>
-
-	<div class="pro-only" style="margin-top:16px">
-
-	<label class="muted" style="display:block;margin-bottom:8px">
-
-		⏳ Expiración del enlace
-
-	</label>
-
-	<input
-		type="datetime-local"
-		id="linkExpiration"
-	>
-
-</div>
-
-</div>
-				</div>
-
-				<!-- RESULT -->
-
-				<div
-					id="resultSection"
-					class="hidden result-box"
-				>
-
-					<p>
-						✅ Enlace generado:
-					</p>
-
-					<strong id="shortLink"></strong>
-
-					<!-- QR -->
-
-					<div
-						id="qrSection"
-						class="hidden qr-wrap"
-					>
-
-						<img id="qrImage" alt="QR">
-
-						<button
-							id="downloadQR"
-							class="btn-primary"
-						>
-							⬇ Descargar QR
-						</button>
-
-					</div>
-
-				</div>
-
-			</div>
-
-		</section>
-
-		<!-- =========================================================
-			 PLANES
-		========================================================= -->
-
-		<section
-			class="section hidden"
-			data-section="planes"
-		>
-
-			<div class="card fade-up">
-
-				<h2>
-					💎 Planes
-				</h2>
-
-				<p class="muted">
-					Elegí el plan ideal para potenciar tus enlaces.
-				</p>
-
-				<!-- GRID -->
-
-				<div class="pricing-grid">
-
-					<!-- FREE -->
-
-					<div
-						class="pricing-card"
-						id="freeCard"
-					>
-
-						<div class="pricing-head">
-
-							<h3>FREE</h3>
-
-							<div class="pricing-price">
-								$0<span>/mes</span>
-							</div>
-
-						</div>
-
-						<ul class="pricing-list">
-
-							<li>✔ 1 enlace activo</li>
-							<li>✔ Dashboard básico</li>
-							<li>✔ Clicks básicos</li>
-							<li>✔ Copiar links</li>
-							<li>✖ Analytics avanzadas</li>
-							<li>✖ Exportar CSV</li>
-							<li>✖ Editar links</li>
-
-						</ul>
-
-						<button
-							id="selectFree"
-							class="btn-ghost full"
-						>
-							✅ Plan actual
-						</button>
-
-					</div>
-
-					<!-- PRO -->
-
-					<div
-						class="pricing-card pro"
-						id="proCard"
-					>
-
-						<div class="pricing-head">
-
-							<div class="pro-badge">
-								RECOMENDADO
-							</div>
-
-							<h3>PRO</h3>
-
-							<div class="pricing-price">
-								$5<span>/mes</span>
-							</div>
-
-						</div>
-
-						<ul class="pricing-list">
-
-							<li>✔ Links ilimitados</li>
-							<li>✔ Analytics reales</li>
-							<li>✔ Países y dispositivos</li>
-							<li>✔ Exportar CSV</li>
-							<li>✔ Editar links</li>
-							<li>✔ QR automático</li>
-							<li>✔ Gráficos avanzados</li>
-
-						</ul>
-
-						<button
-							id="selectPro"
-							class="btn-primary full"
-						>
-							Comprar PRO (5$)
-						</button>
-
-					</div>
-
-					<!-- ENTERPRISE -->
-
-<div
-  class="pricing-card enterprise"
-  id="enterpriseCard"
->
-
-  <div class="pricing-head">
-
-	<div class="enterprise-badge">
-	  ENTERPRISE
-	</div>
-
-	<h3>
-	  ENTERPRISE
-	</h3>
-
-	<div class="pricing-price">
-	  Custom $
-	</div>
-
-  </div>
-
-  <ul class="pricing-list">
-
-	<li>✔ Todo PRO</li>
-
-	<li>✔ Team Workspaces</li>
-
-	<li>✔ Multi usuarios</li>
-
-	<li>✔ Roles/permisos</li>
-
-	<li>✔ Brand Themes</li>
-
-	<li>✔ Analytics enterprise</li>
-
-  </ul>
-
-  <button
-	id="selectEnterprise"
-	class="btn-primary full"
-  >
-	Comprar ENTERPRISE (Custom $)
-  </button>
-</div>
-				</div>
-
-			</div>
-<!-- =====================================================
-	 ENTERPRISE THEMES
-===================================================== -->
-
-<div
-  class="card enterprise-theme-card enterprise-only hidden"
->
-
-  <h2>
-	🎨 Enterprise Themes
-  </h2>
-
-  <p class="muted"
-	style="margin-top:6px"
-  >
-	Personalizá completamente el branding.
-  </p>
-
-  <!-- PRESETS -->
-
-  <div class="theme-grid">
-
-	<button
-	  class="theme-preset"
-	  data-color="#6366f1"
-	  style="background:#6366f1"
-	>
-	  Ocean
-	</button>
-
-	<button
-	  class="theme-preset"
-	  data-color="#10b981"
-	  style="background:#10b981"
-	>
-	  Emerald
-	</button>
-
-	<button
-	  class="theme-preset"
-	  data-color="#f43f5e"
-	  style="background:#f43f5e"
-	>
-	  Rose
-	</button>
-
-	<button
-	  class="theme-preset"
-	  data-color="#f59e0b"
-	  style="background:#f59e0b"
-	>
-	  Sunset
-	</button>
-
-	<button
-	  class="theme-preset"
-	  data-color="#8b5cf6"
-	  style="background:#8b5cf6"
-	>
-	  Neon
-	</button>
-
-	<button
-	  class="theme-preset"
-	  data-color="#06b6d4"
-	  style="background:#06b6d4"
-	>
-	  Cyber
-	</button>
-
-  </div>
-
-  <!-- CUSTOM -->
-
-  <div style="margin-top:20px">
-
-	<label class="muted">
-
-	  🎨 Color personalizado
-
-	</label>
-
-	<input
-	  type="color"
-	  id="themeColorPicker"
-	  value="#6366f1"
-	  style="
-		width:100%;
-		height:55px;
-		margin-top:10px;
-	  "
-	>
-
-  </div>
-
-</div>
-		</section>
-
-		<!-- =========================================================
-			 DASHBOARD
-		========================================================= -->
-
-		<section
-			class="section hidden"
-			data-section="dashboard"
-		>
-
-			<div class="card fade-up">
-
-				<div class="dashboard-head">
-
-					<div>
-
-						<h2>
-							📊 Dashboard
-						</h2>
-
-						<p class="muted">
-							Gestioná y analizá tus enlaces.
-						</p>
-
-					</div>
-
-					<!-- CSV -->
-
-					<button
-						id="exportCSV"
-						class="btn-ghost pro-only"
-					>
-						📤 Exportar CSV
-					</button>
-
-				</div>
-
-				<!-- LIVE -->
-
-				<div style="
-					display:flex;
-					align-items:center;
-					gap:10px;
-					margin:18px 0;
-				">
-
-					<div class="live-dot"></div>
-
-					<span class="muted">
-						Dashboard sincronizado en tiempo real
-					</span>
-
-				</div>
-
-				<!-- KPI -->
-
-				<div class="kpi-grid">
-
-					<div class="kpi analytics-live">
-
-						<span class="kpi-label">
-							Enlaces
-						</span>
-
-						<span class="kpi-value" id="totalLinks">
-							0
-						</span>
-
-					</div>
-
-					<div class="kpi analytics-live">
-
-						<span class="kpi-label">
-							Clicks
-						</span>
-
-						<span class="kpi-value" id="totalClicks">
-							0
-						</span>
-
-					</div>
-
-					<div class="kpi pro-only analytics-live">
-
-						<span class="kpi-label">
-							Países
-						</span>
-
-						<span class="kpi-value" id="totalCountries">
-							0
-						</span>
-
-					</div>
-
-					<div class="kpi pro-only analytics-live">
-
-						<span class="kpi-label">
-							Top dispositivo
-						</span>
-
-						<span class="kpi-value tiny" id="topDevice">
-							—
-						</span>
-
-					</div>
-
-					<div class="kpi pro-only analytics-live">
-
-						<span class="kpi-label">
-							Analytics
-						</span>
-
-						<span class="kpi-value">
-							🟢 LIVE
-						</span>
-
-					</div>
-
-				</div>
-
-				<!-- LINKS HEAD -->
-
-				<div class="links-head">
-
-					<h3>
-						Mis enlaces
-					</h3>
-
-					<!-- SEARCH -->
-
-					<input
-						type="text"
-						id="searchLinks"
-						placeholder="🔍 Buscar enlaces..."
-					>
-
-				</div>
-
-				<!-- LIST -->
-
-				<div id="linksList" class="links-list"></div>
-
-			</div>
-			<!-- =========================================================
-     TEAM WORKSPACE
-     PEGAR DENTRO DE:
-     data-section="dashboard"
-
-     JUSTO ABAJO DE:
-     <div id="linksList" class="links-list"></div>
-========================================================= -->
-
-<!-- =====================================================
-     TEAM MEMBERS
-===================================================== -->
-
-<div class="card enterprise-only hidden">
-
-    <div class="dashboard-head">
-
-        <div>
-
-            <h2>
-                👥 Team Workspace
-            </h2>
-
-            <p class="muted">
-                Gestioná miembros y permisos.
-            </p>
+    <!-- =====================================================
+         TOPBAR
+    ====================================================== -->
+
+    <header class="topbar">
+
+        <div class="topbar-left">
+
+            <button
+                class="sidebar-toggle mobile"
+                id="sidebarToggleMobile"
+            >
+                ☰
+            </button>
+
+            <h1 id="sectionTitle">
+                Crear enlace
+            </h1>
 
         </div>
 
-        <div class="badge enterprise">
-            ENTERPRISE
+        <div class="topbar-right">
+
+            <!-- LIVE -->
+
+            <div class="realtime-badge pro-only">
+
+                <span class="live-dot"></span>
+
+                <span>
+                    Analytics Live
+                </span>
+
+            </div>
+
+            <!-- PLAN -->
+
+            <span class="plan-chip" id="planChip">
+                FREE
+            </span>
+
         </div>
 
-    </div>
+    </header>
 
-    <!-- INVITE -->
+    <!-- =====================================================
+         CONTENT
+    ====================================================== -->
 
-    <div class="input-group">
+    <div class="content">
 
-        <input
-            type="email"
-            id="inviteEmail"
-            placeholder="email@empresa.com"
+        <!-- =================================================
+             CREAR
+        ================================================== -->
+
+        <section class="section" data-section="crear">
+
+            <div class="card fade-up">
+
+                <h2>
+                    🔗 Crear enlace
+                </h2>
+
+                <p class="muted">
+                    Acortá tus enlaces con resultados maravillosos con World Cloud.
+                </p>
+
+                <!-- INPUT -->
+
+                <div class="input-group">
+
+                    <input
+                        type="url"
+                        id="urlInput"
+                        placeholder="https://tusitio.com"
+                    >
+
+                    <button
+                        id="shortBtn"
+                        class="btn-primary"
+                    >
+                        ⚡ Generar
+                    </button>
+
+                </div>
+
+                <!-- CUSTOM -->
+
+                <div
+                    id="customSection"
+                    class="custom-box hidden"
+                >
+
+                    <h3>
+                        ✨ Personalizar enlace (PRO)
+                    </h3>
+
+                    <input
+                        type="text"
+                        id="customCode"
+                        placeholder="ej: mi-link-2026"
+                    >
+
+                    <div id="previewURL" class="preview-url"></div>
+
+                    <p id="customError" class="error hidden"></p>
+
+                    <!-- PASSWORD -->
+
+                    <div class="pro-only" style="margin-top:16px">
+
+                        <label
+                            class="muted"
+                            style="display:block;margin-bottom:8px"
+                        >
+                            🔒 Contraseña del enlace (opcional)
+                        </label>
+
+                        <input
+                            type="password"
+                            id="linkPassword"
+                            placeholder="Ej: 1234"
+                        >
+
+                    </div>
+
+                    <!-- EXPIRATION -->
+
+                    <div class="pro-only" style="margin-top:16px">
+
+                        <label
+                            class="muted"
+                            style="display:block;margin-bottom:8px"
+                        >
+                            ⏳ Expiración del enlace
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            id="linkExpiration"
+                        >
+
+                    </div>
+
+                </div>
+
+                <!-- RESULT -->
+
+                <div
+                    id="resultSection"
+                    class="hidden result-box"
+                >
+
+                    <p>
+                        ✅ Enlace generado:
+                    </p>
+
+                    <strong id="shortLink"></strong>
+
+                    <!-- QR -->
+
+                    <div
+                        id="qrSection"
+                        class="hidden qr-wrap"
+                    >
+
+                        <img id="qrImage" alt="QR">
+
+                        <button
+                            id="downloadQR"
+                            class="btn-primary"
+                        >
+                            ⬇ Descargar QR
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             PLANES
+        ================================================== -->
+
+        <section
+            class="section hidden"
+            data-section="planes"
         >
 
-        <select
-            id="inviteRole"
-            style="
-                min-width:150px;
-                border-radius:16px;
-                padding:0 14px;
-                background:#0f172a;
-                color:white;
-                border:1px solid rgba(255,255,255,.08);
-            "
+            <div class="card fade-up">
+
+                <h2>
+                    💎 Planes
+                </h2>
+
+                <p class="muted">
+                    Elegí el plan ideal para potenciar tus enlaces.
+                </p>
+
+                <!-- GRID -->
+
+                <div class="pricing-grid">
+
+                    <!-- FREE -->
+
+                    <div
+                        class="pricing-card"
+                        id="freeCard"
+                    >
+
+                        <div class="pricing-head">
+
+                            <h3>FREE</h3>
+
+                            <div class="pricing-price">
+                                $0<span>/mes</span>
+                            </div>
+
+                        </div>
+
+                        <ul class="pricing-list">
+
+                            <li>✔ 1 enlace activo</li>
+                            <li>✔ Dashboard básico</li>
+                            <li>✔ Clicks básicos</li>
+                            <li>✔ Copiar links</li>
+                            <li>✖ Analytics avanzadas</li>
+                            <li>✖ Exportar CSV</li>
+                            <li>✖ Editar links</li>
+
+                        </ul>
+
+                        <button
+                            id="selectFree"
+                            class="btn-ghost full"
+                        >
+                            ✅ Plan actual
+                        </button>
+
+                    </div>
+
+                    <!-- PRO -->
+
+                    <div
+                        class="pricing-card pro"
+                        id="proCard"
+                    >
+
+                        <div class="pricing-head">
+
+                            <div class="pro-badge">
+                                RECOMENDADO
+                            </div>
+
+                            <h3>PRO</h3>
+
+                            <div class="pricing-price">
+                                $5<span>/mes</span>
+                            </div>
+
+                        </div>
+
+                        <ul class="pricing-list">
+
+                            <li>✔ Links ilimitados</li>
+                            <li>✔ Analytics reales</li>
+                            <li>✔ Países y dispositivos</li>
+                            <li>✔ Exportar CSV</li>
+                            <li>✔ Editar links</li>
+                            <li>✔ QR automático</li>
+                            <li>✔ Gráficos avanzados</li>
+
+                        </ul>
+
+                        <button
+                            id="selectPro"
+                            class="btn-primary full"
+                        >
+                            Comprar PRO (5$)
+                        </button>
+
+                    </div>
+
+                    <!-- ENTERPRISE -->
+
+                    <div
+                        class="pricing-card enterprise"
+                        id="enterpriseCard"
+                    >
+
+                        <div class="pricing-head">
+
+                            <div class="enterprise-badge">
+                                ENTERPRISE
+                            </div>
+
+                            <h3>
+                                ENTERPRISE
+                            </h3>
+
+                            <div class="pricing-price">
+                                Custom $
+                            </div>
+
+                        </div>
+
+                        <ul class="pricing-list">
+
+                            <li>✔ Todo PRO</li>
+                            <li>✔ Team Workspaces</li>
+                            <li>✔ Multi usuarios</li>
+                            <li>✔ Roles/permisos</li>
+                            <li>✔ Brand Themes</li>
+                            <li>✔ Analytics enterprise</li>
+
+                        </ul>
+
+                        <button
+                            id="selectEnterprise"
+                            class="btn-primary full"
+                        >
+                            Comprar ENTERPRISE
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- =============================================
+                 ENTERPRISE THEMES
+            ============================================== -->
+
+            <div
+                class="card enterprise-theme-card enterprise-only hidden"
+            >
+
+                <h2>
+                    🎨 Enterprise Themes
+                </h2>
+
+                <p class="muted"
+                    style="margin-top:6px"
+                >
+                    Personalizá completamente el branding.
+                </p>
+
+                <!-- PRESETS -->
+
+                <div class="theme-grid">
+
+                    <button
+                        class="theme-preset"
+                        data-color="#6366f1"
+                        style="background:#6366f1"
+                    >
+                        Ocean
+                    </button>
+
+                    <button
+                        class="theme-preset"
+                        data-color="#10b981"
+                        style="background:#10b981"
+                    >
+                        Emerald
+                    </button>
+
+                    <button
+                        class="theme-preset"
+                        data-color="#f43f5e"
+                        style="background:#f43f5e"
+                    >
+                        Rose
+                    </button>
+
+                    <button
+                        class="theme-preset"
+                        data-color="#f59e0b"
+                        style="background:#f59e0b"
+                    >
+                        Sunset
+                    </button>
+
+                    <button
+                        class="theme-preset"
+                        data-color="#8b5cf6"
+                        style="background:#8b5cf6"
+                    >
+                        Neon
+                    </button>
+
+                    <button
+                        class="theme-preset"
+                        data-color="#06b6d4"
+                        style="background:#06b6d4"
+                    >
+                        Cyber
+                    </button>
+
+                </div>
+
+                <!-- CUSTOM -->
+
+                <div style="margin-top:20px">
+
+                    <label class="muted">
+
+                        🎨 Color personalizado
+
+                    </label>
+
+                    <input
+                        type="color"
+                        id="themeColorPicker"
+                        value="#6366f1"
+                        style="
+                            width:100%;
+                            height:55px;
+                            margin-top:10px;
+                        "
+                    >
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             DASHBOARD
+        ================================================== -->
+
+        <section
+            class="section hidden"
+            data-section="dashboard"
         >
 
-            <option value="VIEWER">
-                VIEWER
-            </option>
+            <!-- DASHBOARD -->
 
-            <option value="ADMIN">
-                ADMIN
-            </option>
+            <div class="card fade-up">
 
-        </select>
+                <div class="dashboard-head">
 
-        <button
-            id="inviteBtn"
-            class="btn-primary"
+                    <div>
+
+                        <h2>
+                            📊 Dashboard
+                        </h2>
+
+                        <p class="muted">
+                            Gestioná y analizá tus enlaces.
+                        </p>
+
+                    </div>
+
+                    <!-- CSV -->
+
+                    <button
+                        id="exportCSV"
+                        class="btn-ghost pro-only"
+                    >
+                        📤 Exportar CSV
+                    </button>
+
+                </div>
+
+                <!-- LIVE -->
+
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:10px;
+                    margin:18px 0;
+                ">
+
+                    <div class="live-dot"></div>
+
+                    <span class="muted">
+                        Dashboard sincronizado en tiempo real
+                    </span>
+
+                </div>
+
+                <!-- KPI -->
+
+                <div class="kpi-grid">
+
+                    <div class="kpi analytics-live">
+
+                        <span class="kpi-label">
+                            Enlaces
+                        </span>
+
+                        <span class="kpi-value" id="totalLinks">
+                            0
+                        </span>
+
+                    </div>
+
+                    <div class="kpi analytics-live">
+
+                        <span class="kpi-label">
+                            Clicks
+                        </span>
+
+                        <span class="kpi-value" id="totalClicks">
+                            0
+                        </span>
+
+                    </div>
+
+                    <div class="kpi pro-only analytics-live">
+
+                        <span class="kpi-label">
+                            Países
+                        </span>
+
+                        <span class="kpi-value" id="totalCountries">
+                            0
+                        </span>
+
+                    </div>
+
+                    <div class="kpi pro-only analytics-live">
+
+                        <span class="kpi-label">
+                            Top dispositivo
+                        </span>
+
+                        <span class="kpi-value tiny" id="topDevice">
+                            —
+                        </span>
+
+                    </div>
+
+                    <div class="kpi pro-only analytics-live">
+
+                        <span class="kpi-label">
+                            Analytics
+                        </span>
+
+                        <span class="kpi-value">
+                            🟢 LIVE
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <!-- LINKS HEAD -->
+
+                <div class="links-head">
+
+                    <h3>
+                        Mis enlaces
+                    </h3>
+
+                    <input
+                        type="text"
+                        id="searchLinks"
+                        placeholder="🔍 Buscar enlaces..."
+                    >
+
+                </div>
+
+                <!-- LIST -->
+
+                <div id="linksList" class="links-list"></div>
+
+            </div>
+
+            <!-- =============================================
+                 TEAM WORKSPACE
+            ============================================== -->
+
+            <div class="card enterprise-only hidden">
+
+                <div class="dashboard-head">
+
+                    <div>
+
+                        <h2>
+                            👥 Team Workspace
+                        </h2>
+
+                        <p class="muted">
+                            Gestioná miembros y permisos.
+                        </p>
+
+                    </div>
+
+                    <div class="badge enterprise">
+                        ENTERPRISE
+                    </div>
+
+                </div>
+
+                <!-- INVITE -->
+
+                <div class="input-group">
+
+                    <input
+                        type="email"
+                        id="inviteEmail"
+                        placeholder="email@empresa.com"
+                    >
+
+                    <select
+                        id="inviteRole"
+                        style="
+                            min-width:150px;
+                            border-radius:16px;
+                            padding:0 14px;
+                            background:#0f172a;
+                            color:white;
+                            border:1px solid rgba(255,255,255,.08);
+                        "
+                    >
+
+                        <option value="VIEWER">
+                            VIEWER
+                        </option>
+
+                        <option value="ADMIN">
+                            ADMIN
+                        </option>
+
+                    </select>
+
+                    <button
+                        id="inviteBtn"
+                        class="btn-primary"
+                    >
+                        ➕ Invitar
+                    </button>
+
+                </div>
+
+                <!-- MEMBERS -->
+
+                <div
+                    id="membersList"
+                    class="links-list"
+                    style="margin-top:20px"
+                >
+
+                    <div class="muted">
+                        No hay miembros todavía.
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- =============================================
+                 BRANDING
+            ============================================== -->
+
+            <div
+                class="card enterprise-theme-card enterprise-only hidden"
+            >
+
+                <div class="dashboard-head">
+
+                    <div>
+
+                        <h2>
+                            🎨 Workspace Branding
+                        </h2>
+
+                        <p class="muted">
+                            Personalizá completamente tu marca.
+                        </p>
+
+                    </div>
+
+                    <div class="badge enterprise">
+                        WHITE LABEL
+                    </div>
+
+                </div>
+
+                <!-- NAME -->
+
+                <div style="margin-top:18px">
+
+                    <label class="muted">
+
+                        🏢 Nombre del workspace
+
+                    </label>
+
+                    <input
+                        type="text"
+                        id="workspaceName"
+                        placeholder="Ej: EmpresaX"
+                        style="margin-top:10px"
+                    >
+
+                </div>
+
+                <!-- LOGO -->
+
+                <div style="margin-top:18px">
+
+                    <label class="muted">
+
+                        🖼 Logo (URL)
+
+                    </label>
+
+                    <input
+                        type="url"
+                        id="workspaceLogo"
+                        placeholder="https://logo.png"
+                        style="margin-top:10px"
+                    >
+
+                </div>
+
+                <!-- SAVE -->
+
+                <button
+                    id="saveBranding"
+                    class="btn-primary full"
+                    style="margin-top:24px"
+                >
+                    💾 Guardar branding
+                </button>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             ANALYTICS
+        ================================================== -->
+
+        <section
+            class="section hidden"
+            data-section="analytics"
         >
-            ➕ Invitar
-        </button>
+
+            <div class="card fade-up">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    gap:12px;
+                    flex-wrap:wrap;
+                    margin-bottom:18px;
+                ">
+
+                    <div>
+
+                        <h2>
+                            📈 Analytics
+                            <span class="badge pro">
+                                PRO
+                            </span>
+                        </h2>
+
+                        <p class="muted">
+                            Estadísticas reales en tiempo real.
+                        </p>
+
+                    </div>
+
+                    <div class="realtime-badge">
+
+                        <span class="live-dot"></span>
+
+                        <span>
+                            Datos en vivo
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <!-- CHARTS -->
+
+                <div class="charts-grid">
+
+                    <!-- MAP -->
+
+                    <div class="chart-card full-width">
+
+                        <div class="analytics-label"
+                            style="margin-bottom:14px"
+                        >
+                            🗺️ Actividad global
+                        </div>
+
+                        <canvas id="worldMap"></canvas>
+
+                    </div>
+
+                    <!-- DAILY -->
+
+                    <div class="chart-card">
+
+                        <h3>
+                            Clicks por día
+                        </h3>
+
+                        <canvas id="dailyChart"></canvas>
+
+                    </div>
+
+                    <!-- COUNTRIES -->
+
+                    <div class="chart-card">
+
+                        <h3>
+                            Top países
+                        </h3>
+
+                        <canvas id="countryChart"></canvas>
+
+                    </div>
+
+                    <!-- DEVICE -->
+
+                    <div class="chart-card">
+
+                        <h3>
+                            Dispositivos
+                        </h3>
+
+                        <canvas id="deviceChart"></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
 
     </div>
 
-    <!-- MEMBERS -->
+    <!-- FOOTER -->
 
-    <div
-        id="membersList"
-        class="links-list"
-        style="margin-top:20px"
-    >
+    <footer class="footer">
 
-        <div class="muted">
-            No hay miembros todavía.
-        </div>
+        © 2026 World Cloud —
+        Made by:
+        <strong>iCrisWorld</strong>
 
-    </div>
-
-</div>
-
-<!-- =====================================================
-     BRANDING
-===================================================== -->
-
-<div
-    class="card enterprise-theme-card enterprise-only hidden"
->
-
-    <div class="dashboard-head">
-
-        <div>
-
-            <h2>
-                🎨 Workspace Branding
-            </h2>
-
-            <p class="muted">
-                Personalizá completamente tu marca.
-            </p>
-
-        </div>
-
-        <div class="badge enterprise">
-            WHITE LABEL
-        </div>
-
-    </div>
-
-    <!-- NAME -->
-
-    <div style="margin-top:18px">
-
-        <label class="muted">
-
-            🏢 Nombre del workspace
-
-        </label>
-
-        <input
-            type="text"
-            id="workspaceName"
-            placeholder="Ej: EmpresaX"
-            style="margin-top:10px"
-        >
-
-    </div>
-
-    <!-- LOGO -->
-
-    <div style="margin-top:18px">
-
-        <label class="muted">
-
-            🖼 Logo (URL)
-
-        </label>
-
-        <input
-            type="url"
-            id="workspaceLogo"
-            placeholder="https://logo.png"
-            style="margin-top:10px"
-        >
-
-    </div>
-
-    <!-- THEME -->
-
-    <div style="margin-top:22px">
-
-        <label class="muted">
-
-            🎨 Tema del workspace
-
-        </label>
-
-        <!-- PRESETS -->
-
-        <div class="theme-grid">
-
-            <button
-                class="theme-preset"
-                data-color="#6366f1"
-                style="background:#6366f1"
-            >
-                Ocean
-            </button>
-
-            <button
-                class="theme-preset"
-                data-color="#10b981"
-                style="background:#10b981"
-            >
-                Emerald
-            </button>
-
-            <button
-                class="theme-preset"
-                data-color="#f43f5e"
-                style="background:#f43f5e"
-            >
-                Rose
-            </button>
-
-            <button
-                class="theme-preset"
-                data-color="#f59e0b"
-                style="background:#f59e0b"
-            >
-                Sunset
-            </button>
-
-            <button
-                class="theme-preset"
-                data-color="#8b5cf6"
-                style="background:#8b5cf6"
-            >
-                Neon
-            </button>
-
-            <button
-                class="theme-preset"
-                data-color="#06b6d4"
-                style="background:#06b6d4"
-            >
-                Cyber
-            </button>
-
-        </div>
-
-        <!-- CUSTOM -->
-
-        <div style="margin-top:20px">
-
-            <label class="muted">
-
-                🎨 Color personalizado
-
-            </label>
-
-            <input
-                type="color"
-                id="themeColorPicker"
-                value="#6366f1"
-
-                style="
-                    width:100%;
-                    height:55px;
-                    margin-top:10px;
-                "
-            >
-
-        </div>
-
-    </div>
-
-    <!-- SAVE -->
-
-    <button
-        id="saveBranding"
-        class="btn-primary full"
-        style="margin-top:24px"
-    >
-        💾 Guardar branding
-    </button>
-
-</div>
-
-<!-- =====================================================
-     ENTERPRISE FEATURES
-===================================================== -->
-
-<div class="card enterprise-only hidden">
-
-    <div class="dashboard-head">
-
-        <div>
-
-            <h2>
-                🏢 Enterprise Features
-            </h2>
-
-            <p class="muted">
-                Funciones avanzadas para empresas.
-            </p>
-
-        </div>
-
-        <div class="badge enterprise">
-            ENTERPRISE
-        </div>
-
-    </div>
-
-    <div class="pricing-grid">
-
-        <!-- WORKSPACES -->
-
-        <div class="pricing-card">
-
-            <h3>
-                👥 Team Workspaces
-            </h3>
-
-            <p class="muted">
-                Compartí links y analytics con tu equipo.
-            </p>
-
-        </div>
-
-        <!-- ROLES -->
-
-        <div class="pricing-card">
-
-            <h3>
-                🛡 Roles y permisos
-            </h3>
-
-            <p class="muted">
-                OWNER / ADMIN / VIEWER
-            </p>
-
-        </div>
-
-        <!-- WHITE LABEL -->
-
-        <div class="pricing-card">
-
-            <h3>
-                🎨 White Label
-            </h3>
-
-            <p class="muted">
-                Branding completo personalizado.
-            </p>
-
-        </div>
-
-        <!-- ANALYTICS -->
-
-        <div class="pricing-card">
-
-            <h3>
-                📈 Team Analytics
-            </h3>
-
-            <p class="muted">
-                Analytics compartidas en tiempo real.
-            </p>
-
-        </div>
-
-    </div>
-
-</div>
-
-		</section>
-
-		<!-- =========================================================
-			 ANALYTICS
-		========================================================= -->
-
-		<section
-			class="section hidden"
-			data-section="analytics"
-		>
-
-			<div class="card fade-up">
-
-				<div style="
-					display:flex;
-					justify-content:space-between;
-					align-items:center;
-					gap:12px;
-					flex-wrap:wrap;
-					margin-bottom:18px;
-				">
-
-					<div>
-
-						<h2>
-							📈 Analytics
-							<span class="badge pro">
-								PRO
-							</span>
-						</h2>
-
-						<p class="muted">
-							Estadísticas reales en tiempo real.
-						</p>
-
-					</div>
-
-					<div class="realtime-badge">
-
-						<span class="live-dot"></span>
-
-						<span>
-							Datos en vivo
-						</span>
-
-					</div>
-
-				</div>
-
-				<!-- CHARTS -->
-
-				<div class="charts-grid">
-
-					<!-- MAP -->
-
-					<div class="chart-card full-width">
-
-						<div class="analytics-label"
-							style="margin-bottom:14px"
-						>
-							🗺️ Actividad global
-						</div>
-
-						<canvas id="worldMap"></canvas>
-
-					</div>
-
-					<!-- DAILY -->
-
-					<div class="chart-card">
-
-						<h3>
-							Clicks por día
-						</h3>
-
-						<canvas id="dailyChart"></canvas>
-
-					</div>
-
-					<!-- COUNTRIES -->
-
-					<div class="chart-card">
-
-						<h3>
-							Top países
-						</h3>
-
-						<canvas id="countryChart"></canvas>
-
-					</div>
-
-					<!-- DEVICE -->
-
-					<div class="chart-card">
-
-						<h3>
-							Dispositivos
-						</h3>
-
-						<canvas id="deviceChart"></canvas>
-
-					</div>
-
-				</div>
-
-			</div>
-
-			<!-- FUTURE -->
-
-			<div class="card pro-only">
-
-				<h2>
-					🚀 Próximamente
-				</h2>
-
-				<div class="pricing-grid"
-					style="margin-top:20px"
-				>
-
-					<div class="pricing-card">
-
-						<h3>
-							🔒 Password Links
-						</h3>
-
-						<p class="muted">
-							Protegé enlaces con contraseña.
-						</p>
-
-					</div>
-
-					<div class="pricing-card">
-
-						<h3>
-							⏳ Expiration Links
-						</h3>
-
-						<p class="muted">
-							Links temporales automáticos.
-						</p>
-
-					</div>
-
-					<div class="pricing-card">
-
-						<h3>
-							🌍 Custom Domains
-						</h3>
-
-						<p class="muted">
-							Usá tu propio dominio.
-						</p>
-
-					</div>
-
-				</div>
-
-			</div>
-
-		</section>
-
-	</div>
-
-	<!-- FOOTER -->
-
-	<footer class="footer">
-
-		© 2026 World Cloud —
-		Made by:
-		<strong>iCrisWorld</strong>
-
-	</footer>
+    </footer>
 
 </main>
 
 </div>
 
 <!-- =========================================================
-	 STATS MODAL
+     STATS MODAL
 ========================================================= -->
 
 <div id="statsModal" class="modal hidden">
 
-	<div class="modal-box">
+    <div class="modal-box">
 
-		<!-- CLOSE -->
+        <!-- CLOSE -->
 
-		<button
-			id="closeModal"
-			class="modal-close"
-		>
-			✕
-		</button>
+        <button
+            id="closeModal"
+            class="modal-close"
+        >
+            ✕
+        </button>
 
-		<!-- TITLE -->
+        <!-- TITLE -->
 
-		<h2>
-			📊 Analytics del enlace
-		</h2>
+        <h2>
+            📊 Analytics del enlace
+        </h2>
 
-		<p class="muted" style="margin-top:6px">
-			Estadísticas avanzadas del link.
-		</p>
+        <p class="muted" style="margin-top:6px">
+            Estadísticas avanzadas del link.
+        </p>
 
-		<!-- KPI -->
+        <!-- KPI -->
 
-		<div class="modal-kpis">
+        <div class="modal-kpis">
 
-			<div class="modal-kpi analytics-live">
+            <div class="modal-kpi analytics-live">
 
-				<span>
-					👆 Clicks
-				</span>
+                <span>
+                    👆 Clicks
+                </span>
 
-				<strong id="modalClicks">
-					0
-				</strong>
+                <strong id="modalClicks">
+                    0
+                </strong>
 
-			</div>
+            </div>
 
-			<div class="modal-kpi analytics-live">
+            <div class="modal-kpi analytics-live">
 
-				<span>
-					🌍 País principal
-				</span>
+                <span>
+                    🌍 País principal
+                </span>
 
-				<strong id="modalCountry">
-					—
-				</strong>
+                <strong id="modalCountry">
+                    —
+                </strong>
 
-			</div>
+            </div>
 
-			<div class="modal-kpi analytics-live">
+            <div class="modal-kpi analytics-live">
 
-				<span>
-					📱 Dispositivo
-				</span>
+                <span>
+                    📱 Dispositivo
+                </span>
 
-				<strong id="modalDevice">
-					—
-				</strong>
+                <strong id="modalDevice">
+                    —
+                </strong>
 
-			</div>
+            </div>
 
-		</div>
+        </div>
 
-		<!-- CHART -->
+        <!-- CHART -->
 
-		<div class="chart-card">
+        <div class="chart-card">
 
-			<div style="
-				display:flex;
-				justify-content:space-between;
-				align-items:center;
-				margin-bottom:14px;
-				flex-wrap:wrap;
-				gap:10px;
-			">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:14px;
+                flex-wrap:wrap;
+                gap:10px;
+            ">
 
-				<div class="analytics-label">
+                <div class="analytics-label">
 
-					📈 Clicks en el tiempo
+                    📈 Clicks en el tiempo
 
-				</div>
+                </div>
 
-				<div class="badge pro">
+                <div class="badge pro">
 
-					Analytics PRO
+                    Analytics PRO
 
-				</div>
+                </div>
 
-			</div>
+            </div>
 
-			<canvas id="modalChart"></canvas>
+            <canvas id="modalChart"></canvas>
 
-		</div>
+        </div>
 
-	</div>
-
-</div>
-
-<div
-	id="passwordModal"
-	class="password-modal hidden"
->
-
-	<div class="password-box">
-
-		<h2>
-			🔒 Link protegido
-		</h2>
-
-		<p>
-			Este enlace requiere contraseña.
-		</p>
-
-		<input
-			type="password"
-			id="passwordInput"
-			placeholder="Ingresá la contraseña"
-		>
-
-		<button
-			id="unlockBtn"
-			class="btn-primary full"
-		>
-			Desbloquear
-		</button>
-
-		<p
-			id="passwordError"
-			class="password-error hidden"
-		>
-			Contraseña incorrecta
-		</p>
-
-	</div>
+    </div>
 
 </div>
 
 <!-- =========================================================
-	 TOAST
+     PASSWORD MODAL
+========================================================= -->
+
+<div
+    id="passwordModal"
+    class="password-modal hidden"
+>
+
+    <div class="password-box">
+
+        <h2>
+            🔒 Link protegido
+        </h2>
+
+        <p>
+            Este enlace requiere contraseña.
+        </p>
+
+        <input
+            type="password"
+            id="passwordInput"
+            placeholder="Ingresá la contraseña"
+        >
+
+        <button
+            id="unlockBtn"
+            class="btn-primary full"
+        >
+            Desbloquear
+        </button>
+
+        <p
+            id="passwordError"
+            class="password-error hidden"
+        >
+            Contraseña incorrecta
+        </p>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     TOAST
 ========================================================= -->
 
 <div id="toast" class="toast hidden"></div>
