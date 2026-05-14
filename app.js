@@ -125,11 +125,38 @@ async function handleStripeSuccess() {
 
 async function handleRedirect() {
 
-// Detecta lo que hay después del / (ejemplo: /promo -> promo)
-const code = location.pathname.slice(1); 
+  const path =
+    location.pathname;
 
-// Evitamos que intente redirigir si estás en la página principal o en el admin
-if (!code || code === "admin" || code === "admin.html") return;
+  /* =====================================================
+     BIO PAGE
+  ====================================================== */
+
+  if (
+    path.startsWith("/@")
+  ) {
+
+    loadBioPage();
+
+    return;
+  }
+
+  /* =====================================================
+     ADMIN
+  ====================================================== */
+
+  if (
+    path.startsWith("/admin")
+  ) return;
+
+  /* =====================================================
+     SHORT LINK
+  ====================================================== */
+
+  const code =
+    path.slice(1);
+
+  if (!code) return;
 
   $("redirectScreen")
     ?.classList.remove("hidden");
@@ -2565,3 +2592,184 @@ $("addBioLink")
     $("bioLinksContainer")
       .appendChild(div);
 });
+
+/* =========================================================
+   LOAD BIO PAGE
+========================================================= */
+
+async function loadBioPage() {
+
+  const username =
+    location.pathname
+      .replace("/@","");
+
+  const snap =
+    await getDoc(
+      doc(db,"bioPages",username)
+    );
+
+  if (!snap.exists()) {
+
+    document.body.innerHTML = `
+
+      <div style="
+        min-height:100vh;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        background:#0a0f1e;
+        color:white;
+        font-family:Inter,sans-serif;
+      ">
+
+        <div style="text-align:center">
+
+          <h1>
+            ❌ Bio no encontrada
+          </h1>
+
+        </div>
+
+      </div>
+    `;
+
+    return;
+  }
+
+  const bio =
+    snap.data();
+
+  document.body.innerHTML = `
+
+    <div style="
+      min-height:100vh;
+      background:
+        linear-gradient(
+          135deg,
+          ${bio.background || "#6366f1"},
+          #0f172a
+        );
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      padding:30px;
+
+      font-family:Inter,sans-serif;
+    ">
+
+      <div style="
+        width:100%;
+        max-width:420px;
+
+        text-align:center;
+
+        background:
+          rgba(255,255,255,.08);
+
+        backdrop-filter:
+          blur(18px);
+
+        border:
+          1px solid rgba(255,255,255,.08);
+
+        border-radius:32px;
+
+        padding:40px 24px;
+
+        color:white;
+      ">
+
+        <img
+          src="${
+            bio.avatar ||
+            "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+          }"
+
+          style="
+            width:120px;
+            height:120px;
+
+            border-radius:50%;
+
+            object-fit:cover;
+
+            border:4px solid rgba(255,255,255,.2);
+
+            box-shadow:
+              0 20px 50px rgba(0,0,0,.35);
+          "
+        >
+
+        <h1 style="
+          margin-top:22px;
+
+          font-size:30px;
+          font-weight:800;
+        ">
+
+          ${bio.title || username}
+
+        </h1>
+
+        <p style="
+          margin-top:12px;
+
+          color:rgba(255,255,255,.8);
+
+          line-height:1.6;
+        ">
+
+          ${bio.description || ""}
+
+        </p>
+
+        <div style="
+          margin-top:28px;
+
+          display:flex;
+          flex-direction:column;
+
+          gap:14px;
+        ">
+
+          ${
+            (bio.links || [])
+              .map(link => `
+
+                <a
+                  href="${link.url}"
+                  target="_blank"
+
+                  style="
+                    background:white;
+
+                    color:#0f172a;
+
+                    text-decoration:none;
+
+                    padding:16px;
+
+                    border-radius:18px;
+
+                    font-weight:700;
+
+                    transition:.25s;
+                  "
+                >
+
+                  ${link.title}
+
+                </a>
+
+              `).join("")
+          }
+
+        </div>
+
+      </div>
+
+    </div>
+  `;
+}
