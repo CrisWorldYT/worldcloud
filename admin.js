@@ -1,7 +1,7 @@
 /* =========================================================
    admin.js
    WORLD CLOUD ADMIN PANEL
-   FULL ENTERPRISE VERSION
+   FINAL ENTERPRISE VERSION
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -182,6 +182,10 @@ async function loadAdmin() {
       ...data
     });
 
+    const isExpired =
+      data.expiresAt &&
+      Date.now() > data.expiresAt;
+
     linksList.innerHTML += `
 
       <div class="admin-item">
@@ -225,7 +229,11 @@ async function loadAdmin() {
               data.expiresAt
                 ? `
                   <div class="admin-badge">
-                    ⏳ Expira
+                    ${
+                      isExpired
+                        ? "⏳ Expirado"
+                        : "⏳ Expira"
+                    }
                   </div>
                 `
                 : ""
@@ -235,11 +243,7 @@ async function loadAdmin() {
 
         </div>
 
-        <div style="
-          display:flex;
-          gap:10px;
-          align-items:center;
-        ">
+        <div class="admin-actions">
 
           <button
             class="delete-link-btn"
@@ -376,12 +380,9 @@ async function loadAdmin() {
 
         </div>
 
-        <div style="
-          display:flex;
-          flex-direction:column;
-          gap:10px;
-          align-items:flex-end;
-        ">
+        <!-- ACTIONS -->
+
+        <div class="admin-actions">
 
           ${
             data.plan === "PRO"
@@ -483,10 +484,12 @@ async function loadAdmin() {
     });
 
   /* =====================================================
-     PLAN BUTTONS
+     BUTTONS
   ====================================================== */
 
   setTimeout(() => {
+
+    /* PLAN */
 
     document
       .querySelectorAll(".plan-btn")
@@ -509,9 +512,7 @@ async function loadAdmin() {
         });
       });
 
-    /* ===================================================
-       BAN BUTTONS
-    ==================================================== */
+    /* BAN */
 
     document
       .querySelectorAll(".ban-btn")
@@ -534,9 +535,7 @@ async function loadAdmin() {
         });
       });
 
-    /* ===================================================
-       DELETE USERS
-    ==================================================== */
+    /* DELETE USER */
 
     document
       .querySelectorAll(".delete-user-btn")
@@ -565,14 +564,7 @@ async function loadAdmin() {
   }, 500);
 
   /* =====================================================
-     TOTAL CLICKS
-  ====================================================== */
-
-  $("totalClicks").textContent =
-    totalClicks;
-
-  /* =====================================================
-     CHART
+     TOP LINKS
   ====================================================== */
 
   topLinks.sort(
@@ -609,6 +601,13 @@ function listenToRealtime() {
 
     let usersOnline = 0;
 
+    const logsList =
+      $("logsList");
+
+    if (logsList) {
+      logsList.innerHTML = "";
+    }
+
     snap.forEach(docu => {
 
       const data =
@@ -627,6 +626,38 @@ function listenToRealtime() {
       ) {
         usersOnline++;
       }
+
+      /* LOGS */
+
+      logsList.innerHTML += `
+
+        <div class="admin-item">
+
+          <div>
+
+            <strong>
+              🌍 ${data.country || "Unknown"}
+            </strong>
+
+            <span>
+              📱 ${data.device || "Desktop"}
+            </span>
+
+          </div>
+
+          <div style="
+            font-size:12px;
+            color:#94a3b8;
+          ">
+
+            ${new Date(
+              data.timestamp
+            ).toLocaleString()}
+
+          </div>
+
+        </div>
+      `;
     });
 
     if ($("usersOnline")) {
