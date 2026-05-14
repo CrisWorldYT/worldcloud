@@ -1,0 +1,248 @@
+<!-- =========================================================
+   admin.html
+========================================================= -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>World Cloud Admin</title>
+
+<link rel="icon" type="image/png" href="worldcloud-logo.png">
+
+<link rel="stylesheet" href="admin.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="admin-sidebar">
+
+        <div>
+
+            <div class="admin-logo">
+                ☁ World Cloud
+                <span>ADMIN</span>
+            </div>
+
+            <nav class="admin-nav">
+
+                <button class="admin-nav-item active">
+                    📊 Dashboard
+                </button>
+
+                <button class="admin-nav-item">
+                    👥 Usuarios
+                </button>
+
+                <button class="admin-nav-item">
+                    🔗 Links
+                </button>
+
+                <button class="admin-nav-item">
+                    💎 Planes
+                </button>
+
+                <button class="admin-nav-item">
+                    🚨 Reportes
+                </button>
+
+            </nav>
+
+        </div>
+
+        <div class="admin-bottom">
+
+            <button id="logoutBtn" class="logout-btn">
+                🚪 Cerrar sesión
+            </button>
+
+        </div>
+
+    </aside>
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="admin-main">
+
+        <!-- TOPBAR -->
+
+        <header class="admin-topbar">
+
+            <div>
+
+                <h1>
+                    📊 Admin Dashboard
+                </h1>
+
+                <p>
+                    Gestión global de World Cloud
+                </p>
+                <div class="admin-badge">
+
+    <div class="live-dot"></div>
+
+    <span>
+        Sistema en tiempo real
+    </span>
+
+</div>
+
+            </div>
+
+            <div class="admin-user">
+
+                <img
+                    id="adminAvatar"
+                    src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                >
+
+                <div>
+
+                    <strong id="adminName">
+                        Admin
+                    </strong>
+
+                    <span>
+                        Super Admin
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- CONTENT -->
+
+        <div class="admin-content">
+
+            <!-- KPI -->
+
+            <div class="admin-kpis">
+
+                <div class="admin-kpi">
+
+                    <span>
+                        👥 Usuarios
+                    </span>
+
+                    <strong id="totalUsers">
+                        0
+                    </strong>
+
+                </div>
+
+                <div class="admin-kpi">
+
+                    <span>
+                        🔗 Links
+                    </span>
+
+                    <strong id="totalLinks">
+                        0
+                    </strong>
+
+                </div>
+
+                <div class="admin-kpi">
+
+                    <span>
+                        👆 Clicks
+                    </span>
+
+                    <strong id="totalClicks">
+                        0
+                    </strong>
+
+                </div>
+
+                <div class="admin-kpi">
+
+                    <span>
+                        💎 Usuarios PRO
+                    </span>
+
+                    <strong id="totalPro">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <!-- CHART -->
+
+            <div class="admin-card">
+
+                <div class="card-head">
+
+                    <h2>
+                        📈 Actividad global
+                    </h2>
+
+                </div>
+
+                <canvas id="globalChart"></canvas>
+
+            </div>
+
+            <!-- USERS -->
+
+            <div class="admin-card">
+
+                <div class="card-head">
+
+                    <h2>
+                        👥 Usuarios recientes
+                    </h2>
+
+                </div>
+
+                <div id="usersList"></div>
+
+            </div>
+
+            <!-- LINKS -->
+
+            <div class="admin-card">
+
+                <div class="card-head">
+
+                    <h2>
+                        🔗 Links recientes
+                    </h2>
+
+                </div>
+
+                <div id="linksList"></div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script type="module" src="admin.js"></script>
+
+</body>
+</html>
