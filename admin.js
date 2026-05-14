@@ -101,7 +101,7 @@ $("logoutBtn")
 async function loadAdmin() {
 
   /* =====================================================
-     GET USERS
+     USERS
   ====================================================== */
 
   const usersSnap =
@@ -110,7 +110,7 @@ async function loadAdmin() {
     );
 
   /* =====================================================
-     GET LINKS
+     LINKS
   ====================================================== */
 
   const linksSnap =
@@ -122,7 +122,7 @@ async function loadAdmin() {
   let totalPro = 0;
 
   /* =====================================================
-     USERS COUNT
+     KPI
   ====================================================== */
 
   $("totalUsers").textContent =
@@ -140,10 +140,6 @@ async function loadAdmin() {
 
   $("totalPro").textContent =
     totalPro;
-
-  /* =====================================================
-     LINKS COUNT
-  ====================================================== */
 
   $("totalLinks").textContent =
     linksSnap.size;
@@ -265,17 +261,44 @@ async function loadAdmin() {
 
       <div class="admin-item">
 
-        <div>
+        <div style="
+          display:flex;
+          align-items:center;
+          gap:12px;
+        ">
 
-          <strong>
-            ${docu.id}
-          </strong>
+          <img
+            src="${
+              data.photo ||
+              "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+            }"
 
-          <span>
-            ${
-              data.plan || "FREE"
-            }
-          </span>
+            style="
+              width:48px;
+              height:48px;
+              border-radius:50%;
+              object-fit:cover;
+              border:2px solid #6366f1;
+            "
+          >
+
+          <div>
+
+            <strong>
+              ${
+                data.name ||
+                "Usuario"
+              }
+            </strong>
+
+            <span>
+              ${
+                data.email ||
+                "Sin email"
+              }
+            </span>
+
+          </div>
 
         </div>
 
@@ -309,7 +332,7 @@ async function loadAdmin() {
     totalClicks;
 
   /* =====================================================
-     DELETE BUTTONS
+     DELETE LINKS
   ====================================================== */
 
   document
