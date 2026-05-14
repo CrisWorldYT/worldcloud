@@ -841,3 +841,15 @@ canvas{
   background:
     rgba(239,68,68,.2);
 }
+
+.online-indicator{
+  margin-top:8px;
+  font-size:12px;
+  color:#34d399;
+  font-weight:700;
+}
+
+#worldMap{
+  height:400px;
+  width:100%;
+}

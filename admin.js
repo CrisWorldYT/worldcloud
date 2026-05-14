@@ -1,7 +1,7 @@
 /* =========================================================
    admin.js
    WORLD CLOUD ADMIN PANEL
-   FULL VERSION
+   FULL ENTERPRISE VERSION
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -11,7 +11,13 @@ import {
   collection,
   getDocs,
   deleteDoc,
-  doc
+  updateDoc,
+  doc,
+  query,
+  where,
+  limit,
+  orderBy,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
@@ -106,7 +112,7 @@ async function loadAdmin() {
 
   const usersSnap =
     await getDocs(
-      collection(db, "users")
+      collection(db,"users")
     );
 
   /* =====================================================
@@ -115,7 +121,7 @@ async function loadAdmin() {
 
   const linksSnap =
     await getDocs(
-      collection(db, "links")
+      collection(db,"links")
     );
 
   let totalClicks = 0;
@@ -252,10 +258,47 @@ async function loadAdmin() {
      USERS
   ====================================================== */
 
-  usersSnap.forEach(docu => {
+  usersSnap.forEach(async docu => {
 
     const data =
       docu.data();
+
+    /* ===================================================
+       USER LINKS
+    ==================================================== */
+
+    const linksQuery =
+      query(
+        collection(db,"links"),
+        where("userId","==",docu.id)
+      );
+
+    const linksSnap =
+      await getDocs(linksQuery);
+
+    let userClicks = 0;
+
+    linksSnap.forEach(link => {
+
+      userClicks +=
+        link.data().clicks || 0;
+    });
+
+    /* ===================================================
+       DATES
+    ==================================================== */
+
+    const lastLogin =
+      data.lastLogin
+        ? new Date(data.lastLogin)
+            .toLocaleString()
+        : "—";
+
+    const createdAt =
+      data.createdAt
+        ? new Date(data.createdAt)
+            .toLocaleDateString()
+        : "—";
 
     usersList.innerHTML += `
 
@@ -274,8 +317,8 @@ async function loadAdmin() {
             }"
 
             style="
-              width:48px;
-              height:48px;
+              width:52px;
+              height:52px;
               border-radius:50%;
               object-fit:cover;
               border:2px solid #6366f1;
@@ -298,11 +341,47 @@ async function loadAdmin() {
               }
             </span>
 
+            <div style="
+              margin-top:8px;
+              font-size:12px;
+              color:#94a3b8;
+              display:flex;
+              flex-direction:column;
+              gap:4px;
+            ">
+
+              <span>
+                📅 Registro:
+                ${createdAt}
+              </span>
+
+              <span>
+                🕒 Último login:
+                ${lastLogin}
+              </span>
+
+              <span>
+                🔗 Links:
+                ${linksSnap.size}
+              </span>
+
+              <span>
+                👆 Clicks:
+                ${userClicks}
+              </span>
+
+            </div>
+
           </div>
 
         </div>
 
-        <div>
+        <div style="
+          display:flex;
+          flex-direction:column;
+          gap:10px;
+          align-items:flex-end;
+        ">
 
           ${
             data.plan === "PRO"
@@ -317,6 +396,49 @@ async function loadAdmin() {
                 </div>
               `
           }
+
+          <button
+            class="plan-btn"
+            data-id="${docu.id}"
+            data-plan="${
+              data.plan === "PRO"
+                ? "FREE"
+                : "PRO"
+            }"
+          >
+
+            ${
+              data.plan === "PRO"
+                ? "⬇ FREE"
+                : "💎 PRO"
+            }
+
+          </button>
+
+          <button
+            class="ban-btn"
+            data-id="${docu.id}"
+            data-ban="${
+              data.banned
+                ? "false"
+                : "true"
+            }"
+          >
+
+            ${
+              data.banned
+                ? "✅ Desbanear"
+                : "🚫 Banear"
+            }
+
+          </button>
+
+          <button
+            class="delete-user-btn"
+            data-id="${docu.id}"
+          >
+            🗑 Usuario
+          </button>
 
         </div>
 
@@ -361,7 +483,96 @@ async function loadAdmin() {
     });
 
   /* =====================================================
-     TOP LINKS
+     PLAN BUTTONS
+  ====================================================== */
+
+  setTimeout(() => {
+
+    document
+      .querySelectorAll(".plan-btn")
+      .forEach(btn => {
+
+        btn.addEventListener("click", async () => {
+
+          const uid =
+            btn.dataset.id;
+
+          const plan =
+            btn.dataset.plan;
+
+          await updateDoc(
+            doc(db,"users",uid),
+            { plan }
+          );
+
+          location.reload();
+        });
+      });
+
+    /* ===================================================
+       BAN BUTTONS
+    ==================================================== */
+
+    document
+      .querySelectorAll(".ban-btn")
+      .forEach(btn => {
+
+        btn.addEventListener("click", async () => {
+
+          const uid =
+            btn.dataset.id;
+
+          const banned =
+            btn.dataset.ban === "true";
+
+          await updateDoc(
+            doc(db,"users",uid),
+            { banned }
+          );
+
+          location.reload();
+        });
+      });
+
+    /* ===================================================
+       DELETE USERS
+    ==================================================== */
+
+    document
+      .querySelectorAll(".delete-user-btn")
+      .forEach(btn => {
+
+        btn.addEventListener("click", async () => {
+
+          const uid =
+            btn.dataset.id;
+
+          const confirmDelete =
+            confirm(
+              "¿Eliminar usuario?"
+            );
+
+          if (!confirmDelete) return;
+
+          await deleteDoc(
+            doc(db,"users",uid)
+          );
+
+          location.reload();
+        });
+      });
+
+  }, 500);
+
+  /* =====================================================
+     TOTAL CLICKS
+  ====================================================== */
+
+  $("totalClicks").textContent =
+    totalClicks;
+
+  /* =====================================================
+     CHART
   ====================================================== */
 
   topLinks.sort(
@@ -371,81 +582,220 @@ async function loadAdmin() {
   );
 
   renderChart(topLinks);
+
+  /* =====================================================
+     REALTIME
+  ====================================================== */
+
+  listenToRealtime();
+}
+
+/* =========================================================
+   REALTIME
+========================================================= */
+
+function listenToRealtime() {
+
+  const logsQuery =
+    query(
+      collection(db,"logs"),
+      orderBy("timestamp","desc"),
+      limit(200)
+    );
+
+  onSnapshot(logsQuery, snap => {
+
+    const countries = {};
+
+    let usersOnline = 0;
+
+    snap.forEach(docu => {
+
+      const data =
+        docu.data();
+
+      /* COUNTRIES */
+
+      countries[data.countryCode] =
+        (countries[data.countryCode] || 0) + 1;
+
+      /* ONLINE */
+
+      if (
+        Date.now() - data.timestamp <
+        5 * 60 * 1000
+      ) {
+        usersOnline++;
+      }
+    });
+
+    if ($("usersOnline")) {
+
+      $("usersOnline").textContent =
+        `${usersOnline} ONLINE`;
+    }
+
+    renderMap(countries);
+  });
+}
+
+/* =========================================================
+   MAP
+========================================================= */
+
+let mapChart;
+
+async function renderMap(countries) {
+
+  const canvas =
+    $("worldMap");
+
+  if (!canvas) return;
+
+  if (typeof ChartGeo === "undefined") return;
+
+  const map =
+    await fetch(
+      "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json"
+    ).then(r => r.json());
+
+  const data =
+    ChartGeo
+      .topojson
+      .feature(
+        map,
+        map.objects.countries
+      ).features;
+
+  const chartData =
+    data.map(d => ({
+      feature:d,
+      value:
+        countries[d.properties.iso_a2] || 0
+    }));
+
+  mapChart?.destroy();
+
+  mapChart =
+    new Chart(
+      canvas,
+      {
+
+        type:"choropleth",
+
+        data:{
+
+          labels:
+            data.map(
+              d => d.properties.name
+            ),
+
+          datasets:[{
+
+            label:"Clicks",
+
+            data:chartData
+          }]
+        },
+
+        options:{
+
+          showOutline:true,
+
+          showGraticule:false,
+
+          plugins:{
+            legend:{
+              display:false
+            }
+          },
+
+          scales:{
+            xy:{
+              projection:"equalEarth"
+            }
+          }
+        }
+      }
+    );
 }
 
 /* =========================================================
    CHART
 ========================================================= */
 
+let globalChart;
+
 function renderChart(links) {
 
   const ctx =
-    document.getElementById(
-      "globalChart"
-    );
+    $("globalChart");
 
   if (!ctx) return;
 
-  new Chart(ctx, {
+  globalChart?.destroy();
 
-    type:"bar",
+  globalChart =
+    new Chart(ctx, {
 
-    data:{
+      type:"bar",
 
-      labels:
-        links
-          .slice(0,7)
-          .map(l => l.id),
+      data:{
 
-      datasets:[{
-
-        label:"Clicks",
-
-        data:
+        labels:
           links
             .slice(0,7)
-            .map(l => l.clicks || 0),
+            .map(l => l.id),
 
-        backgroundColor:[
-          "#3b82f6",
-          "#6366f1",
-          "#8b5cf6",
-          "#60a5fa",
-          "#818cf8",
-          "#a78bfa",
-          "#2563eb"
-        ],
+        datasets:[{
 
-        borderRadius:12
-      }]
-    },
+          label:"Clicks",
 
-    options:{
+          data:
+            links
+              .slice(0,7)
+              .map(l => l.clicks || 0),
 
-      responsive:true,
+          backgroundColor:[
+            "#3b82f6",
+            "#6366f1",
+            "#8b5cf6",
+            "#60a5fa",
+            "#818cf8",
+            "#a78bfa",
+            "#2563eb"
+          ],
 
-      plugins:{
-
-        legend:{
-          display:false
-        }
+          borderRadius:12
+        }]
       },
 
-      scales:{
+      options:{
 
-        y:{
-          beginAtZero:true,
-          grid:{
-            color:"rgba(255,255,255,.05)"
+        responsive:true,
+
+        plugins:{
+
+          legend:{
+            display:false
           }
         },
 
-        x:{
-          grid:{
-            display:false
+        scales:{
+
+          y:{
+            beginAtZero:true,
+            grid:{
+              color:"rgba(255,255,255,.05)"
+            }
+          },
+
+          x:{
+            grid:{
+              display:false
+            }
           }
         }
       }
-    }
-  });
+    });
 }

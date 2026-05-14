@@ -185,20 +185,30 @@ async function handleRedirect() {
 
   /* ================= SAVE ANALYTICS ================= */
 
-  await addDoc(
-    collection(
-      db,
-      "links",
-      code,
-      "analytics"
-    ),
-    {
-      timestamp: Date.now(),
-      country,
-      countryCode,
-      device
-    }
-  );
+const analyticsData = {
+  timestamp: Date.now(),
+  country,
+  countryCode,
+  device
+};
+
+await addDoc(
+  collection(
+    db,
+    "links",
+    code,
+    "analytics"
+  ),
+  analyticsData
+);
+
+await addDoc(
+  collection(
+    db,
+    "logs"
+  ),
+  analyticsData
+);
 
   /* ================= CLICK ================= */
 
