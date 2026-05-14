@@ -55,7 +55,7 @@ onAuthStateChanged(auth, async user => {
   ====================================================== */
 
   const ADMIN_EMAIL =
-    "TUEMAIL@gmail.com";
+    "personadeg321@gmail.com";
 
   if (
     user.email !== ADMIN_EMAIL
