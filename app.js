@@ -3,7 +3,7 @@
    FULL ENTERPRISE VERSION
    PASSWORD + EXPIRATION + REAL ANALYTICS + THEMES
 ========================================================= */
-
+let currentRole = "OWNER";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
@@ -430,7 +430,8 @@ await setDoc(userRef, {
 });
 
     currentPlan = "FREE";
-
+    currentRole =
+  userSnap.data().role || "OWNER";
   } else {
 
     /* BANNED CHECK */
@@ -472,6 +473,58 @@ loadWorkspace();
 
   loadDashboard();
   checkInvites();
+  /* =====================================================
+   VIEWER RESTRICTIONS
+===================================================== */
+
+const isViewer =
+  currentRole === "VIEWER";
+
+/* BOTONES */
+
+document
+  .querySelectorAll(
+    ".edit-btn,.delete-btn,.csv-btn"
+  )
+  .forEach(el => {
+
+    el.style.display =
+      isViewer
+        ? "none"
+        : "";
+  });
+
+/* CREATE */
+
+if ($("shortBtn")) {
+
+  $("shortBtn").disabled =
+    isViewer;
+}
+
+/* INVITE */
+
+if ($("inviteBtn")) {
+
+  $("inviteBtn").style.display =
+    isViewer
+      ? "none"
+      : "";
+}
+
+/* BRANDING */
+
+document
+  .querySelectorAll(
+    ".enterprise-theme-card"
+  )
+  .forEach(el => {
+
+    el.style.display =
+      currentRole === "OWNER"
+        ? ""
+        : "none";
+  });
 });
 
 /* =========================================================
@@ -2219,4 +2272,64 @@ $("rejectInvite")
     showToast(
       "❌ Invitación rechazada"
     );
+});
+
+/* =========================================================
+   LEAVE WORKSPACE
+========================================================= */
+
+$("leaveWorkspace")
+  ?.addEventListener("click", async () => {
+
+    const confirmLeave =
+      confirm(
+        "¿Abandonar workspace?"
+      );
+
+    if (!confirmLeave) return;
+
+    /* NEW WORKSPACE */
+
+    const workspaceRef =
+      doc(
+        collection(db,"workspaces")
+      );
+
+    const workspaceId =
+      workspaceRef.id;
+
+    await setDoc(workspaceRef, {
+
+      name:
+        `${currentUser.displayName}'s Workspace`,
+
+      owner:
+        currentUser.uid,
+
+      createdAt:
+        Date.now(),
+
+      theme:"#6366f1",
+
+      logo:
+        currentUser.photoURL || ""
+    });
+
+    /* UPDATE USER */
+
+    await updateDoc(
+      doc(db,"users",currentUser.uid),
+      {
+
+        workspaceId,
+
+        role:"OWNER"
+      }
+    );
+
+    showToast(
+      "🚪 Abandonaste el workspace"
+    );
+
+    location.reload();
 });
