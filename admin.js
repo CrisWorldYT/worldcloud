@@ -1,7 +1,7 @@
 /* =========================================================
    admin.js
    WORLD CLOUD ADMIN PANEL
-   FINAL ENTERPRISE VERSION
+   ENTERPRISE VERSION
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -67,7 +67,7 @@ onAuthStateChanged(auth, async user => {
     user.email !== ADMIN_EMAIL
   ) {
 
-    alert("No autorizado");
+    alert("¡Correo Electrónico no Autorizado!");
 
     location.href = "/";
 
@@ -116,6 +116,15 @@ async function loadAdmin() {
     );
 
   /* =====================================================
+     WORKSPACES
+  ====================================================== */
+
+  const workspacesSnap =
+    await getDocs(
+      collection(db,"workspaces")
+    );
+
+  /* =====================================================
      LINKS
   ====================================================== */
 
@@ -124,31 +133,45 @@ async function loadAdmin() {
       collection(db,"links")
     );
 
-  let totalClicks = 0;
-  let totalPro = 0;
+  /* =====================================================
+     INVITES
+  ====================================================== */
+
+  const invitesSnap =
+    await getDocs(
+      collection(db,"workspaceInvites")
+    );
 
   /* =====================================================
-     KPI
+     TOTALS
   ====================================================== */
+
+  let totalClicks = 0;
+  let totalEnterprise = 0;
 
   $("totalUsers").textContent =
     usersSnap.size;
 
-  usersSnap.forEach(docu => {
+  $("totalWorkspaces").textContent =
+    workspacesSnap.size;
+
+  $("totalLinks").textContent =
+    linksSnap.size;
+
+  invitesSnap.forEach(docu => {
 
     const data =
       docu.data();
 
-    if (data.plan === "PRO") {
-      totalPro++;
+    if (
+      data.status === "PENDING"
+    ) {
+      totalEnterprise++;
     }
   });
 
-  $("totalPro").textContent =
-    totalPro;
-
-  $("totalLinks").textContent =
-    linksSnap.size;
+  $("totalInvites").textContent =
+    invitesSnap.size;
 
   /* =====================================================
      LISTS
@@ -160,84 +183,126 @@ async function loadAdmin() {
   const linksList =
     $("linksList");
 
+  const workspacesList =
+    $("workspacesList");
+
+  const invitesList =
+    $("invitesList");
+
   usersList.innerHTML = "";
   linksList.innerHTML = "";
+  workspacesList.innerHTML = "";
+  invitesList.innerHTML = "";
 
   /* =====================================================
-     LINKS
+     WORKSPACES
   ====================================================== */
 
-  const topLinks = [];
+  workspacesSnap.forEach(async workspaceDoc => {
 
-  linksSnap.forEach(docu => {
+    const workspace =
+      workspaceDoc.data();
 
-    const data =
-      docu.data();
+    /* MEMBERS */
 
-    totalClicks +=
-      data.clicks || 0;
+    const membersQuery =
+      query(
+        collection(db,"users"),
+        where(
+          "workspaceId",
+          "==",
+          workspaceDoc.id
+        )
+      );
 
-    topLinks.push({
-      id:docu.id,
-      ...data
+    const membersSnap =
+      await getDocs(membersQuery);
+
+    let memberCount =
+      membersSnap.size;
+
+    let totalWorkspaceClicks = 0;
+
+    /* LINKS */
+
+    const workspaceLinksQuery =
+      query(
+        collection(db,"links"),
+        where(
+          "workspaceId",
+          "==",
+          workspaceDoc.id
+        )
+      );
+
+    const workspaceLinksSnap =
+      await getDocs(workspaceLinksQuery);
+
+    workspaceLinksSnap.forEach(link => {
+
+      totalWorkspaceClicks +=
+        link.data().clicks || 0;
     });
 
-    const isExpired =
-      data.expiresAt &&
-      Date.now() > data.expiresAt;
-
-    linksList.innerHTML += `
+    workspacesList.innerHTML += `
 
       <div class="admin-item">
 
-        <div>
+        <div style="
+          display:flex;
+          align-items:center;
+          gap:14px;
+        ">
 
-          <strong>
-            ${docu.id}
-          </strong>
+          ${
+            workspace.logo
+              ? `
+                <img
+                  src="${workspace.logo}"
+                  style="
+                    width:56px;
+                    height:56px;
+                    border-radius:16px;
+                    object-fit:cover;
+                    border:2px solid #6366f1;
+                  "
+                >
+              `
+              : `
+                <div style="
+                  width:56px;
+                  height:56px;
+                  border-radius:16px;
+                  background:#1e293b;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  font-size:22px;
+                ">
+                  ☁
+                </div>
+              `
+          }
 
-          <span>
-            ${data.originalURL}
-          </span>
+          <div>
 
-          <div style="
-            margin-top:8px;
-            color:#60a5fa;
-            font-size:13px;
-          ">
-            👆 ${data.clicks || 0} clicks
-          </div>
+            <strong>
+              ${workspace.name}
+            </strong>
 
-          <div style="
-            display:flex;
-            gap:8px;
-            margin-top:10px;
-            flex-wrap:wrap;
-          ">
+            <span>
+              👥 ${memberCount} miembros
+            </span>
 
-            ${
-              data.password
-                ? `
-                  <div class="admin-badge">
-                    🔒 Protegido
-                  </div>
-                `
-                : ""
-            }
+            <div style="
+              margin-top:8px;
+              font-size:12px;
+              color:#94a3b8;
+            ">
 
-            ${
-              data.expiresAt
-                ? `
-                  <div class="admin-badge">
-                    ${
-                      isExpired
-                        ? "⏳ Expirado"
-                        : "⏳ Expira"
-                    }
-                  </div>
-                `
-                : ""
-            }
+              👆 ${totalWorkspaceClicks} clicks
+
+            </div>
 
           </div>
 
@@ -245,11 +310,15 @@ async function loadAdmin() {
 
         <div class="admin-actions">
 
+          <div class="admin-badge">
+            ENTERPRISE
+          </div>
+
           <button
-            class="delete-link-btn"
-            data-id="${docu.id}"
+            class="delete-workspace-btn"
+            data-id="${workspaceDoc.id}"
           >
-            🗑
+            🗑 Workspace
           </button>
 
         </div>
@@ -262,19 +331,21 @@ async function loadAdmin() {
      USERS
   ====================================================== */
 
-  usersSnap.forEach(async docu => {
+  usersSnap.forEach(async userDoc => {
 
     const data =
-      docu.data();
+      userDoc.data();
 
-    /* ===================================================
-       USER LINKS
-    ==================================================== */
+    /* LINKS */
 
     const linksQuery =
       query(
         collection(db,"links"),
-        where("userId","==",docu.id)
+        where(
+          "userId",
+          "==",
+          userDoc.id
+        )
       );
 
     const linksSnap =
@@ -288,20 +359,18 @@ async function loadAdmin() {
         link.data().clicks || 0;
     });
 
-    /* ===================================================
-       DATES
-    ==================================================== */
-
-    const lastLogin =
-      data.lastLogin
-        ? new Date(data.lastLogin)
-            .toLocaleString()
-        : "—";
+    /* DATES */
 
     const createdAt =
       data.createdAt
         ? new Date(data.createdAt)
             .toLocaleDateString()
+        : "—";
+
+    const lastLogin =
+      data.lastLogin
+        ? new Date(data.lastLogin)
+            .toLocaleString()
         : "—";
 
     usersList.innerHTML += `
@@ -311,7 +380,7 @@ async function loadAdmin() {
         <div style="
           display:flex;
           align-items:center;
-          gap:12px;
+          gap:14px;
         ">
 
           <img
@@ -332,17 +401,11 @@ async function loadAdmin() {
           <div>
 
             <strong>
-              ${
-                data.name ||
-                "Usuario"
-              }
+              ${data.name || "Usuario"}
             </strong>
 
             <span>
-              ${
-                data.email ||
-                "Sin email"
-              }
+              ${data.email || "Sin email"}
             </span>
 
             <div style="
@@ -384,41 +447,31 @@ async function loadAdmin() {
 
         <div class="admin-actions">
 
-          ${
-            data.plan === "PRO"
-              ? `
-                <div class="admin-badge">
-                  💎 PRO
-                </div>
-              `
-              : `
-                <div class="admin-badge">
-                  FREE
-                </div>
-              `
-          }
+          <div class="admin-badge">
+            ${data.role || "USER"}
+          </div>
 
           <button
             class="plan-btn"
-            data-id="${docu.id}"
+            data-id="${userDoc.id}"
             data-plan="${
-              data.plan === "PRO"
-                ? "FREE"
-                : "PRO"
+              data.plan === "ENTERPRISE"
+                ? "PRO"
+                : "ENTERPRISE"
             }"
           >
 
             ${
-              data.plan === "PRO"
-                ? "⬇ FREE"
-                : "💎 PRO"
+              data.plan === "ENTERPRISE"
+                ? "⬇ PRO"
+                : "🏢 ENTERPRISE"
             }
 
           </button>
 
           <button
             class="ban-btn"
-            data-id="${docu.id}"
+            data-id="${userDoc.id}"
             data-ban="${
               data.banned
                 ? "false"
@@ -436,7 +489,7 @@ async function loadAdmin() {
 
           <button
             class="delete-user-btn"
-            data-id="${docu.id}"
+            data-id="${userDoc.id}"
           >
             🗑 Usuario
           </button>
@@ -448,46 +501,201 @@ async function loadAdmin() {
   });
 
   /* =====================================================
-     TOTAL CLICKS
+     LINKS
+  ====================================================== */
+
+  const topLinks = [];
+
+  linksSnap.forEach(docu => {
+
+    const data =
+      docu.data();
+
+    totalClicks +=
+      data.clicks || 0;
+
+    topLinks.push({
+      id:docu.id,
+      ...data
+    });
+
+    linksList.innerHTML += `
+
+      <div class="admin-item">
+
+        <div>
+
+          <strong>
+            ${docu.id}
+          </strong>
+
+          <span>
+            ${data.originalURL}
+          </span>
+
+          <div style="
+            margin-top:8px;
+            color:#60a5fa;
+            font-size:13px;
+          ">
+            👆 ${data.clicks || 0} clicks
+          </div>
+
+        </div>
+
+        <div class="admin-actions">
+
+          ${
+            data.password
+              ? `
+                <div class="admin-badge">
+                  🔒 Protegido
+                </div>
+              `
+              : ""
+          }
+
+          <button
+            class="delete-link-btn"
+            data-id="${docu.id}"
+          >
+            🗑
+          </button>
+
+        </div>
+
+      </div>
+    `;
+  });
+
+  /* =====================================================
+     INVITES
+  ====================================================== */
+
+  invitesSnap.forEach(docu => {
+
+    const data =
+      docu.data();
+
+    invitesList.innerHTML += `
+
+      <div class="admin-item">
+
+        <div>
+
+          <strong>
+            ${data.email}
+          </strong>
+
+          <span>
+            ${data.role}
+          </span>
+
+        </div>
+
+        <div class="admin-badge">
+
+          ${data.status}
+
+        </div>
+
+      </div>
+    `;
+  });
+
+  /* =====================================================
+     KPI
   ====================================================== */
 
   $("totalClicks").textContent =
     totalClicks;
 
-  /* =====================================================
-     DELETE LINKS
-  ====================================================== */
-
-  document
-    .querySelectorAll(".delete-link-btn")
-    .forEach(btn => {
-
-      btn.addEventListener("click", async () => {
-
-        const id =
-          btn.dataset.id;
-
-        const confirmDelete =
-          confirm(
-            "¿Eliminar link?"
-          );
-
-        if (!confirmDelete) return;
-
-        await deleteDoc(
-          doc(db, "links", id)
-        );
-
-        btn.closest(".admin-item")
-          ?.remove();
-      });
-    });
+  $("totalEnterprise").textContent =
+    workspacesSnap.size;
 
   /* =====================================================
      BUTTONS
   ====================================================== */
 
   setTimeout(() => {
+
+    /* DELETE USER */
+
+    document
+      .querySelectorAll(".delete-user-btn")
+      .forEach(btn => {
+
+        btn.addEventListener("click", async () => {
+
+          const uid =
+            btn.dataset.id;
+
+          if (
+            confirm(
+              "¿Eliminar usuario?"
+            )
+          ) {
+
+            await deleteDoc(
+              doc(db,"users",uid)
+            );
+
+            location.reload();
+          }
+        });
+      });
+
+    /* DELETE LINK */
+
+    document
+      .querySelectorAll(".delete-link-btn")
+      .forEach(btn => {
+
+        btn.addEventListener("click", async () => {
+
+          const id =
+            btn.dataset.id;
+
+          if (
+            confirm(
+              "¿Eliminar link?"
+            )
+          ) {
+
+            await deleteDoc(
+              doc(db,"links",id)
+            );
+
+            location.reload();
+          }
+        });
+      });
+
+    /* DELETE WORKSPACE */
+
+    document
+      .querySelectorAll(".delete-workspace-btn")
+      .forEach(btn => {
+
+        btn.addEventListener("click", async () => {
+
+          const id =
+            btn.dataset.id;
+
+          if (
+            confirm(
+              "¿Eliminar workspace?"
+            )
+          ) {
+
+            await deleteDoc(
+              doc(db,"workspaces",id)
+            );
+
+            location.reload();
+          }
+        });
+      });
 
     /* PLAN */
 
@@ -535,36 +743,10 @@ async function loadAdmin() {
         });
       });
 
-    /* DELETE USER */
-
-    document
-      .querySelectorAll(".delete-user-btn")
-      .forEach(btn => {
-
-        btn.addEventListener("click", async () => {
-
-          const uid =
-            btn.dataset.id;
-
-          const confirmDelete =
-            confirm(
-              "¿Eliminar usuario?"
-            );
-
-          if (!confirmDelete) return;
-
-          await deleteDoc(
-            doc(db,"users",uid)
-          );
-
-          location.reload();
-        });
-      });
-
   }, 500);
 
   /* =====================================================
-     TOP LINKS
+     CHART
   ====================================================== */
 
   topLinks.sort(
@@ -629,35 +811,38 @@ function listenToRealtime() {
 
       /* LOGS */
 
-      logsList.innerHTML += `
+      if (logsList) {
 
-        <div class="admin-item">
+        logsList.innerHTML += `
 
-          <div>
+          <div class="admin-item">
 
-            <strong>
-              🌍 ${data.country || "Unknown"}
-            </strong>
+            <div>
 
-            <span>
-              📱 ${data.device || "Desktop"}
-            </span>
+              <strong>
+                🌍 ${data.country || "Unknown"}
+              </strong>
+
+              <span>
+                📱 ${data.device || "Desktop"}
+              </span>
+
+            </div>
+
+            <div style="
+              font-size:12px;
+              color:#94a3b8;
+            ">
+
+              ${new Date(
+                data.timestamp
+              ).toLocaleString()}
+
+            </div>
 
           </div>
-
-          <div style="
-            font-size:12px;
-            color:#94a3b8;
-          ">
-
-            ${new Date(
-              data.timestamp
-            ).toLocaleString()}
-
-          </div>
-
-        </div>
-      `;
+        `;
+      }
     });
 
     if ($("usersOnline")) {

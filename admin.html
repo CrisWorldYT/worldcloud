@@ -50,7 +50,7 @@
                 ☁ World Cloud
 
                 <span>
-                    ADMIN PANEL
+                    ENTERPRISE PANEL
                 </span>
 
             </div>
@@ -59,37 +59,64 @@
 
             <nav class="admin-nav">
 
-                <button class="admin-nav-item active">
+                <button
+                    class="admin-nav-item active"
+                    data-section="dashboard"
+                >
 
                     📊 Dashboard
 
                 </button>
 
-                <button class="admin-nav-item">
+                <button
+                    class="admin-nav-item"
+                    data-section="workspaces"
+                >
+
+                    🏢 Workspaces
+
+                </button>
+
+                <button
+                    class="admin-nav-item"
+                    data-section="users"
+                >
 
                     👥 Usuarios
 
                 </button>
 
-                <button class="admin-nav-item">
+                <button
+                    class="admin-nav-item"
+                    data-section="links"
+                >
 
                     🔗 Links
 
                 </button>
 
-                <button class="admin-nav-item">
+                <button
+                    class="admin-nav-item"
+                    data-section="invites"
+                >
 
-                    💎 Planes
+                    📨 Invitaciones
 
                 </button>
 
-                <button class="admin-nav-item">
+                <button
+                    class="admin-nav-item"
+                    data-section="analytics"
+                >
 
                     🌍 Analytics
 
                 </button>
 
-                <button class="admin-nav-item">
+                <button
+                    class="admin-nav-item"
+                    data-section="logs"
+                >
 
                     🚨 Logs
 
@@ -99,9 +126,7 @@
 
         </div>
 
-        <!-- =================================================
-             BOTTOM
-        ================================================== -->
+        <!-- BOTTOM -->
 
         <div class="admin-bottom">
 
@@ -139,7 +164,8 @@
 
                 <!-- LIVE -->
 
-                <div class="admin-badge"
+                <div
+                    class="admin-badge"
                     style="margin-top:14px"
                 >
 
@@ -185,209 +211,320 @@
         <div class="admin-content">
 
             <!-- =================================================
-                 KPI
+                 DASHBOARD
             ================================================== -->
 
-            <div class="admin-kpis">
+            <section
+                class="admin-section"
+                data-section="dashboard"
+            >
 
-                <!-- USERS -->
+                <!-- KPI -->
 
-                <div class="admin-kpi">
+                <div class="admin-kpis">
 
-                    <span>
-                        👥 Usuarios
-                    </span>
+                    <!-- USERS -->
 
-                    <strong id="totalUsers">
-                        0
-                    </strong>
+                    <div class="admin-kpi">
 
-                    <div
-                        class="online-indicator"
-                        id="usersOnline"
-                    >
-                        0 ONLINE
+                        <span>
+                            👥 Usuarios
+                        </span>
+
+                        <strong id="totalUsers">
+                            0
+                        </strong>
+
+                        <div
+                            class="online-indicator"
+                            id="usersOnline"
+                        >
+                            0 ONLINE
+                        </div>
+
+                    </div>
+
+                    <!-- WORKSPACES -->
+
+                    <div class="admin-kpi">
+
+                        <span>
+                            🏢 Workspaces
+                        </span>
+
+                        <strong id="totalWorkspaces">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <!-- LINKS -->
+
+                    <div class="admin-kpi">
+
+                        <span>
+                            🔗 Links
+                        </span>
+
+                        <strong id="totalLinks">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <!-- CLICKS -->
+
+                    <div class="admin-kpi">
+
+                        <span>
+                            👆 Clicks
+                        </span>
+
+                        <strong id="totalClicks">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <!-- ENTERPRISE -->
+
+                    <div class="admin-kpi">
+
+                        <span>
+                            🏢 Enterprise
+                        </span>
+
+                        <strong id="totalEnterprise">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <!-- INVITES -->
+
+                    <div class="admin-kpi">
+
+                        <span>
+                            📨 Invitaciones
+                        </span>
+
+                        <strong id="totalInvites">
+                            0
+                        </strong>
+
                     </div>
 
                 </div>
 
-                <!-- LINKS -->
+                <!-- GLOBAL CHART -->
 
-                <div class="admin-kpi">
+                <div class="admin-card">
 
-                    <span>
-                        🔗 Links
-                    </span>
+                    <div class="card-head">
 
-                    <strong id="totalLinks">
-                        0
-                    </strong>
+                        <h2>
+                            📈 Top Links Globales
+                        </h2>
 
-                </div>
+                        <div class="admin-badge">
 
-                <!-- CLICKS -->
+                            Analytics Live
 
-                <div class="admin-kpi">
+                        </div>
 
-                    <span>
-                        👆 Clicks
-                    </span>
+                    </div>
 
-                    <strong id="totalClicks">
-                        0
-                    </strong>
+                    <canvas id="globalChart"></canvas>
 
                 </div>
 
-                <!-- PRO -->
-
-                <div class="admin-kpi">
-
-                    <span>
-                        💎 Usuarios PRO
-                    </span>
-
-                    <strong id="totalPro">
-                        0
-                    </strong>
-
-                </div>
-
-            </div>
+            </section>
 
             <!-- =================================================
-                 MAPA MUNDIAL
+                 WORKSPACES
             ================================================== -->
 
-            <div class="admin-card">
+            <section
+                class="admin-section hidden"
+                data-section="workspaces"
+            >
 
-                <div class="card-head">
+                <div class="admin-card">
 
-                    <h2>
-                        🗺️ Mapa mundial
-                    </h2>
+                    <div class="card-head">
 
-                    <div class="admin-badge">
+                        <h2>
+                            🏢 Workspaces
+                        </h2>
 
-                        🔥 Realtime
+                        <div class="admin-badge">
+                            ENTERPRISE
+                        </div>
 
                     </div>
 
+                    <div id="workspacesList"></div>
+
                 </div>
 
-                <canvas id="worldMap"></canvas>
-
-            </div>
+            </section>
 
             <!-- =================================================
-                 GLOBAL CHART
+                 USERS
             ================================================== -->
 
-            <div class="admin-card">
+            <section
+                class="admin-section hidden"
+                data-section="users"
+            >
 
-                <div class="card-head">
+                <div class="admin-card">
 
-                    <h2>
-                        📈 Top Links Globales
-                    </h2>
+                    <div class="card-head">
 
-                    <div class="admin-badge">
+                        <h2>
+                            👥 Usuarios
+                        </h2>
 
-                        Analytics Live
+                        <div class="admin-badge">
+                            Gestión avanzada
+                        </div>
 
                     </div>
 
+                    <div id="usersList"></div>
+
                 </div>
 
-                <canvas id="globalChart"></canvas>
-
-            </div>
+            </section>
 
             <!-- =================================================
-                 USERS LIST
+                 LINKS
             ================================================== -->
 
-            <div class="admin-card">
+            <section
+                class="admin-section hidden"
+                data-section="links"
+            >
 
-                <div class="card-head">
+                <div class="admin-card">
 
-                    <h2>
-                        👥 Usuarios
-                    </h2>
+                    <div class="card-head">
 
-                    <div class="admin-badge">
+                        <h2>
+                            🔗 Links
+                        </h2>
 
-                        Gestión avanzada
+                        <div class="admin-badge">
+                            Tiempo real
+                        </div>
 
                     </div>
 
+                    <div id="linksList"></div>
+
                 </div>
 
-                <!-- USERS -->
-
-                <div id="usersList"></div>
-
-            </div>
+            </section>
 
             <!-- =================================================
-                 LINKS LIST
+                 INVITES
             ================================================== -->
 
-            <div class="admin-card">
+            <section
+                class="admin-section hidden"
+                data-section="invites"
+            >
 
-                <div class="card-head">
+                <div class="admin-card">
 
-                    <h2>
-                        🔗 Links
-                    </h2>
+                    <div class="card-head">
 
-                    <div class="admin-badge">
+                        <h2>
+                            📨 Invitaciones
+                        </h2>
 
-                        Tiempo real
+                        <div class="admin-badge">
+                            Workspace invites
+                        </div>
 
                     </div>
 
+                    <div id="invitesList"></div>
+
                 </div>
 
-                <!-- LINKS -->
+            </section>
 
-                <div id="linksList"></div>
+            <!-- =================================================
+                 ANALYTICS
+            ================================================== -->
 
-            </div>
+            <section
+                class="admin-section hidden"
+                data-section="analytics"
+            >
+
+                <!-- MAP -->
+
+                <div class="admin-card">
+
+                    <div class="card-head">
+
+                        <h2>
+                            🗺️ Mapa mundial
+                        </h2>
+
+                        <div class="admin-badge">
+                            🔥 Realtime
+                        </div>
+
+                    </div>
+
+                    <canvas id="worldMap"></canvas>
+
+                </div>
+
+            </section>
 
             <!-- =================================================
                  LOGS
             ================================================== -->
 
-            <div class="admin-card">
+            <section
+                class="admin-section hidden"
+                data-section="logs"
+            >
 
-                <div class="card-head">
+                <div class="admin-card">
 
-                    <h2>
-                        🚨 Logs del sistema
-                    </h2>
+                    <div class="card-head">
 
-                    <div class="admin-badge">
+                        <h2>
+                            🚨 Logs del sistema
+                        </h2>
 
-                        LIVE
+                        <div class="admin-badge">
+                            LIVE
+                        </div>
 
                     </div>
 
-                </div>
+                    <div id="logsList">
 
-                <div id="logsList">
+                        <div class="admin-item">
 
-                    <div class="admin-item">
+                            <div>
 
-                        <div>
+                                <strong>
+                                    Sistema iniciado
+                                </strong>
 
-                            <strong>
-                                Sistema iniciado
-                            </strong>
+                                <span>
+                                    Esperando actividad...
+                                </span>
 
-                            <span>
-                                Esperando actividad...
-                            </span>
+                            </div>
 
                         </div>
 
@@ -395,7 +532,7 @@
 
                 </div>
 
-            </div>
+            </section>
 
         </div>
 
