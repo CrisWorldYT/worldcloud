@@ -594,7 +594,6 @@ async function checkInvites() {
 $("inviteBtn")
   ?.addEventListener("click", inviteMember);
 
- {
 /* =========================================================
    INVITE MEMBERS
 ========================================================= */
