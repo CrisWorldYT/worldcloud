@@ -1,5 +1,6 @@
 /* =========================================================
    WORLD CLOUD PRO
+   VERSION COMPLETA
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -13,10 +14,12 @@ import {
   updateDoc,
   deleteDoc,
   increment,
+  addDoc,
   collection,
   query,
   where,
-  onSnapshot
+  onSnapshot,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
@@ -53,6 +56,11 @@ let currentPlan = "FREE";
 
 let allLinks = [];
 
+let modalChart;
+let dailyChart;
+let deviceChart;
+let countryChart;
+
 /* =========================================================
    INIT
 ========================================================= */
@@ -60,7 +68,7 @@ let allLinks = [];
 console.log("✅ WORLD CLOUD READY");
 
 /* =========================================================
-   REDIRECT
+   REDIRECT + REAL ANALYTICS
 ========================================================= */
 
 async function handleRedirect() {
@@ -82,13 +90,71 @@ async function handleRedirect() {
 
   if (!snap.exists()) return;
 
+  const linkData =
+    snap.data();
+
+  /* COUNTRY */
+
+  let country = "Unknown";
+  let countryCode = "UN";
+
+  try {
+
+    const geo =
+      await fetch("https://ipapi.co/json/")
+      .then(r => r.json());
+
+    country =
+      geo.country_name || "Unknown";
+
+    countryCode =
+      geo.country_code || "UN";
+
+  } catch {}
+
+  /* DEVICE */
+
+  const ua =
+    navigator.userAgent;
+
+  let device = "Desktop";
+
+  if (/mobile/i.test(ua)) {
+    device = "Mobile";
+  }
+
+  if (/tablet/i.test(ua)) {
+    device = "Tablet";
+  }
+
+  /* SAVE ANALYTICS */
+
+  await addDoc(
+    collection(
+      db,
+      "links",
+      code,
+      "analytics"
+    ),
+    {
+      timestamp: Date.now(),
+      country,
+      countryCode,
+      device
+    }
+  );
+
+  /* CLICK */
+
   updateDoc(ref, {
     clicks: increment(1)
-  }).catch(() => {});
+  }).catch(()=>{});
 
   setTimeout(() => {
+
     location.href =
-      snap.data().originalURL;
+      linkData.originalURL;
+
   }, 250);
 }
 
@@ -293,7 +359,7 @@ async function changePlan(plan) {
 
   if (currentPlan === plan) {
 
-    showToast("😎 Ya tenés este plan");
+    showToast("El plan ya está en uso.");
 
     return;
   }
@@ -404,7 +470,7 @@ $("customCode")
 
     $("previewURL").textContent =
       val
-        ? location.origin + "/" + val
+        ? location.origin + "?c=" + val
         : "";
   });
 
@@ -561,11 +627,15 @@ async function loadDashboard() {
       )
     );
 
-  onSnapshot(q, snap => {
+  onSnapshot(q, async snap => {
 
     allLinks = [];
 
     let totalClicks = 0;
+
+    const countries = {};
+    const devices = {};
+    const daily = {};
 
     snap.forEach(docu => {
 
@@ -581,6 +651,56 @@ async function loadDashboard() {
       });
     });
 
+    /* REAL ANALYTICS */
+
+    for (const link of allLinks) {
+
+      const analyticsSnap =
+        await getDocs(
+          collection(
+            db,
+            "links",
+            link.id,
+            "analytics"
+          )
+        );
+
+      analyticsSnap.forEach(docu => {
+
+        const d =
+          docu.data();
+
+        countries[d.country] =
+          (countries[d.country] || 0) + 1;
+
+        devices[d.device] =
+          (devices[d.device] || 0) + 1;
+
+        const day =
+          new Date(d.timestamp)
+            .toLocaleDateString();
+
+        daily[day] =
+          (daily[day] || 0) + 1;
+      });
+    }
+
+    /* TOP DEVICE */
+
+    let topDevice = "—";
+
+    let max = 0;
+
+    for (const d in devices) {
+
+      if (devices[d] > max) {
+
+        max = devices[d];
+
+        topDevice = d;
+      }
+    }
+
     $("totalLinks").textContent =
       allLinks.length;
 
@@ -589,19 +709,22 @@ async function loadDashboard() {
 
     $("totalCountries").textContent =
       currentPlan === "PRO"
-        ? Math.floor(Math.random()*18)+1
-        : "0";
+        ? Object.keys(countries).length
+        : "—";
 
     $("topDevice").textContent =
       currentPlan === "PRO"
-        ? ["Mobile","Desktop","Tablet"][
-            Math.floor(Math.random()*3)
-          ]
+        ? topDevice
         : "—";
 
     renderLinks(allLinks);
 
-    renderCharts();
+    if (currentPlan === "PRO") {
+
+      renderDailyChart(daily);
+      renderCountryChart(countries);
+      renderDeviceChart(devices);
+    }
   });
 }
 
@@ -689,11 +812,11 @@ function renderLinks(links) {
             📋 Copiar
           </button>
 
-          <button class="btn-ghost csv-btn pro-only-btn">
+          <button class="btn-ghost csv-btn">
             📤 CSV
           </button>
 
-          <button class="btn-ghost edit-btn pro-only-btn">
+          <button class="btn-ghost edit-btn">
             ✏ Editar
           </button>
 
@@ -736,7 +859,7 @@ function renderLinks(links) {
     /* CSV */
 
     div.querySelector(".csv-btn")
-      ?.addEventListener("click", e => {
+      .addEventListener("click", e => {
 
         e.stopPropagation();
 
@@ -753,7 +876,7 @@ function renderLinks(links) {
     /* EDIT */
 
     div.querySelector(".edit-btn")
-      ?.addEventListener("click", async e => {
+      .addEventListener("click", async e => {
 
         e.stopPropagation();
 
@@ -797,30 +920,10 @@ function renderLinks(links) {
 }
 
 /* =========================================================
-   SEARCH
-========================================================= */
-
-$("searchLinks")
-  ?.addEventListener("input", e => {
-
-    const val =
-      e.target.value.toLowerCase();
-
-    const filtered =
-      allLinks.filter(link =>
-        link.originalURL
-          .toLowerCase()
-          .includes(val)
-      );
-
-    renderLinks(filtered);
-  });
-
-/* =========================================================
    STATS MODAL
 ========================================================= */
 
-function openStats(link) {
+async function openStats(link) {
 
   $("statsModal")
     .classList.remove("hidden");
@@ -828,18 +931,85 @@ function openStats(link) {
   $("modalClicks").textContent =
     link.clicks || 0;
 
+  /* FREE */
+
+  if (currentPlan !== "PRO") {
+
+    $("modalCountry").textContent =
+      "💎 PRO";
+
+    $("modalDevice").textContent =
+      "💎 PRO";
+
+    renderModalChart({
+      "Hoy": link.clicks || 0
+    });
+
+    return;
+  }
+
+  /* PRO */
+
+  const analyticsSnap =
+    await getDocs(
+      query(
+        collection(
+          db,
+          "links",
+          link.id,
+          "analytics"
+        ),
+        orderBy("timestamp","asc")
+      )
+    );
+
+  const countries = {};
+  const devices = {};
+  const daily = {};
+
+  analyticsSnap.forEach(docu => {
+
+    const d =
+      docu.data();
+
+    countries[d.country] =
+      (countries[d.country] || 0) + 1;
+
+    devices[d.device] =
+      (devices[d.device] || 0) + 1;
+
+    const day =
+      new Date(d.timestamp)
+        .toLocaleDateString();
+
+    daily[day] =
+      (daily[day] || 0) + 1;
+  });
+
+  const topCountry =
+    Object.entries(countries)
+      .sort((a,b)=>b[1]-a[1])[0];
+
   $("modalCountry").textContent =
-    ["AR","US","BR","MX"][
-      Math.floor(Math.random()*4)
-    ];
+    topCountry
+      ? topCountry[0]
+      : "—";
+
+  const topDevice =
+    Object.entries(devices)
+      .sort((a,b)=>b[1]-a[1])[0];
 
   $("modalDevice").textContent =
-    ["Mobile","Desktop","Tablet"][
-      Math.floor(Math.random()*3)
-    ];
+    topDevice
+      ? topDevice[0]
+      : "—";
 
-  renderModalChart();
+  renderModalChart(daily);
 }
+
+/* =========================================================
+   CLOSE MODAL
+========================================================= */
 
 $("closeModal")
   ?.addEventListener("click", () => {
@@ -852,9 +1022,7 @@ $("closeModal")
    MODAL CHART
 ========================================================= */
 
-let modalChart;
-
-function renderModalChart() {
+function renderModalChart(daily) {
 
   const ctx =
     $("modalChart");
@@ -870,18 +1038,15 @@ function renderModalChart() {
 
       data:{
 
-        labels:[
-          "Lun","Mar","Mié",
-          "Jue","Vie","Sáb","Dom"
-        ],
+        labels:
+          Object.keys(daily),
 
         datasets:[{
 
           label:"Clicks",
 
-          data:[
-            4,7,5,12,9,14,10
-          ],
+          data:
+            Object.values(daily),
 
           borderColor:"#3b82f6",
 
@@ -891,6 +1056,115 @@ function renderModalChart() {
           fill:true,
 
           tension:.4
+        }]
+      }
+    });
+}
+
+/* =========================================================
+   GLOBAL CHARTS
+========================================================= */
+
+function renderDailyChart(daily) {
+
+  const ctx =
+    $("dailyChart");
+
+  if (!ctx) return;
+
+  dailyChart?.destroy();
+
+  dailyChart =
+    new Chart(ctx, {
+
+      type:"line",
+
+      data:{
+
+        labels:
+          Object.keys(daily),
+
+        datasets:[{
+
+          label:"Clicks",
+
+          data:
+            Object.values(daily),
+
+          borderColor:"#3b82f6",
+
+          backgroundColor:
+            "rgba(59,130,246,.2)",
+
+          fill:true,
+
+          tension:.4
+        }]
+      }
+    });
+}
+
+function renderCountryChart(countries) {
+
+  const ctx =
+    $("countryChart");
+
+  if (!ctx) return;
+
+  countryChart?.destroy();
+
+  countryChart =
+    new Chart(ctx, {
+
+      type:"bar",
+
+      data:{
+
+        labels:
+          Object.keys(countries),
+
+        datasets:[{
+
+          label:"Países",
+
+          data:
+            Object.values(countries),
+
+          backgroundColor:"#6366f1"
+        }]
+      }
+    });
+}
+
+function renderDeviceChart(devices) {
+
+  const ctx =
+    $("deviceChart");
+
+  if (!ctx) return;
+
+  deviceChart?.destroy();
+
+  deviceChart =
+    new Chart(ctx, {
+
+      type:"doughnut",
+
+      data:{
+
+        labels:
+          Object.keys(devices),
+
+        datasets:[{
+
+          data:
+            Object.values(devices),
+
+          backgroundColor:[
+            "#3b82f6",
+            "#6366f1",
+            "#8b5cf6"
+          ]
         }]
       }
     });
@@ -986,137 +1260,24 @@ $("downloadQR")
   });
 
 /* =========================================================
-   CHARTS
+   SEARCH
 ========================================================= */
 
-let dailyChart;
-let deviceChart;
-let countryChart;
+$("searchLinks")
+  ?.addEventListener("input", e => {
 
-function renderCharts() {
+    const val =
+      e.target.value.toLowerCase();
 
-  renderDailyChart();
-  renderDeviceChart();
-  renderCountryChart();
-}
+    const filtered =
+      allLinks.filter(link =>
+        link.originalURL
+          .toLowerCase()
+          .includes(val)
+      );
 
-/* DAILY */
-
-function renderDailyChart() {
-
-  const ctx =
-    $("dailyChart");
-
-  if (!ctx) return;
-
-  dailyChart?.destroy();
-
-  dailyChart =
-    new Chart(ctx, {
-
-      type:"line",
-
-      data:{
-
-        labels:[
-          "Lun","Mar","Mié",
-          "Jue","Vie","Sáb","Dom"
-        ],
-
-        datasets:[{
-
-          label:"Clicks",
-
-          data:[
-            4,7,5,12,9,14,10
-          ],
-
-          borderColor:"#3b82f6",
-
-          backgroundColor:
-            "rgba(59,130,246,.2)",
-
-          fill:true,
-
-          tension:.4
-        }]
-      }
-    });
-}
-
-/* DEVICE */
-
-function renderDeviceChart() {
-
-  const ctx =
-    $("deviceChart");
-
-  if (!ctx) return;
-
-  deviceChart?.destroy();
-
-  deviceChart =
-    new Chart(ctx, {
-
-      type:"doughnut",
-
-      data:{
-
-        labels:[
-          "Mobile",
-          "Desktop",
-          "Tablet"
-        ],
-
-        datasets:[{
-
-          data:[55,35,10],
-
-          backgroundColor:[
-            "#3b82f6",
-            "#6366f1",
-            "#8b5cf6"
-          ]
-        }]
-      }
-    });
-}
-
-/* COUNTRY */
-
-function renderCountryChart() {
-
-  const ctx =
-    $("countryChart");
-
-  if (!ctx) return;
-
-  countryChart?.destroy();
-
-  countryChart =
-    new Chart(ctx, {
-
-      type:"bar",
-
-      data:{
-
-        labels:[
-          "AR","US","BR","MX","ES"
-        ],
-
-        datasets:[{
-
-          label:"Clicks",
-
-          data:[
-            12,19,8,14,7
-          ],
-
-          backgroundColor:"#6366f1"
-        }]
-      }
-    });
-}
+    renderLinks(filtered);
+  });
 
 /* =========================================================
    NAVIGATION
