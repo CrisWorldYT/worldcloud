@@ -98,7 +98,20 @@
                 </span>
 
             </button>
+            <button
+            class="nav-item pro-only"
+            data-section="bio"
+            >
 
+            <span>
+                🎨 Bio
+            </span>
+
+            <span class="badge pro tiny">
+                PRO
+            </span>
+
+            </button>
         </nav>
 
     </div>
@@ -1021,7 +1034,195 @@
             </div>
 
         </section>
+<!-- =====================================================
+     BIO PAGE
+===================================================== -->
 
+<section
+  class="section hidden"
+  data-section="bio"
+>
+
+  <div class="card fade-up">
+
+    <h2>
+      🎨 Bio Page
+    </h2>
+
+    <p class="muted">
+      Personalizá tu perfil público.
+    </p>
+
+    <!-- USERNAME -->
+
+    <div style="margin-top:20px">
+
+      <label class="muted">
+        👤 Username
+      </label>
+
+      <input
+        type="text"
+        id="bioUsername"
+        placeholder="cris"
+        style="margin-top:10px"
+      >
+
+    </div>
+
+    <!-- TITLE -->
+
+    <div style="margin-top:20px">
+
+      <label class="muted">
+        🏷 Nombre
+      </label>
+
+      <input
+        type="text"
+        id="bioTitle"
+        placeholder="iCrisWorld"
+        style="margin-top:10px"
+      >
+
+    </div>
+
+    <!-- BIO -->
+
+    <div style="margin-top:20px">
+
+      <label class="muted">
+        ✨ Descripción
+      </label>
+
+      <textarea
+        id="bioDescription"
+        placeholder="Frontend Developer..."
+        style="
+          width:100%;
+          margin-top:10px;
+          min-height:120px;
+          border-radius:18px;
+          padding:16px;
+          background:#0f172a;
+          border:1px solid rgba(255,255,255,.08);
+          color:white;
+          resize:none;
+        "
+      ></textarea>
+
+    </div>
+
+    <!-- AVATAR -->
+
+    <div style="margin-top:20px">
+
+      <label class="muted">
+        🖼 Avatar URL
+      </label>
+
+      <input
+        type="url"
+        id="bioAvatar"
+        placeholder="https://..."
+        style="margin-top:10px"
+      >
+
+    </div>
+
+    <!-- BACKGROUND -->
+
+    <div style="margin-top:20px">
+
+      <label class="muted">
+        🌈 Fondo
+      </label>
+
+      <input
+        type="color"
+        id="bioBackground"
+        value="#6366f1"
+        style="
+          width:100%;
+          height:55px;
+          margin-top:10px;
+        "
+      >
+
+    </div>
+
+    <!-- LINKS -->
+
+    <div style="margin-top:20px">
+
+      <label class="muted">
+        🔗 Link principal
+      </label>
+
+      <input
+        type="url"
+        id="bioLink"
+        placeholder="https://youtube.com"
+        style="margin-top:10px"
+      >
+
+    </div>
+
+    <!-- SAVE -->
+
+    <button
+      id="saveBioPage"
+      class="btn-primary full"
+      style="margin-top:26px"
+    >
+      💾 Guardar Bio Page
+    </button>
+
+  </div>
+
+  <!-- PREVIEW -->
+
+  <div class="card">
+
+    <h2>
+      👀 Preview
+    </h2>
+
+    <div
+      id="bioPreview"
+      class="bio-preview"
+    >
+
+      <div class="bio-preview-inner">
+
+        <img
+          id="bioPreviewAvatar"
+          src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+        >
+
+        <h1 id="bioPreviewTitle">
+          iCrisWorld
+        </h1>
+
+        <p id="bioPreviewDescription">
+          Frontend Developer
+        </p>
+
+        <a
+          id="bioPreviewButton"
+          href="#"
+          target="_blank"
+        >
+          🌍 Mi Link
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
     </div>
 
     <!-- FOOTER -->

@@ -2420,3 +2420,102 @@ $("leaveWorkspace")
 
     location.reload();
 });
+
+/* =========================================================
+   BIO PAGE
+========================================================= */
+
+$("saveBioPage")
+  ?.addEventListener("click", saveBioPage);
+
+async function saveBioPage() {
+
+  if (
+    currentPlan !== "PRO" &&
+    currentPlan !== "ENTERPRISE"
+  ) {
+
+    showToast(
+      "💎 Solo PRO"
+    );
+
+    return;
+  }
+
+  const username =
+    $("bioUsername").value.trim();
+
+  if (!username) {
+
+    showToast(
+      "⚠ Username requerido"
+    );
+
+    return;
+  }
+
+  await setDoc(
+    doc(db,"bioPages",username),
+    {
+
+      userId:
+        currentUser.uid,
+
+      username,
+
+      title:
+        $("bioTitle").value,
+
+      description:
+        $("bioDescription").value,
+
+      avatar:
+        $("bioAvatar").value,
+
+      background:
+        $("bioBackground").value,
+
+      link:
+        $("bioLink").value
+    }
+  );
+
+  showToast(
+    "🎨 Bio guardada"
+  );
+}
+
+[
+  "bioTitle",
+  "bioDescription",
+  "bioAvatar",
+  "bioLink",
+  "bioBackground"
+].forEach(id => {
+
+  $(id)
+    ?.addEventListener("input", updateBioPreview);
+});
+
+function updateBioPreview() {
+
+  $("bioPreviewTitle").textContent =
+    $("bioTitle").value || "iCrisWorld";
+
+  $("bioPreviewDescription").textContent =
+    $("bioDescription").value || "Frontend Developer";
+
+  $("bioPreviewAvatar").src =
+    $("bioAvatar").value ||
+    "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+  $("bioPreviewButton").href =
+    $("bioLink").value || "#";
+
+  $("bioPreview").style.background =
+    `linear-gradient(
+      135deg,
+      ${$("bioBackground").value},
+      rgba(0,0,0,.35)
+    )`;
+}
