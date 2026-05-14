@@ -588,101 +588,6 @@ async function checkInvites() {
 }
 
 /* =========================================================
-   INVITE MODAL
-========================================================= */
-
-let currentInvite = null;
-
-function showInviteModal(
-  inviteId,
-  workspace,
-  role,
-  workspaceId
-){
-
-  currentInvite = {
-    inviteId,
-    role,
-    workspaceId
-  };
-
-  $("inviteWorkspace").textContent =
-    workspace;
-
-  $("inviteRoleText").textContent =
-    role;
-
-  $("inviteModal")
-    ?.classList.remove("hidden");
-}
-
-$("acceptInvite")
-  ?.addEventListener("click", async () => {
-
-    if (!currentInvite) return;
-
-    /* UPDATE USER */
-
-    await updateDoc(
-      doc(db,"users",currentUser.uid),
-      {
-
-        workspaceId:
-          currentInvite.workspaceId,
-
-        role:
-          currentInvite.role
-      }
-    );
-
-    /* UPDATE INVITE */
-
-    await updateDoc(
-      doc(
-        db,
-        "workspaceInvites",
-        currentInvite.inviteId
-      ),
-      {
-        status:"ACCEPTED"
-      }
-    );
-
-    $("inviteModal")
-      ?.classList.add("hidden");
-
-    showToast(
-      "✅ Te uniste al workspace"
-    );
-
-    location.reload();
-});
-
-$("rejectInvite")
-  ?.addEventListener("click", async () => {
-
-    if (!currentInvite) return;
-
-    await updateDoc(
-      doc(
-        db,
-        "workspaceInvites",
-        currentInvite.inviteId
-      ),
-      {
-        status:"REJECTED"
-      }
-    );
-
-    $("inviteModal")
-      ?.classList.add("hidden");
-
-    showToast(
-      "❌ Invitación rechazada"
-    );
-});
-
-/* =========================================================
    INVITE MEMBERS
 ========================================================= */
 
@@ -2221,3 +2126,98 @@ function showToast(message) {
 
   }, 3000);
 }
+
+/* =========================================================
+   INVITE MODAL
+========================================================= */
+
+let currentInvite = null;
+
+function showInviteModal(
+  inviteId,
+  workspace,
+  role,
+  workspaceId
+){
+
+  currentInvite = {
+    inviteId,
+    role,
+    workspaceId
+  };
+
+  $("inviteWorkspace").textContent =
+    workspace;
+
+  $("inviteRoleText").textContent =
+    role;
+
+  $("inviteModal")
+    ?.classList.remove("hidden");
+}
+
+$("acceptInvite")
+  ?.addEventListener("click", async () => {
+
+    if (!currentInvite) return;
+
+    /* UPDATE USER */
+
+    await updateDoc(
+      doc(db,"users",currentUser.uid),
+      {
+
+        workspaceId:
+          currentInvite.workspaceId,
+
+        role:
+          currentInvite.role
+      }
+    );
+
+    /* UPDATE INVITE */
+
+    await updateDoc(
+      doc(
+        db,
+        "workspaceInvites",
+        currentInvite.inviteId
+      ),
+      {
+        status:"ACCEPTED"
+      }
+    );
+
+    $("inviteModal")
+      ?.classList.add("hidden");
+
+    showToast(
+      "✅ Te uniste al workspace"
+    );
+
+    location.reload();
+});
+
+$("rejectInvite")
+  ?.addEventListener("click", async () => {
+
+    if (!currentInvite) return;
+
+    await updateDoc(
+      doc(
+        db,
+        "workspaceInvites",
+        currentInvite.inviteId
+      ),
+      {
+        status:"REJECTED"
+      }
+    );
+
+    $("inviteModal")
+      ?.classList.add("hidden");
+
+    showToast(
+      "❌ Invitación rechazada"
+    );
+});
