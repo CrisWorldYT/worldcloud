@@ -2700,3 +2700,46 @@ body.light .preview-url{
     width:240px;
   }
 }
+
+/* =========================================================
+   CHARTS RESPONSIVE FIX (MOBILE)
+========================================================= */
+
+.chart-card {
+  /* Obliga a la tarjeta a no pasarse del ancho de la pantalla */
+  width: 100%;
+  max-width: 100vw;
+  overflow: hidden;
+}
+
+.chart-card canvas {
+  /* Obliga a los gráficos a achicarse */
+  max-width: 100% !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* El mapa mundial necesita un trato especial porque es más alto */
+#worldMap {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+@media(max-width: 768px) {
+  
+  .chart-card {
+    /* Le sacamos un poco de padding en móvil para que el gráfico respire */
+    padding: 16px;
+  }
+
+  #worldMap {
+    /* En PC mide 340px, en teléfono lo hacemos más bajito */
+    height: 220px !important;
+    min-height: 220px !important;
+  }
+  
+  #modalChart {
+    /* El gráfico dentro del modal de stats también hay que achicarlo */
+    height: 200px !important;
+  }
+}
