@@ -73,6 +73,53 @@ let currentTheme = "#6366f1";
 console.log("✅ WORLD CLOUD READY");
 
 /* =========================================================
+   STRIPE SUCCESS
+========================================================= */
+
+async function handleStripeSuccess() {
+
+  const success =
+    new URLSearchParams(location.search)
+      .get("success");
+
+  if (!success) return;
+
+  const user =
+    auth.currentUser;
+
+  if (!user) return;
+
+  /* VALID */
+
+  if (
+    success !== "PRO" &&
+    success !== "ENTERPRISE"
+  ) return;
+
+  /* UPDATE PLAN */
+
+  await updateDoc(
+    doc(db,"users",user.uid),
+    {
+      plan: success
+    }
+  );
+
+  showToast(
+    `✅ Plan ${success} activado`
+  );
+
+  /* CLEAN URL */
+
+  history.replaceState(
+    {},
+    "",
+    location.pathname
+  );
+
+  location.reload();
+}
+/* =========================================================
    REDIRECT + REAL ANALYTICS + PASSWORD + EXPIRATION
 ========================================================= */
 
@@ -444,6 +491,7 @@ await setDoc(userRef, {
 loadWorkspace();
 
   loadDashboard();
+  handleStripeSuccess();
   checkInvites();
   /* =====================================================
    VIEWER RESTRICTIONS
@@ -944,13 +992,21 @@ $("selectFree")
 
 $("selectPro")
   ?.addEventListener("click", () => {
-    changePlan("PRO");
-  });
+
+    window.open(
+      "https://buy.stripe.com/test_3cI14ga2J6CkeJ6aNRabK00",
+      "_blank"
+    );
+});
 
 $("selectEnterprise")
   ?.addEventListener("click", () => {
-    changePlan("ENTERPRISE");
-  });
+
+    window.open(
+      "https://buy.stripe.com/test_bJe4gs8YF8KscAYg8babK01",
+      "_blank"
+    );
+});
 
 async function changePlan(plan) {
 
