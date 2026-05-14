@@ -1,6 +1,6 @@
 /* =========================================================
    WORLD CLOUD PRO
-   FULL VERSION + PASSWORD LINKS + REAL ANALYTICS
+   FULL VERSION + PASSWORD + EXPIRATION + REAL ANALYTICS
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -70,7 +70,7 @@ let pendingRedirect = null;
 console.log("✅ WORLD CLOUD READY");
 
 /* =========================================================
-   REDIRECT + REAL ANALYTICS + PASSWORD
+   REDIRECT + REAL ANALYTICS + PASSWORD + EXPIRATION
 ========================================================= */
 
 async function handleRedirect() {
@@ -94,6 +94,60 @@ async function handleRedirect() {
 
   const linkData =
     snap.data();
+
+  /* ================= EXPIRATION ================= */
+
+  if (
+    linkData.expiresAt &&
+    Date.now() > linkData.expiresAt
+  ) {
+
+    $("redirectScreen")
+      ?.classList.add("hidden");
+
+    document.body.innerHTML = `
+
+      <div style="
+        min-height:100vh;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        background:#0a0f1e;
+        color:white;
+        font-family:Inter,sans-serif;
+        padding:20px;
+        text-align:center;
+      ">
+
+        <div>
+
+          <h1 style="
+            font-size:52px;
+            margin-bottom:12px;
+          ">
+            ⏳
+          </h1>
+
+          <h2 style="
+            font-size:28px;
+            margin-bottom:10px;
+          ">
+            Link expirado
+          </h2>
+
+          <p style="
+            color:#94a3b8;
+          ">
+            Este enlace ya no está disponible.
+          </p>
+
+        </div>
+
+      </div>
+    `;
+
+    return;
+  }
 
   /* ================= COUNTRY ================= */
 
@@ -419,7 +473,7 @@ async function changePlan(plan) {
 
   if (currentPlan === plan) {
 
-    showToast("😎 Ya tenés este plan");
+    showToast("Ya estás usando ese plan.");
 
     return;
   }
@@ -531,7 +585,7 @@ $("customCode")
 
     $("previewURL").textContent =
       val
-        ? location.origin + "/" + val
+        ? location.origin + "?c=" + val
         : "";
   });
 
@@ -641,6 +695,17 @@ async function createLink() {
           .trim() || ""
       : "";
 
+  /* EXPIRATION */
+
+  const expiresAt =
+    currentPlan === "PRO"
+      && $("linkExpiration")
+          ?.value
+        ? new Date(
+            $("linkExpiration").value
+          ).getTime()
+        : null;
+
   /* SAVE */
 
   await setDoc(
@@ -650,7 +715,8 @@ async function createLink() {
       userId:currentUser.uid,
       clicks:0,
       createdAt:Date.now(),
-      password
+      password,
+      expiresAt
     }
   );
 
@@ -684,6 +750,10 @@ async function createLink() {
 
   if ($("linkPassword")) {
     $("linkPassword").value = "";
+  }
+
+  if ($("linkExpiration")) {
+    $("linkExpiration").value = "";
   }
 }
 
@@ -835,12 +905,20 @@ function renderLinks(links) {
     const shortURL =
       location.origin + "?c=" + link.id;
 
+    const isExpired =
+      link.expiresAt &&
+      Date.now() > link.expiresAt;
+
     const div =
       document.createElement("div");
 
     div.className = "card";
 
     div.style.cursor = "pointer";
+
+    if (isExpired) {
+      div.style.opacity = "0.5";
+    }
 
     div.innerHTML = `
 
@@ -859,6 +937,15 @@ function renderLinks(links) {
             margin-bottom:8px;
           ">
             ${shortURL}
+            ${isExpired ? `
+              <span style="
+                color:#f87171;
+                font-size:12px;
+                margin-left:8px;
+              ">
+                ⏳ Expirado
+              </span>
+            ` : ""}
           </div>
 
           <div class="muted"
@@ -875,8 +962,20 @@ function renderLinks(links) {
           </div>
 
           ${link.password ? `
-            <div class="password-lock" style="margin-top:10px">
+            <div class="password-lock"
+              style="margin-top:10px"
+            >
               🔒 Protegido
+            </div>
+          ` : ""}
+
+          ${link.expiresAt ? `
+            <div class="expiration-badge"
+              style="margin-top:10px"
+            >
+              ⏳ Expira:
+              ${new Date(link.expiresAt)
+                .toLocaleDateString()}
             </div>
           ` : ""}
 
@@ -966,7 +1065,7 @@ function renderLinks(links) {
 
         if (currentPlan !== "PRO") {
 
-          showToast("💎 Editar es PRO");
+          showToast("💎 Editar es una función PRO");
 
           return;
         }
@@ -1271,12 +1370,12 @@ async function exportAllCSV() {
   }
 
   let csv =
-    "Codigo,URL,Clicks\n";
+    "Codigo,URL,Clicks,Password,Expira\n";
 
   allLinks.forEach(link => {
 
     csv +=
-      `${link.id},"${link.originalURL}",${link.clicks}\n`;
+      `${link.id},"${link.originalURL}",${link.clicks},${link.password ? "Sí" : "No"},${link.expiresAt ? new Date(link.expiresAt).toLocaleDateString() : "Nunca"}\n`;
   });
 
   downloadCSV(csv, "worldcloud-links.csv");
@@ -1287,10 +1386,10 @@ async function exportAllCSV() {
 function exportSingleCSV(link) {
 
   let csv =
-    "Codigo,URL,Clicks\n";
+    "Codigo,URL,Clicks,Password,Expira\n";
 
   csv +=
-    `${link.id},"${link.originalURL}",${link.clicks}`;
+    `${link.id},"${link.originalURL}",${link.clicks},${link.password ? "Sí" : "No"},${link.expiresAt ? new Date(link.expiresAt).toLocaleDateString() : "Nunca"}`;
 
   downloadCSV(
     csv,
