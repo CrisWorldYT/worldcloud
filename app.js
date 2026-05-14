@@ -1,7 +1,7 @@
 /* =========================================================
    WORLD CLOUD PRO
    FULL ENTERPRISE VERSION
-   FINAL STABLE VERSION
+   PASSWORD + EXPIRATION + REAL ANALYTICS + THEMES
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -73,7 +73,7 @@ let currentTheme = "#6366f1";
 console.log("✅ WORLD CLOUD READY");
 
 /* =========================================================
-   REDIRECT + ANALYTICS + PASSWORD + EXPIRATION
+   REDIRECT + REAL ANALYTICS + PASSWORD + EXPIRATION
 ========================================================= */
 
 async function handleRedirect() {
@@ -98,9 +98,7 @@ async function handleRedirect() {
   const linkData =
     snap.data();
 
-  /* =====================================================
-     EXPIRATION
-  ====================================================== */
+  /* ================= EXPIRATION ================= */
 
   if (
     linkData.expiresAt &&
@@ -154,9 +152,7 @@ async function handleRedirect() {
     return;
   }
 
-  /* =====================================================
-     GEO
-  ====================================================== */
+  /* ================= COUNTRY ================= */
 
   let country = "Unknown";
   let countryCode = "UN";
@@ -175,9 +171,7 @@ async function handleRedirect() {
 
   } catch {}
 
-  /* =====================================================
-     DEVICE
-  ====================================================== */
+  /* ================= DEVICE ================= */
 
   const ua =
     navigator.userAgent;
@@ -192,9 +186,7 @@ async function handleRedirect() {
     device = "Tablet";
   }
 
-  /* =====================================================
-     ANALYTICS
-  ====================================================== */
+  /* ================= SAVE ANALYTICS ================= */
 
   const analyticsData = {
     timestamp: Date.now(),
@@ -218,17 +210,13 @@ async function handleRedirect() {
     analyticsData
   );
 
-  /* =====================================================
-     CLICK
-  ====================================================== */
+  /* ================= CLICK ================= */
 
   updateDoc(ref, {
     clicks: increment(1)
   }).catch(() => {});
 
-  /* =====================================================
-     PASSWORD
-  ====================================================== */
+  /* ================= PASSWORD ================= */
 
   if (linkData.password) {
 
@@ -257,7 +245,7 @@ async function handleRedirect() {
 handleRedirect();
 
 /* =========================================================
-   PASSWORD
+   PASSWORD UNLOCK
 ========================================================= */
 
 $("unlockBtn")
@@ -330,7 +318,7 @@ $("logoutBtn")
   });
 
 /* =========================================================
-   AUTH
+   AUTH STATE
 ========================================================= */
 
 onAuthStateChanged(auth, async user => {
@@ -363,9 +351,7 @@ onAuthStateChanged(auth, async user => {
     user.photoURL ||
     "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-  /* =====================================================
-     USER REF
-  ====================================================== */
+  /* PLAN */
 
   const userRef =
     doc(db, "users", user.uid);
@@ -373,75 +359,81 @@ onAuthStateChanged(auth, async user => {
   const userSnap =
     await getDoc(userRef);
 
-  /* =====================================================
-     NEW USER
-  ====================================================== */
-
   if (!userSnap.exists()) {
 
-    const workspaceRef =
-      doc(
-        collection(db,"workspaces")
-      );
+/* =====================================================
+   CREATE WORKSPACE
+===================================================== */
 
-    const workspaceId =
-      workspaceRef.id;
+const workspaceRef =
+  doc(
+    collection(db,"workspaces")
+  );
 
-    /* WORKSPACE */
+const workspaceId =
+  workspaceRef.id;
 
-    await setDoc(workspaceRef, {
+/* =====================================================
+   WORKSPACE
+===================================================== */
 
-      name:
-        `${user.displayName}'s Workspace`,
+await setDoc(workspaceRef, {
 
-      owner:
-        user.uid,
+  name:
+    `${user.displayName}'s Workspace`,
 
-      createdAt:
-        Date.now(),
+  owner:
+    user.uid,
 
-      theme:
-        "#6366f1",
+  createdAt:
+    Date.now(),
 
-      logo:
-        user.photoURL || ""
-    });
+  theme:
+    "#6366f1",
 
-    /* USER */
+  logo:
+    user.photoURL || ""
+});
 
-    await setDoc(userRef, {
+/* =====================================================
+   USER
+===================================================== */
 
-      plan: "FREE",
+await setDoc(userRef, {
 
-      name:
-        user.displayName || "Usuario",
+  plan: "FREE",
 
-      email:
-        user.email || "",
+  name:
+    user.displayName || "Usuario",
 
-      photo:
-        user.photoURL || "",
+  email:
+    user.email || "",
 
-      createdAt:
-        Date.now(),
+  photo:
+    user.photoURL || "",
 
-      lastLogin:
-        Date.now(),
+  createdAt:
+    Date.now(),
 
-      banned:false,
+  lastLogin:
+    Date.now(),
 
-      themeColor:"#6366f1",
+  banned:false,
 
-      workspaceId,
+  themeColor:"#6366f1",
 
-      role:"OWNER"
-    });
+  /* NEW */
+
+  workspaceId,
+
+  role:"OWNER"
+});
 
     currentPlan = "FREE";
 
   } else {
 
-    /* BANNED */
+    /* BANNED CHECK */
 
     if (userSnap.data().banned) {
 
@@ -455,7 +447,7 @@ onAuthStateChanged(auth, async user => {
     currentPlan =
       userSnap.data().plan || "FREE";
 
-    /* UPDATE */
+    /* UPDATE USER DATA */
 
     await updateDoc(userRef, {
 
@@ -476,14 +468,13 @@ onAuthStateChanged(auth, async user => {
   updatePlanUI();
 
   loadEnterpriseTheme();
-
-  loadWorkspace();
+loadWorkspace();
 
   loadDashboard();
 });
 
 /* =========================================================
-   WORKSPACE
+   LOAD WORKSPACE
 ========================================================= */
 
 async function loadWorkspace() {
@@ -525,35 +516,15 @@ async function loadWorkspace() {
     );
   }
 
-  /* BRANDING */
+  /* NAME */
 
   const logo =
     document.querySelector(".logo");
 
   if (logo) {
 
-    logo.innerHTML = `
-
-      ${
-        workspace.logo
-          ? `
-            <img
-              src="${workspace.logo}"
-              style="
-                width:28px;
-                height:28px;
-                border-radius:8px;
-                object-fit:cover;
-                margin-right:10px;
-                vertical-align:middle;
-              "
-            >
-          `
-          : "☁"
-      }
-
-      ${workspace.name || "World Cloud"}
-    `;
+    logo.textContent =
+      workspace.name || "World Cloud";
   }
 }
 
@@ -608,6 +579,9 @@ async function inviteMember() {
   const member =
     snap.docs[0];
 
+  const memberData =
+    member.data();
+
   /* CURRENT USER */
 
   const currentUserSnap =
@@ -619,7 +593,7 @@ async function inviteMember() {
     currentUserSnap.data()
       .workspaceId;
 
-  /* UPDATE */
+  /* UPDATE MEMBER */
 
   await updateDoc(
     doc(db,"users",member.id),
@@ -685,6 +659,8 @@ async function loadEnterpriseTheme() {
 
   applyTheme(currentTheme);
 
+  /* COLOR PICKER */
+
   if ($("themeColorPicker")) {
 
     $("themeColorPicker").value =
@@ -713,18 +689,18 @@ function applyTheme(color) {
 function hexToRgb(hex) {
 
   hex =
-    hex.replace("#","");
+    hex.replace("#", "");
 
   const bigint =
-    parseInt(hex,16);
+    parseInt(hex, 16);
 
   return {
 
-    r:(bigint>>16)&255,
+    r: (bigint >> 16) & 255,
 
-    g:(bigint>>8)&255,
+    g: (bigint >> 8) & 255,
 
-    b:bigint&255
+    b: bigint & 255
   };
 }
 
@@ -732,18 +708,10 @@ async function saveTheme(color) {
 
   if (!currentUser) return;
 
-  const userSnap =
-    await getDoc(
-      doc(db,"users",currentUser.uid)
-    );
-
-  const workspaceId =
-    userSnap.data().workspaceId;
-
   await updateDoc(
-    doc(db,"workspaces",workspaceId),
+    doc(db, "users", currentUser.uid),
     {
-      theme:color
+      themeColor: color
     }
   );
 
@@ -751,13 +719,11 @@ async function saveTheme(color) {
 
   applyTheme(color);
 
-  showToast(
-    "🎨 Tema actualizado"
-  );
+  showToast("🎨 Tema actualizado");
 }
 
 /* =========================================================
-   PRESETS
+   THEME PRESETS
 ========================================================= */
 
 document
@@ -767,19 +733,16 @@ document
     btn.addEventListener("click", () => {
 
       if (
+        currentPlan !== "PRO" &&
         currentPlan !== "ENTERPRISE"
       ) {
 
-        showToast(
-          "🏢 Solo ENTERPRISE"
-        );
+        showToast("💎 Solo PRO/ENTERPRISE");
 
         return;
       }
 
-      saveTheme(
-        btn.dataset.color
-      );
+      saveTheme(btn.dataset.color);
     });
   });
 
@@ -791,19 +754,16 @@ $("themeColorPicker")
   ?.addEventListener("input", e => {
 
     if (
+      currentPlan !== "PRO" &&
       currentPlan !== "ENTERPRISE"
     ) {
 
-      showToast(
-        "🏢 Solo ENTERPRISE"
-      );
+      showToast("💎 Solo PRO/ENTERPRISE");
 
       return;
     }
 
-    saveTheme(
-      e.target.value
-    );
+    saveTheme(e.target.value);
   });
 
 /* =========================================================
@@ -832,7 +792,7 @@ function updatePlanUI() {
         ? "badge enterprise"
         : "badge free";
 
-  /* PRO */
+  /* PRO FEATURES */
 
   $("customSection")
     ?.classList.toggle(
@@ -850,7 +810,7 @@ function updatePlanUI() {
       );
     });
 
-  /* ENTERPRISE */
+  /* ENTERPRISE FEATURES */
 
   document
     .querySelectorAll(".enterprise-only")
@@ -889,8 +849,8 @@ function updatePlanButtons() {
 
   } else {
 
-    $("selectEnterprise").textContent =
-      "✅ ENTERPRISE";
+    $("selectPro").textContent =
+      "Cambiar a PRO";
 
     $("selectFree").textContent =
       "Cambiar a FREE";
@@ -928,7 +888,7 @@ async function changePlan(plan) {
   }
 
   await updateDoc(
-    doc(db,"users",currentUser.uid),
+    doc(db, "users", currentUser.uid),
     { plan }
   );
 
@@ -950,32 +910,284 @@ async function changePlan(plan) {
 }
 
 /* =========================================================
-   DASHBOARD
+   CONFETTI
+========================================================= */
+
+function launchConfetti() {
+
+  for (let i = 0; i < 80; i++) {
+
+    const confetti =
+      document.createElement("div");
+
+    confetti.style.position = "fixed";
+
+    confetti.style.width = "8px";
+    confetti.style.height = "8px";
+
+    confetti.style.background =
+      `hsl(${Math.random()*360},100%,60%)`;
+
+    confetti.style.left =
+      Math.random() * innerWidth + "px";
+
+    confetti.style.top = "-10px";
+
+    confetti.style.borderRadius = "50%";
+
+    confetti.style.zIndex = "99999";
+
+    document.body.appendChild(confetti);
+
+    const duration =
+      2000 + Math.random() * 2000;
+
+    confetti.animate([
+
+      {
+        transform: "translateY(0)",
+        opacity: 1
+      },
+
+      {
+        transform:
+          `translateY(${innerHeight+100}px)
+           rotate(${Math.random()*720}deg)`,
+
+        opacity: 0
+      }
+
+    ], {
+      duration,
+      easing: "cubic-bezier(.2,.8,.2,1)"
+    });
+
+    setTimeout(() => {
+      confetti.remove();
+    }, duration);
+  }
+}
+
+/* =========================================================
+   PRO EFFECT
+========================================================= */
+
+function triggerProAnimation() {
+
+  $("proCard")
+    ?.classList.add("upgrade-flash");
+
+  setTimeout(() => {
+
+    $("proCard")
+      ?.classList.add("pro-active-glow");
+
+  }, 700);
+}
+
+/* =========================================================
+   CUSTOM PREVIEW
+========================================================= */
+
+$("customCode")
+  ?.addEventListener("input", () => {
+
+    const val =
+      $("customCode").value.trim();
+
+    $("previewURL").textContent =
+      val
+        ? location.origin + "/" + val
+        : "";
+  });
+
+/* =========================================================
+   CREATE LINK
+========================================================= */
+
+$("shortBtn")
+  ?.addEventListener("click", createLink);
+
+async function createLink() {
+
+  if (!currentUser) {
+
+    showToast("🔐 Iniciá sesión");
+
+    return;
+  }
+
+  const url =
+    $("urlInput").value.trim();
+
+  if (!url) {
+
+    showToast("⚠ Poné una URL");
+
+    return;
+  }
+
+  let code;
+
+  const isPro =
+    currentPlan === "PRO" ||
+    currentPlan === "ENTERPRISE";
+
+  /* FREE LIMIT */
+
+  if (!isPro) {
+
+    const q =
+      query(
+        collection(db, "links"),
+        where(
+          "userId",
+          "==",
+          currentUser.uid
+        )
+      );
+
+    const existing =
+      await getDocs(q);
+
+    if (existing.size >= 1) {
+
+      showToast(
+        "❌ FREE solo permite 1 enlace"
+      );
+
+      return;
+    }
+
+    code =
+      Math.random()
+        .toString(36)
+        .substring(2, 8);
+
+  } else {
+
+    const custom =
+      $("customCode")
+        .value.trim();
+
+    if (custom) {
+
+      const check =
+        await getDoc(
+          doc(db, "links", custom)
+        );
+
+      if (check.exists()) {
+
+        $("customError").textContent =
+          "Ese enlace ya existe";
+
+        $("customError")
+          .classList.remove("hidden");
+
+        return;
+      }
+
+      $("customError")
+        .classList.add("hidden");
+
+      code = custom;
+
+    } else {
+
+      code =
+        Math.random()
+          .toString(36)
+          .substring(2, 8);
+    }
+  }
+
+  /* PASSWORD */
+
+  const password =
+    isPro
+      ? $("linkPassword")
+          ?.value
+          .trim() || ""
+      : "";
+
+  /* EXPIRATION */
+
+  const expiresAt =
+    isPro
+      && $("linkExpiration")
+        ?.value
+      ? new Date(
+          $("linkExpiration").value
+        ).getTime()
+      : null;
+
+  /* SAVE */
+
+  await setDoc(
+    doc(db, "links", code),
+    {
+      originalURL: url,
+      userId: currentUser.uid,
+      clicks: 0,
+      createdAt: Date.now(),
+      password,
+      expiresAt
+    }
+  );
+
+  const shortURL =
+    location.origin + "?c=" + code;
+
+  $("shortLink").textContent =
+    shortURL;
+
+  $("resultSection")
+    .classList.remove("hidden");
+
+  /* QR */
+
+  if (isPro) {
+
+    const qr =
+      `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shortURL)}`;
+
+    $("qrImage").src = qr;
+
+    $("qrSection")
+      .classList.remove("hidden");
+  }
+
+  showToast("✅ Link creado");
+
+  $("urlInput").value = "";
+
+  $("customCode").value = "";
+
+  if ($("linkPassword")) {
+    $("linkPassword").value = "";
+  }
+
+  if ($("linkExpiration")) {
+    $("linkExpiration").value = "";
+  }
+}
+
+/* =========================================================
+   DASHBOARD REAL
 ========================================================= */
 
 async function loadDashboard() {
 
   if (!currentUser) return;
 
-  /* WORKSPACE */
-
-  const userSnap =
-    await getDoc(
-      doc(db,"users",currentUser.uid)
-    );
-
-  const workspaceId =
-    userSnap.data().workspaceId;
-
-  /* LINKS */
-
   const q =
     query(
       collection(db, "links"),
       where(
-        "workspaceId",
+        "userId",
         "==",
-        workspaceId
+        currentUser.uid
       )
     );
 
@@ -998,7 +1210,7 @@ async function loadDashboard() {
         data.clicks || 0;
 
       allLinks.push({
-        id:docu.id,
+        id: docu.id,
         ...data
       });
     });
@@ -1007,7 +1219,7 @@ async function loadDashboard() {
       currentPlan === "PRO" ||
       currentPlan === "ENTERPRISE";
 
-    /* ANALYTICS */
+    /* REAL ANALYTICS */
 
     for (const link of allLinks) {
 
@@ -1041,7 +1253,7 @@ async function loadDashboard() {
       });
     }
 
-    /* DEVICE */
+    /* TOP DEVICE */
 
     let topDevice = "—";
 
@@ -1085,9 +1297,662 @@ async function loadDashboard() {
 }
 
 /* =========================================================
-   REMAINING FUNCTIONS
-   (mantiene TODO lo anterior)
+   RENDER LINKS
 ========================================================= */
+
+function renderLinks(links) {
+
+  const list =
+    $("linksList");
+
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  if (!links.length) {
+
+    list.innerHTML = `
+      <p class="muted">
+        No hay enlaces todavía.
+      </p>
+    `;
+
+    return;
+  }
+
+  const isPro =
+    currentPlan === "PRO" ||
+    currentPlan === "ENTERPRISE";
+
+  links.forEach(link => {
+
+    const shortURL =
+      location.origin + "?c=" + link.id;
+
+    const isExpired =
+      link.expiresAt &&
+      Date.now() > link.expiresAt;
+
+    const div =
+      document.createElement("div");
+
+    div.className = "card";
+
+    div.style.cursor = "pointer";
+
+    if (isExpired) {
+      div.style.opacity = "0.5";
+    }
+
+    div.innerHTML = `
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        gap:20px;
+        flex-wrap:wrap;
+      ">
+
+        <div>
+
+          <div style="
+            font-weight:700;
+            color:var(--primary);
+            margin-bottom:8px;
+          ">
+            ${shortURL}
+            ${isExpired ? `
+              <span style="
+                color:#f87171;
+                font-size:12px;
+                margin-left:8px;
+              ">
+                ⏳ Expirado
+              </span>
+            ` : ""}
+          </div>
+
+          <div class="muted"
+            style="font-size:13px"
+          >
+            ${link.originalURL}
+          </div>
+
+          <div style="
+            margin-top:10px;
+            font-size:13px;
+          ">
+            👆 ${link.clicks || 0} clicks
+          </div>
+
+          ${link.password ? `
+            <div class="password-lock"
+              style="margin-top:10px"
+            >
+              🔒 Protegido
+            </div>
+          ` : ""}
+
+          ${link.expiresAt ? `
+            <div class="expiration-badge"
+              style="margin-top:10px"
+            >
+              ⏳ Expira:
+              ${new Date(link.expiresAt)
+                .toLocaleDateString()}
+            </div>
+          ` : ""}
+
+        </div>
+
+        <div style="
+          display:flex;
+          gap:8px;
+          flex-wrap:wrap;
+        ">
+
+          <button class="btn-ghost stats-btn">
+            📊 Stats
+          </button>
+
+          <button class="btn-ghost copy-btn">
+            📋 Copiar
+          </button>
+
+          <button class="btn-ghost csv-btn">
+            📤 CSV
+          </button>
+
+          <button class="btn-ghost edit-btn">
+            ✏ Editar
+          </button>
+
+          <button class="btn-ghost delete-btn">
+            🗑
+          </button>
+
+        </div>
+
+      </div>
+    `;
+
+    /* COPY */
+
+    div.querySelector(".copy-btn")
+      .addEventListener("click", e => {
+
+        e.stopPropagation();
+
+        navigator.clipboard
+          .writeText(shortURL);
+
+        showToast("📋 Copiado");
+      });
+
+    /* DELETE */
+
+    div.querySelector(".delete-btn")
+      .addEventListener("click", async e => {
+
+        e.stopPropagation();
+
+        await deleteDoc(
+          doc(db, "links", link.id)
+        );
+
+        showToast("🗑 Link eliminado");
+      });
+
+    /* CSV */
+
+    div.querySelector(".csv-btn")
+      .addEventListener("click", e => {
+
+        e.stopPropagation();
+
+        if (!isPro) {
+
+          showToast("💎 Solo PRO");
+
+          return;
+        }
+
+        exportSingleCSV(link);
+      });
+
+    /* EDIT */
+
+    div.querySelector(".edit-btn")
+      .addEventListener("click", async e => {
+
+        e.stopPropagation();
+
+        if (!isPro) {
+
+          showToast("💎 Editar es PRO");
+
+          return;
+        }
+
+        const newURL =
+          prompt(
+            "Nueva URL:",
+            link.originalURL
+          );
+
+        if (!newURL) return;
+
+        await updateDoc(
+          doc(db, "links", link.id),
+          {
+            originalURL: newURL
+          }
+        );
+
+        showToast("✅ Link editado");
+      });
+
+    /* STATS */
+
+    div.querySelector(".stats-btn")
+      .addEventListener("click", e => {
+
+        e.stopPropagation();
+
+        openStats(link);
+      });
+
+    list.appendChild(div);
+  });
+}
+
+/* =========================================================
+   STATS MODAL
+========================================================= */
+
+async function openStats(link) {
+
+  $("statsModal")
+    .classList.remove("hidden");
+
+  $("modalClicks").textContent =
+    link.clicks || 0;
+
+  const isPro =
+    currentPlan === "PRO" ||
+    currentPlan === "ENTERPRISE";
+
+  /* FREE */
+
+  if (!isPro) {
+
+    $("modalCountry").textContent =
+      "💎 PRO";
+
+    $("modalDevice").textContent =
+      "💎 PRO";
+
+    renderModalChart({
+      "Hoy": link.clicks || 0
+    });
+
+    return;
+  }
+
+  /* PRO */
+
+  const analyticsSnap =
+    await getDocs(
+      query(
+        collection(
+          db,
+          "links",
+          link.id,
+          "analytics"
+        ),
+        orderBy("timestamp", "asc")
+      )
+    );
+
+  const countries = {};
+  const devices = {};
+  const daily = {};
+
+  analyticsSnap.forEach(docu => {
+
+    const d =
+      docu.data();
+
+    countries[d.country] =
+      (countries[d.country] || 0) + 1;
+
+    devices[d.device] =
+      (devices[d.device] || 0) + 1;
+
+    const day =
+      new Date(d.timestamp)
+        .toLocaleDateString();
+
+    daily[day] =
+      (daily[day] || 0) + 1;
+  });
+
+  const topCountry =
+    Object.entries(countries)
+      .sort((a, b) => b[1] - a[1])[0];
+
+  $("modalCountry").textContent =
+    topCountry
+      ? topCountry[0]
+      : "—";
+
+  const topDevice =
+    Object.entries(devices)
+      .sort((a, b) => b[1] - a[1])[0];
+
+  $("modalDevice").textContent =
+    topDevice
+      ? topDevice[0]
+      : "—";
+
+  renderModalChart(daily);
+}
+
+/* =========================================================
+   CLOSE MODAL
+========================================================= */
+
+$("closeModal")
+  ?.addEventListener("click", () => {
+
+    $("statsModal")
+      .classList.add("hidden");
+  });
+
+/* =========================================================
+   MODAL CHART
+========================================================= */
+
+function renderModalChart(daily) {
+
+  const ctx =
+    $("modalChart");
+
+  if (!ctx) return;
+
+  modalChart?.destroy();
+
+  modalChart =
+    new Chart(ctx, {
+
+      type: "line",
+
+      data: {
+
+        labels:
+          Object.keys(daily),
+
+        datasets: [{
+
+          label: "Clicks",
+
+          data:
+            Object.values(daily),
+
+          borderColor: "var(--primary)",
+
+          backgroundColor:
+            "rgba(var(--primary-rgb),.2)",
+
+          fill: true,
+
+          tension: .4
+        }]
+      }
+    });
+}
+
+/* =========================================================
+   GLOBAL CHARTS
+========================================================= */
+
+function renderDailyChart(daily) {
+
+  const ctx =
+    $("dailyChart");
+
+  if (!ctx) return;
+
+  dailyChart?.destroy();
+
+  dailyChart =
+    new Chart(ctx, {
+
+      type: "line",
+
+      data: {
+
+        labels:
+          Object.keys(daily),
+
+        datasets: [{
+
+          label: "Clicks",
+
+          data:
+            Object.values(daily),
+
+          borderColor: "var(--primary)",
+
+          backgroundColor:
+            "rgba(var(--primary-rgb),.2)",
+
+          fill: true,
+
+          tension: .4
+        }]
+      }
+    });
+}
+
+function renderCountryChart(countries) {
+
+  const ctx =
+    $("countryChart");
+
+  if (!ctx) return;
+
+  countryChart?.destroy();
+
+  countryChart =
+    new Chart(ctx, {
+
+      type: "bar",
+
+      data: {
+
+        labels:
+          Object.keys(countries),
+
+        datasets: [{
+
+          label: "Países",
+
+          data:
+            Object.values(countries),
+
+          backgroundColor:
+            "var(--primary)"
+        }]
+      }
+    });
+}
+
+function renderDeviceChart(devices) {
+
+  const ctx =
+    $("deviceChart");
+
+  if (!ctx) return;
+
+  deviceChart?.destroy();
+
+  deviceChart =
+    new Chart(ctx, {
+
+      type: "doughnut",
+
+      data: {
+
+        labels:
+          Object.keys(devices),
+
+        datasets: [{
+
+          data:
+            Object.values(devices),
+
+          backgroundColor: [
+            "var(--primary)",
+            "#6366f1",
+            "#8b5cf6"
+          ]
+        }]
+      }
+    });
+}
+
+/* =========================================================
+   EXPORT CSV
+========================================================= */
+
+$("exportCSV")
+  ?.addEventListener("click", exportAllCSV);
+
+async function exportAllCSV() {
+
+  const isPro =
+    currentPlan === "PRO" ||
+    currentPlan === "ENTERPRISE";
+
+  if (!isPro) {
+
+    showToast("💎 Solo PRO");
+
+    return;
+  }
+
+  let csv =
+    "Codigo,URL,Clicks,Password,Expira\n";
+
+  allLinks.forEach(link => {
+
+    csv +=
+      `${link.id},"${link.originalURL}",${link.clicks},${link.password ? "Sí" : "No"},${link.expiresAt ? new Date(link.expiresAt).toLocaleDateString() : "Nunca"}\n`;
+  });
+
+  downloadCSV(csv, "worldcloud-links.csv");
+
+  showToast("📤 CSV exportado");
+}
+
+function exportSingleCSV(link) {
+
+  let csv =
+    "Codigo,URL,Clicks,Password,Expira\n";
+
+  csv +=
+    `${link.id},"${link.originalURL}",${link.clicks},${link.password ? "Sí" : "No"},${link.expiresAt ? new Date(link.expiresAt).toLocaleDateString() : "Nunca"}`;
+
+  downloadCSV(
+    csv,
+    `${link.id}.csv`
+  );
+
+  showToast("📤 CSV descargado");
+}
+
+function downloadCSV(content, file) {
+
+  const blob =
+    new Blob([content], {
+      type: "text/csv"
+    });
+
+  const a =
+    document.createElement("a");
+
+  a.href =
+    URL.createObjectURL(blob);
+
+  a.download = file;
+
+  a.click();
+}
+
+/* =========================================================
+   QR DOWNLOAD
+========================================================= */
+
+$("downloadQR")
+  ?.addEventListener("click", () => {
+
+    const img =
+      $("qrImage");
+
+    if (!img?.src) return;
+
+    const a =
+      document.createElement("a");
+
+    a.href = img.src;
+
+    a.download =
+      "worldcloud-qr.png";
+
+    a.click();
+
+    showToast("⬇ QR descargado");
+  });
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+$("searchLinks")
+  ?.addEventListener("input", e => {
+
+    const val =
+      e.target.value.toLowerCase();
+
+    const filtered =
+      allLinks.filter(link =>
+        link.originalURL
+          .toLowerCase()
+          .includes(val)
+      );
+
+    renderLinks(filtered);
+  });
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+const navButtons =
+  document.querySelectorAll(".nav-item");
+
+const sections =
+  document.querySelectorAll(".section");
+
+navButtons.forEach(btn => {
+
+  btn.addEventListener("click", () => {
+
+    const section =
+      btn.dataset.section;
+
+    navButtons.forEach(b =>
+      b.classList.remove("active")
+    );
+
+    btn.classList.add("active");
+
+    sections.forEach(sec => {
+
+      sec.classList.toggle(
+        "hidden",
+        sec.dataset.section !== section
+      );
+    });
+
+    $("sectionTitle").textContent =
+      btn.textContent
+        .replace("PRO", "")
+        .trim();
+
+    $("sidebar")
+      ?.classList.remove("open");
+  });
+});
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+$("sidebarToggle")
+  ?.addEventListener("click", () => {
+
+    $("sidebar")
+      ?.classList.toggle("open");
+  });
+
+$("sidebarToggleMobile")
+  ?.addEventListener("click", () => {
+
+    $("sidebar")
+      ?.classList.toggle("open");
+  });
 
 /* =========================================================
    TOAST
