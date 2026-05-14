@@ -1182,6 +1182,83 @@
 
 </div>
 
+<!-- =====================================================
+     INVITE MODAL
+===================================================== -->
+
+<div
+  id="inviteModal"
+  class="modal hidden"
+>
+
+  <div class="modal-box">
+
+    <h2>
+      📨 Invitación de equipo
+    </h2>
+
+    <p
+      class="muted"
+      style="margin-top:10px"
+    >
+
+      Fuiste invitado a un workspace.
+
+    </p>
+
+    <div
+      style="
+        margin-top:22px;
+        padding:18px;
+        border-radius:18px;
+        background:rgba(255,255,255,.03);
+      "
+    >
+
+      <strong id="inviteWorkspace">
+        Workspace
+      </strong>
+
+      <div
+        class="muted"
+        style="margin-top:8px"
+      >
+
+        Rol:
+        <span id="inviteRoleText">
+          VIEWER
+        </span>
+
+      </div>
+
+    </div>
+
+    <div style="
+      display:flex;
+      gap:12px;
+      margin-top:24px;
+    ">
+
+      <button
+        id="acceptInvite"
+        class="btn-primary full"
+      >
+        ✅ Aceptar
+      </button>
+
+      <button
+        id="rejectInvite"
+        class="btn-ghost full"
+      >
+        ❌ Rechazar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
 <!-- =========================================================
      TOAST
 ========================================================= -->

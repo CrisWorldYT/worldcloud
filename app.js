@@ -471,6 +471,7 @@ await setDoc(userRef, {
 loadWorkspace();
 
   loadDashboard();
+  checkInvites();
 });
 
 /* =========================================================
@@ -529,11 +530,169 @@ async function loadWorkspace() {
 }
 
 /* =========================================================
+   CHECK INVITES
+========================================================= */
+
+async function checkInvites() {
+
+  if (!currentUser) return;
+
+  const q =
+    query(
+      collection(db,"workspaceInvites"),
+      where(
+        "email",
+        "==",
+        currentUser.email
+      ),
+      where(
+        "status",
+        "==",
+        "PENDING"
+      )
+    );
+
+  const snap =
+    await getDocs(q);
+
+  if (snap.empty) return;
+
+  const invite =
+    snap.docs[0];
+
+  const inviteData =
+    invite.data();
+
+  /* WORKSPACE */
+
+  const workspaceSnap =
+    await getDoc(
+      doc(
+        db,
+        "workspaces",
+        inviteData.workspaceId
+      )
+    );
+
+  if (!workspaceSnap.exists()) return;
+
+  const workspace =
+    workspaceSnap.data();
+
+  showInviteModal(
+    invite.id,
+    workspace.name,
+    inviteData.role,
+    inviteData.workspaceId
+  );
+}
+
+/* =========================================================
+   INVITE MODAL
+========================================================= */
+
+let currentInvite = null;
+
+function showInviteModal(
+  inviteId,
+  workspace,
+  role,
+  workspaceId
+){
+
+  currentInvite = {
+    inviteId,
+    role,
+    workspaceId
+  };
+
+  $("inviteWorkspace").textContent =
+    workspace;
+
+  $("inviteRoleText").textContent =
+    role;
+
+  $("inviteModal")
+    ?.classList.remove("hidden");
+}
+
+$("acceptInvite")
+  ?.addEventListener("click", async () => {
+
+    if (!currentInvite) return;
+
+    /* UPDATE USER */
+
+    await updateDoc(
+      doc(db,"users",currentUser.uid),
+      {
+
+        workspaceId:
+          currentInvite.workspaceId,
+
+        role:
+          currentInvite.role
+      }
+    );
+
+    /* UPDATE INVITE */
+
+    await updateDoc(
+      doc(
+        db,
+        "workspaceInvites",
+        currentInvite.inviteId
+      ),
+      {
+        status:"ACCEPTED"
+      }
+    );
+
+    $("inviteModal")
+      ?.classList.add("hidden");
+
+    showToast(
+      "✅ Te uniste al workspace"
+    );
+
+    location.reload();
+});
+
+$("rejectInvite")
+  ?.addEventListener("click", async () => {
+
+    if (!currentInvite) return;
+
+    await updateDoc(
+      doc(
+        db,
+        "workspaceInvites",
+        currentInvite.inviteId
+      ),
+      {
+        status:"REJECTED"
+      }
+    );
+
+    $("inviteModal")
+      ?.classList.add("hidden");
+
+    showToast(
+      "❌ Invitación rechazada"
+    );
+});
+
+/* =========================================================
    INVITE MEMBERS
 ========================================================= */
 
 $("inviteBtn")
   ?.addEventListener("click", inviteMember);
+
+ {
+/* =========================================================
+   INVITE MEMBERS
+========================================================= */
 
 async function inviteMember() {
 
@@ -549,38 +708,14 @@ async function inviteMember() {
   }
 
   const email =
-    $("inviteEmail").value.trim();
+    $("inviteEmail")
+      .value.trim();
 
   const role =
-    $("inviteRole").value;
+    $("inviteRole")
+      .value;
 
   if (!email) return;
-
-  /* FIND USER */
-
-  const q =
-    query(
-      collection(db,"users"),
-      where("email","==",email)
-    );
-
-  const snap =
-    await getDocs(q);
-
-  if (snap.empty) {
-
-    showToast(
-      "❌ Usuario no encontrado"
-    );
-
-    return;
-  }
-
-  const member =
-    snap.docs[0];
-
-  const memberData =
-    member.data();
 
   /* CURRENT USER */
 
@@ -593,18 +728,30 @@ async function inviteMember() {
     currentUserSnap.data()
       .workspaceId;
 
-  /* UPDATE MEMBER */
+  /* CREATE INVITE */
 
-  await updateDoc(
-    doc(db,"users",member.id),
+  await addDoc(
+    collection(db,"workspaceInvites"),
     {
+
+      email,
+
       workspaceId,
-      role
+
+      role,
+
+      invitedBy:
+        currentUser.uid,
+
+      createdAt:
+        Date.now(),
+
+      status:"PENDING"
     }
   );
 
   showToast(
-    "✅ Miembro añadido"
+    "📨 Invitación enviada"
   );
 
   $("inviteEmail").value = "";
