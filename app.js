@@ -362,39 +362,11 @@ onAuthStateChanged(auth, async user => {
   if (!userSnap.exists()) {
 
 /* =====================================================
-   CREATE WORKSPACE
+   DEFAULT NO WORKSPACE
 ===================================================== */
 
-const workspaceRef =
-  doc(
-    collection(db,"workspaces")
-  );
-
-const workspaceId =
-  workspaceRef.id;
-
-/* =====================================================
-   WORKSPACE
-===================================================== */
-
-await setDoc(workspaceRef, {
-
-  name:
-    `${user.displayName}'s Workspace`,
-
-  owner:
-    user.uid,
-
-  createdAt:
-    Date.now(),
-
-  theme:
-    "#6366f1",
-
-  logo:
-    user.photoURL || ""
-});
-
+let workspaceId = null;
+role:"OWNER"
 /* =====================================================
    USER
 ===================================================== */
@@ -995,7 +967,66 @@ async function changePlan(plan) {
     doc(db, "users", currentUser.uid),
     { plan }
   );
+/* =====================================================
+   CREATE ENTERPRISE WORKSPACE
+===================================================== */
 
+if (
+  plan === "ENTERPRISE"
+) {
+
+  const userSnap =
+    await getDoc(
+      doc(db,"users",currentUser.uid)
+    );
+
+  const userData =
+    userSnap.data();
+
+  /* ONLY IF DOESN'T EXIST */
+
+  if (!userData.workspaceId) {
+
+    const workspaceRef =
+      doc(
+        collection(db,"workspaces")
+      );
+
+    const workspaceId =
+      workspaceRef.id;
+
+    /* WORKSPACE */
+
+    await setDoc(workspaceRef, {
+
+      name:
+        `${currentUser.displayName}'s Workspace`,
+
+      owner:
+        currentUser.uid,
+
+      createdAt:
+        Date.now(),
+
+      theme:"#6366f1",
+
+      logo:
+        currentUser.photoURL || ""
+    });
+
+    /* USER */
+
+    await updateDoc(
+      doc(db,"users",currentUser.uid),
+      {
+
+        workspaceId,
+
+        role:"OWNER"
+      }
+    );
+  }
+}
   currentPlan = plan;
 
   updatePlanUI();
