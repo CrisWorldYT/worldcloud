@@ -5,16 +5,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>World Cloud Pro</title>
+<title>World Cloud</title>
 
 <link rel="icon" type="image/png" href="worldcloud-logo.png">
 
 <link rel="stylesheet" href="style.css">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-geo"></script>
 
 </head>
@@ -22,7 +24,7 @@
 <body>
 
 <!-- =========================================================
-     REDIRECT SCREEN
+     REDIRECT
 ========================================================= -->
 
 <div id="redirectScreen" class="redirect hidden">
@@ -70,15 +72,21 @@
         <nav class="sidebar-nav">
 
             <button class="nav-item active" data-section="crear">
+
                 <span>🔗 Crear</span>
+
             </button>
 
             <button class="nav-item" data-section="planes">
+
                 <span>💎 Planes</span>
+
             </button>
 
             <button class="nav-item" data-section="dashboard">
+
                 <span>📊 Dashboard</span>
+
             </button>
 
             <button class="nav-item pro-only" data-section="analytics">
@@ -99,11 +107,13 @@
 
     <div class="sidebar-foot">
 
+        <!-- THEME -->
+
         <button id="themeToggle" class="btn-ghost full">
             🌙 Cambiar tema
         </button>
 
-        <!-- AUTH -->
+        <!-- LOGIN -->
 
         <div id="authBtns" class="auth">
 
@@ -149,7 +159,7 @@
 
         <div class="credit">
 
-            Creado por
+            Made By
             <strong>iCrisWorld</strong>
 
         </div>
@@ -164,7 +174,9 @@
 
 <main class="main">
 
-    <!-- TOPBAR -->
+    <!-- =========================================================
+         TOPBAR
+    ========================================================= -->
 
     <header class="topbar">
 
@@ -185,6 +197,20 @@
 
         <div class="topbar-right">
 
+            <!-- LIVE -->
+
+            <div class="realtime-badge pro-only">
+
+                <span class="live-dot"></span>
+
+                <span>
+                    Analytics Live
+                </span>
+
+            </div>
+
+            <!-- PLAN -->
+
             <span class="plan-chip" id="planChip">
                 FREE
             </span>
@@ -193,7 +219,9 @@
 
     </header>
 
-    <!-- CONTENT -->
+    <!-- =========================================================
+         CONTENT
+    ========================================================= -->
 
     <div class="content">
 
@@ -205,10 +233,12 @@
 
             <div class="card fade-up">
 
-                <h2>🔗 Crear enlace</h2>
+                <h2>
+                    🔗 Crear enlace
+                </h2>
 
                 <p class="muted">
-                    Acortá y compartí enlaces de manera profesional.
+                    Acortá tus enlaces con resultados maravillosos con World Cloud.
                 </p>
 
                 <!-- INPUT -->
@@ -221,7 +251,10 @@
                         placeholder="https://tusitio.com"
                     >
 
-                    <button id="shortBtn" class="btn-primary">
+                    <button
+                        id="shortBtn"
+                        class="btn-primary"
+                    >
                         ⚡ Generar
                     </button>
 
@@ -229,7 +262,10 @@
 
                 <!-- CUSTOM -->
 
-                <div id="customSection" class="custom-box hidden">
+                <div
+                    id="customSection"
+                    class="custom-box hidden"
+                >
 
                     <h3>
                         ✨ Personalizar enlace (PRO)
@@ -245,11 +281,29 @@
 
                     <p id="customError" class="error hidden"></p>
 
+                    <div class="pro-only" style="margin-top:16px">
+
+    <label class="muted" style="display:block;margin-bottom:8px">
+
+        🔒 Contraseña del enlace (opcional)
+
+    </label>
+
+    <input
+        type="password"
+        id="linkPassword"
+        placeholder="Ej: 1234"
+    >
+
+</div>
                 </div>
 
                 <!-- RESULT -->
 
-                <div id="resultSection" class="hidden result-box">
+                <div
+                    id="resultSection"
+                    class="hidden result-box"
+                >
 
                     <p>
                         ✅ Enlace generado:
@@ -259,11 +313,17 @@
 
                     <!-- QR -->
 
-                    <div id="qrSection" class="hidden qr-wrap">
+                    <div
+                        id="qrSection"
+                        class="hidden qr-wrap"
+                    >
 
                         <img id="qrImage" alt="QR">
 
-                        <button id="downloadQR" class="btn-primary">
+                        <button
+                            id="downloadQR"
+                            class="btn-primary"
+                        >
                             ⬇ Descargar QR
                         </button>
 
@@ -279,23 +339,31 @@
              PLANES
         ========================================================= -->
 
-        <section class="section hidden" data-section="planes">
+        <section
+            class="section hidden"
+            data-section="planes"
+        >
 
             <div class="card fade-up">
 
-                <h2>💎 Planes</h2>
+                <h2>
+                    💎 Planes
+                </h2>
 
                 <p class="muted">
                     Elegí el plan ideal para potenciar tus enlaces.
                 </p>
 
-                <!-- PRICING -->
+                <!-- GRID -->
 
                 <div class="pricing-grid">
 
                     <!-- FREE -->
 
-                    <div class="pricing-card" id="freeCard">
+                    <div
+                        class="pricing-card"
+                        id="freeCard"
+                    >
 
                         <div class="pricing-head">
 
@@ -311,11 +379,11 @@
 
                             <li>✔ 1 enlace activo</li>
                             <li>✔ Dashboard básico</li>
-                            <li>✔ Redirección rápida</li>
-                            <li>✔ Copiar enlaces</li>
-                            <li>✖ Editar enlaces</li>
-                            <li>✖ Analytics avanzados</li>
+                            <li>✔ Clicks básicos</li>
+                            <li>✔ Copiar links</li>
+                            <li>✖ Analytics avanzadas</li>
                             <li>✖ Exportar CSV</li>
+                            <li>✖ Editar links</li>
 
                         </ul>
 
@@ -330,7 +398,10 @@
 
                     <!-- PRO -->
 
-                    <div class="pricing-card pro" id="proCard">
+                    <div
+                        class="pricing-card pro"
+                        id="proCard"
+                    >
 
                         <div class="pricing-head">
 
@@ -349,12 +420,12 @@
                         <ul class="pricing-list">
 
                             <li>✔ Links ilimitados</li>
-                            <li>✔ Editar enlaces</li>
-                            <li>✔ QR automático</li>
-                            <li>✔ Analytics avanzados</li>
+                            <li>✔ Analytics reales</li>
+                            <li>✔ Países y dispositivos</li>
                             <li>✔ Exportar CSV</li>
-                            <li>✔ Personalizar links</li>
-                            <li>✔ Mapa mundial</li>
+                            <li>✔ Editar links</li>
+                            <li>✔ QR automático</li>
+                            <li>✔ Gráficos avanzados</li>
 
                         </ul>
 
@@ -362,7 +433,7 @@
                             id="selectPro"
                             class="btn-primary full"
                         >
-                            Seleccionar PRO
+                            Comprar PRO (5$)
                         </button>
 
                     </div>
@@ -377,7 +448,10 @@
              DASHBOARD
         ========================================================= -->
 
-        <section class="section hidden" data-section="dashboard">
+        <section
+            class="section hidden"
+            data-section="dashboard"
+        >
 
             <div class="card fade-up">
 
@@ -385,13 +459,17 @@
 
                     <div>
 
-                        <h2>📊 Dashboard</h2>
+                        <h2>
+                            📊 Dashboard
+                        </h2>
 
                         <p class="muted">
-                            Gestioná y analizá todos tus enlaces.
+                            Gestioná y analizá tus enlaces.
                         </p>
 
                     </div>
+
+                    <!-- CSV -->
 
                     <button
                         id="exportCSV"
@@ -402,11 +480,28 @@
 
                 </div>
 
+                <!-- LIVE -->
+
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:10px;
+                    margin:18px 0;
+                ">
+
+                    <div class="live-dot"></div>
+
+                    <span class="muted">
+                        Dashboard sincronizado en tiempo real
+                    </span>
+
+                </div>
+
                 <!-- KPI -->
 
                 <div class="kpi-grid">
 
-                    <div class="kpi">
+                    <div class="kpi analytics-live">
 
                         <span class="kpi-label">
                             Enlaces
@@ -418,7 +513,7 @@
 
                     </div>
 
-                    <div class="kpi">
+                    <div class="kpi analytics-live">
 
                         <span class="kpi-label">
                             Clicks
@@ -430,7 +525,7 @@
 
                     </div>
 
-                    <div class="kpi pro-only">
+                    <div class="kpi pro-only analytics-live">
 
                         <span class="kpi-label">
                             Países
@@ -442,7 +537,7 @@
 
                     </div>
 
-                    <div class="kpi pro-only">
+                    <div class="kpi pro-only analytics-live">
 
                         <span class="kpi-label">
                             Top dispositivo
@@ -454,21 +549,39 @@
 
                     </div>
 
+                    <div class="kpi pro-only analytics-live">
+
+                        <span class="kpi-label">
+                            Analytics
+                        </span>
+
+                        <span class="kpi-value">
+                            🟢 LIVE
+                        </span>
+
+                    </div>
+
                 </div>
 
-                <!-- LINKS -->
+                <!-- LINKS HEAD -->
 
                 <div class="links-head">
 
-                    <h3>Mis enlaces</h3>
+                    <h3>
+                        Mis enlaces
+                    </h3>
+
+                    <!-- SEARCH -->
 
                     <input
                         type="text"
                         id="searchLinks"
-                        placeholder="🔍 Buscar enlace..."
+                        placeholder="🔍 Buscar enlaces..."
                     >
 
                 </div>
+
+                <!-- LIST -->
 
                 <div id="linksList" class="links-list"></div>
 
@@ -480,23 +593,48 @@
              ANALYTICS
         ========================================================= -->
 
-        <section class="section hidden" data-section="analytics">
+        <section
+            class="section hidden"
+            data-section="analytics"
+        >
 
             <div class="card fade-up">
 
-                <h2>
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    gap:12px;
+                    flex-wrap:wrap;
+                    margin-bottom:18px;
+                ">
 
-                    📈 Analytics
+                    <div>
 
-                    <span class="badge pro">
-                        PRO
-                    </span>
+                        <h2>
+                            📈 Analytics
+                            <span class="badge pro">
+                                PRO
+                            </span>
+                        </h2>
 
-                </h2>
+                        <p class="muted">
+                            Estadísticas reales en tiempo real.
+                        </p>
 
-                <p class="muted">
-                    Métricas avanzadas en tiempo real.
-                </p>
+                    </div>
+
+                    <div class="realtime-badge">
+
+                        <span class="live-dot"></span>
+
+                        <span>
+                            Datos en vivo
+                        </span>
+
+                    </div>
+
+                </div>
 
                 <!-- CHARTS -->
 
@@ -506,9 +644,11 @@
 
                     <div class="chart-card full-width">
 
-                        <h3>
-                            🗺️ Mapa mundial
-                        </h3>
+                        <div class="analytics-label"
+                            style="margin-bottom:14px"
+                        >
+                            🗺️ Actividad global
+                        </div>
 
                         <canvas id="worldMap"></canvas>
 
@@ -554,6 +694,58 @@
 
             </div>
 
+            <!-- FUTURE -->
+
+            <div class="card pro-only">
+
+                <h2>
+                    🚀 Próximamente
+                </h2>
+
+                <div class="pricing-grid"
+                    style="margin-top:20px"
+                >
+
+                    <div class="pricing-card">
+
+                        <h3>
+                            🔒 Password Links
+                        </h3>
+
+                        <p class="muted">
+                            Protegé enlaces con contraseña.
+                        </p>
+
+                    </div>
+
+                    <div class="pricing-card">
+
+                        <h3>
+                            ⏳ Expiration Links
+                        </h3>
+
+                        <p class="muted">
+                            Links temporales automáticos.
+                        </p>
+
+                    </div>
+
+                    <div class="pricing-card">
+
+                        <h3>
+                            🌍 Custom Domains
+                        </h3>
+
+                        <p class="muted">
+                            Usá tu propio dominio.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </section>
 
     </div>
@@ -573,52 +765,96 @@
 </div>
 
 <!-- =========================================================
-     MODAL STATS
+     STATS MODAL
 ========================================================= -->
 
 <div id="statsModal" class="modal hidden">
 
     <div class="modal-box">
 
-        <button id="closeModal" class="modal-close">
+        <!-- CLOSE -->
+
+        <button
+            id="closeModal"
+            class="modal-close"
+        >
             ✕
         </button>
 
+        <!-- TITLE -->
+
         <h2>
-            📊 Estadísticas del enlace
+            📊 Analytics del enlace
         </h2>
 
-        <div class="modal-content">
+        <p class="muted" style="margin-top:6px">
+            Estadísticas avanzadas del link.
+        </p>
 
-            <div class="modal-kpis">
+        <!-- KPI -->
 
-                <div class="modal-kpi">
+        <div class="modal-kpis">
 
-                    <span>Clicks</span>
+            <div class="modal-kpi analytics-live">
 
-                    <strong id="modalClicks">
-                        0
-                    </strong>
+                <span>
+                    👆 Clicks
+                </span>
+
+                <strong id="modalClicks">
+                    0
+                </strong>
+
+            </div>
+
+            <div class="modal-kpi analytics-live">
+
+                <span>
+                    🌍 País principal
+                </span>
+
+                <strong id="modalCountry">
+                    —
+                </strong>
+
+            </div>
+
+            <div class="modal-kpi analytics-live">
+
+                <span>
+                    📱 Dispositivo
+                </span>
+
+                <strong id="modalDevice">
+                    —
+                </strong>
+
+            </div>
+
+        </div>
+
+        <!-- CHART -->
+
+        <div class="chart-card">
+
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:14px;
+                flex-wrap:wrap;
+                gap:10px;
+            ">
+
+                <div class="analytics-label">
+
+                    📈 Clicks en el tiempo
 
                 </div>
 
-                <div class="modal-kpi">
+                <div class="badge pro">
 
-                    <span>País principal</span>
-
-                    <strong id="modalCountry">
-                        —
-                    </strong>
-
-                </div>
-
-                <div class="modal-kpi">
-
-                    <span>Dispositivo</span>
-
-                    <strong id="modalDevice">
-                        —
-                    </strong>
+                    Analytics PRO
 
                 </div>
 
@@ -627,6 +863,45 @@
             <canvas id="modalChart"></canvas>
 
         </div>
+
+    </div>
+
+</div>
+
+<div
+    id="passwordModal"
+    class="password-modal hidden"
+>
+
+    <div class="password-box">
+
+        <h2>
+            🔒 Link protegido
+        </h2>
+
+        <p>
+            Este enlace requiere contraseña.
+        </p>
+
+        <input
+            type="password"
+            id="passwordInput"
+            placeholder="Ingresá la contraseña"
+        >
+
+        <button
+            id="unlockBtn"
+            class="btn-primary full"
+        >
+            Desbloquear
+        </button>
+
+        <p
+            id="passwordError"
+            class="password-error hidden"
+        >
+            Contraseña incorrecta
+        </p>
 
     </div>
 

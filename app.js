@@ -1,6 +1,6 @@
 /* =========================================================
    WORLD CLOUD PRO
-   VERSION COMPLETA
+   FULL VERSION + PASSWORD LINKS + REAL ANALYTICS
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -61,6 +61,8 @@ let dailyChart;
 let deviceChart;
 let countryChart;
 
+let pendingRedirect = null;
+
 /* =========================================================
    INIT
 ========================================================= */
@@ -68,7 +70,7 @@ let countryChart;
 console.log("✅ WORLD CLOUD READY");
 
 /* =========================================================
-   REDIRECT + REAL ANALYTICS
+   REDIRECT + REAL ANALYTICS + PASSWORD
 ========================================================= */
 
 async function handleRedirect() {
@@ -93,7 +95,7 @@ async function handleRedirect() {
   const linkData =
     snap.data();
 
-  /* COUNTRY */
+  /* ================= COUNTRY ================= */
 
   let country = "Unknown";
   let countryCode = "UN";
@@ -112,7 +114,7 @@ async function handleRedirect() {
 
   } catch {}
 
-  /* DEVICE */
+  /* ================= DEVICE ================= */
 
   const ua =
     navigator.userAgent;
@@ -127,7 +129,7 @@ async function handleRedirect() {
     device = "Tablet";
   }
 
-  /* SAVE ANALYTICS */
+  /* ================= SAVE ANALYTICS ================= */
 
   await addDoc(
     collection(
@@ -144,11 +146,29 @@ async function handleRedirect() {
     }
   );
 
-  /* CLICK */
+  /* ================= CLICK ================= */
 
   updateDoc(ref, {
     clicks: increment(1)
   }).catch(()=>{});
+
+  /* ================= PASSWORD ================= */
+
+  if (linkData.password) {
+
+    pendingRedirect = {
+      url: linkData.originalURL,
+      password: linkData.password
+    };
+
+    $("passwordModal")
+      ?.classList.remove("hidden");
+
+    $("redirectScreen")
+      ?.classList.add("hidden");
+
+    return;
+  }
 
   setTimeout(() => {
 
@@ -161,36 +181,77 @@ async function handleRedirect() {
 handleRedirect();
 
 /* =========================================================
+   PASSWORD UNLOCK
+========================================================= */
+
+$("unlockBtn")
+  ?.addEventListener("click", () => {
+
+    if (!pendingRedirect) return;
+
+    const val =
+      $("passwordInput")
+        .value.trim();
+
+    if (
+      val !== pendingRedirect.password
+    ) {
+
+      $("passwordError")
+        ?.classList.remove("hidden");
+
+      return;
+    }
+
+    $("passwordError")
+      ?.classList.add("hidden");
+
+    location.href =
+      pendingRedirect.url;
+  });
+
+$("passwordInput")
+  ?.addEventListener("keydown", e => {
+
+    if (e.key === "Enter") {
+
+      $("unlockBtn").click();
+    }
+  });
+
+/* =========================================================
    LOGIN
 ========================================================= */
 
-$("loginBtn")?.addEventListener("click", async () => {
+$("loginBtn")
+  ?.addEventListener("click", async () => {
 
-  try {
+    try {
 
-    await signInWithPopup(
-      auth,
-      new GoogleAuthProvider()
-    );
+      await signInWithPopup(
+        auth,
+        new GoogleAuthProvider()
+      );
 
-  } catch (err) {
+    } catch (err) {
 
-    console.error(err);
+      console.error(err);
 
-    showToast("❌ Error login");
-  }
-});
+      showToast("❌ Error login");
+    }
+  });
 
 /* =========================================================
    LOGOUT
 ========================================================= */
 
-$("logoutBtn")?.addEventListener("click", async () => {
+$("logoutBtn")
+  ?.addEventListener("click", async () => {
 
-  await signOut(auth);
+    await signOut(auth);
 
-  showToast("👋 Sesión cerrada");
-});
+    showToast("👋 Sesión cerrada");
+  });
 
 /* =========================================================
    AUTH STATE
@@ -219,8 +280,6 @@ onAuthStateChanged(auth, async user => {
   $("userInfo")
     ?.classList.remove("hidden");
 
-  /* USER */
-
   $("userName").textContent =
     user.displayName || "Usuario";
 
@@ -228,7 +287,7 @@ onAuthStateChanged(auth, async user => {
     user.photoURL ||
     "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-  /* USER PLAN */
+  /* PLAN */
 
   const userRef =
     doc(db, "users", user.uid);
@@ -259,18 +318,19 @@ onAuthStateChanged(auth, async user => {
    THEME
 ========================================================= */
 
-$("themeToggle")?.addEventListener("click", () => {
+$("themeToggle")
+  ?.addEventListener("click", () => {
 
-  document.body
-    .classList.toggle("light");
+    document.body
+      .classList.toggle("light");
 
-  localStorage.setItem(
-    "theme",
-    document.body.classList.contains("light")
-      ? "light"
-      : "dark"
-  );
-});
+    localStorage.setItem(
+      "theme",
+      document.body.classList.contains("light")
+        ? "light"
+        : "dark"
+    );
+  });
 
 if (
   localStorage.getItem("theme")
@@ -359,7 +419,7 @@ async function changePlan(plan) {
 
   if (currentPlan === plan) {
 
-    showToast("El plan ya está en uso.");
+    showToast("😎 Ya tenés este plan");
 
     return;
   }
@@ -395,6 +455,7 @@ function launchConfetti() {
       document.createElement("div");
 
     confetti.style.position = "fixed";
+
     confetti.style.width = "8px";
     confetti.style.height = "8px";
 
@@ -470,7 +531,7 @@ $("customCode")
 
     $("previewURL").textContent =
       val
-        ? location.origin + "?c=" + val
+        ? location.origin + "/" + val
         : "";
   });
 
@@ -571,13 +632,25 @@ async function createLink() {
     }
   }
 
+  /* PASSWORD */
+
+  const password =
+    currentPlan === "PRO"
+      ? $("linkPassword")
+          ?.value
+          .trim() || ""
+      : "";
+
+  /* SAVE */
+
   await setDoc(
     doc(db, "links", code),
     {
       originalURL:url,
       userId:currentUser.uid,
       clicks:0,
-      createdAt:Date.now()
+      createdAt:Date.now(),
+      password
     }
   );
 
@@ -606,11 +679,16 @@ async function createLink() {
   showToast("✅ Link creado");
 
   $("urlInput").value = "";
+
   $("customCode").value = "";
+
+  if ($("linkPassword")) {
+    $("linkPassword").value = "";
+  }
 }
 
 /* =========================================================
-   DASHBOARD
+   DASHBOARD REAL
 ========================================================= */
 
 async function loadDashboard() {
@@ -795,6 +873,12 @@ function renderLinks(links) {
           ">
             👆 ${link.clicks || 0} clicks
           </div>
+
+          ${link.password ? `
+            <div class="password-lock" style="margin-top:10px">
+              🔒 Protegido
+            </div>
+          ` : ""}
 
         </div>
 
