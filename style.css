@@ -2838,3 +2838,15 @@ body.light .preview-url{
   transform:
     translateY(-2px);
 }
+
+.bio-link-item{
+
+  padding:18px;
+
+  border-radius:18px;
+
+  background:
+    rgba(255,255,255,.03);
+
+  margin-bottom:14px;
+}

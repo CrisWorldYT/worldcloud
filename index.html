@@ -1159,12 +1159,53 @@
         🔗 Link principal
       </label>
 
+ <!-- LINKS -->
+
+<div style="margin-top:20px">
+
+  <div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+  ">
+
+    <label class="muted">
+      🔗 Links
+    </label>
+
+    <button
+      id="addBioLink"
+      class="btn-ghost"
+      type="button"
+    >
+      ➕ Añadir
+    </button>
+
+  </div>
+
+  <div id="bioLinksContainer">
+
+    <div class="bio-link-item">
+
+      <input
+        type="text"
+        class="bio-link-title"
+        placeholder="Título"
+      >
+
       <input
         type="url"
-        id="bioLink"
-        placeholder="https://youtube.com"
+        class="bio-link-url"
+        placeholder="https://..."
         style="margin-top:10px"
       >
+
+    </div>
+
+  </div>
+
+</div>
 
     </div>
 
@@ -1177,7 +1218,11 @@
     >
       💾 Guardar Bio Page
     </button>
-
+<div
+  id="bioPageURL"
+  class="preview-url"
+  style="margin-top:18px"
+></div>
   </div>
 
   <!-- PREVIEW -->

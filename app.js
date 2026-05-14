@@ -2475,14 +2475,27 @@ async function saveBioPage() {
       background:
         $("bioBackground").value,
 
-      link:
-        $("bioLink").value
+links:
+  [...document.querySelectorAll(".bio-link-item")]
+    .map(el => ({
+
+      title:
+        el.querySelector(".bio-link-title")
+          ?.value || "",
+
+      url:
+        el.querySelector(".bio-link-url")
+          ?.value || ""
+
+    }))
     }
   );
 
   showToast(
     "🎨 Bio guardada"
   );
+  $("bioPageURL").textContent =
+  `${location.origin}/@${username}`;
 }
 
 [
@@ -2519,3 +2532,36 @@ function updateBioPreview() {
       rgba(0,0,0,.35)
     )`;
 }
+
+/* =========================================================
+   ADD BIO LINKS
+========================================================= */
+
+$("addBioLink")
+  ?.addEventListener("click", () => {
+
+    const div =
+      document.createElement("div");
+
+    div.className =
+      "bio-link-item";
+
+    div.innerHTML = `
+
+      <input
+        type="text"
+        class="bio-link-title"
+        placeholder="Título"
+      >
+
+      <input
+        type="url"
+        class="bio-link-url"
+        placeholder="https://..."
+        style="margin-top:10px"
+      >
+    `;
+
+    $("bioLinksContainer")
+      .appendChild(div);
+});
