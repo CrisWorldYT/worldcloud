@@ -1,5 +1,7 @@
 /* =========================================================
    admin.js
+   WORLD CLOUD ADMIN PANEL
+   FULL VERSION
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -7,7 +9,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
   getFirestore,
   collection,
-  getDocs
+  getDocs,
+  deleteDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
@@ -46,10 +50,12 @@ onAuthStateChanged(auth, async user => {
     return;
   }
 
-  /* ================= ADMIN CHECK ================= */
+  /* =====================================================
+     ADMIN CHECK
+  ====================================================== */
 
   const ADMIN_EMAIL =
-    "personadeg321@gmail.com";
+    "TUEMAIL@gmail.com";
 
   if (
     user.email !== ADMIN_EMAIL
@@ -62,10 +68,12 @@ onAuthStateChanged(auth, async user => {
     return;
   }
 
-  /* USER */
+  /* =====================================================
+     USER
+  ====================================================== */
 
   $("adminName").textContent =
-    user.displayName;
+    user.displayName || "Admin";
 
   $("adminAvatar").src =
     user.photoURL ||
@@ -92,14 +100,18 @@ $("logoutBtn")
 
 async function loadAdmin() {
 
-  /* USERS */
+  /* =====================================================
+     GET USERS
+  ====================================================== */
 
   const usersSnap =
     await getDocs(
       collection(db, "users")
     );
 
-  /* LINKS */
+  /* =====================================================
+     GET LINKS
+  ====================================================== */
 
   const linksSnap =
     await getDocs(
@@ -109,7 +121,9 @@ async function loadAdmin() {
   let totalClicks = 0;
   let totalPro = 0;
 
-  /* USERS */
+  /* =====================================================
+     USERS COUNT
+  ====================================================== */
 
   $("totalUsers").textContent =
     usersSnap.size;
@@ -127,12 +141,16 @@ async function loadAdmin() {
   $("totalPro").textContent =
     totalPro;
 
-  /* LINKS */
+  /* =====================================================
+     LINKS COUNT
+  ====================================================== */
 
   $("totalLinks").textContent =
     linksSnap.size;
 
-  /* LISTS */
+  /* =====================================================
+     LISTS
+  ====================================================== */
 
   const usersList =
     $("usersList");
@@ -143,6 +161,12 @@ async function loadAdmin() {
   usersList.innerHTML = "";
   linksList.innerHTML = "";
 
+  /* =====================================================
+     LINKS
+  ====================================================== */
+
+  const topLinks = [];
+
   linksSnap.forEach(docu => {
 
     const data =
@@ -151,7 +175,10 @@ async function loadAdmin() {
     totalClicks +=
       data.clicks || 0;
 
-    /* LINKS */
+    topLinks.push({
+      id:docu.id,
+      ...data
+    });
 
     linksList.innerHTML += `
 
@@ -167,17 +194,67 @@ async function loadAdmin() {
             ${data.originalURL}
           </span>
 
+          <div style="
+            margin-top:8px;
+            color:#60a5fa;
+            font-size:13px;
+          ">
+            👆 ${data.clicks || 0} clicks
+          </div>
+
+          <div style="
+            display:flex;
+            gap:8px;
+            margin-top:10px;
+            flex-wrap:wrap;
+          ">
+
+            ${
+              data.password
+                ? `
+                  <div class="admin-badge">
+                    🔒 Protegido
+                  </div>
+                `
+                : ""
+            }
+
+            ${
+              data.expiresAt
+                ? `
+                  <div class="admin-badge">
+                    ⏳ Expira
+                  </div>
+                `
+                : ""
+            }
+
+          </div>
+
         </div>
 
-        <div>
+        <div style="
+          display:flex;
+          gap:10px;
+          align-items:center;
+        ">
 
-          👆 ${data.clicks || 0}
+          <button
+            class="delete-link-btn"
+            data-id="${docu.id}"
+          >
+            🗑
+          </button>
 
         </div>
 
       </div>
     `;
   });
+
+  /* =====================================================
+     USERS
+  ====================================================== */
 
   usersSnap.forEach(docu => {
 
@@ -195,8 +272,28 @@ async function loadAdmin() {
           </strong>
 
           <span>
-            ${data.plan || "FREE"}
+            ${
+              data.plan || "FREE"
+            }
           </span>
+
+        </div>
+
+        <div>
+
+          ${
+            data.plan === "PRO"
+              ? `
+                <div class="admin-badge">
+                  💎 PRO
+                </div>
+              `
+              : `
+                <div class="admin-badge">
+                  FREE
+                </div>
+              `
+          }
 
         </div>
 
@@ -204,60 +301,128 @@ async function loadAdmin() {
     `;
   });
 
+  /* =====================================================
+     TOTAL CLICKS
+  ====================================================== */
+
   $("totalClicks").textContent =
     totalClicks;
 
-  renderChart(totalClicks);
+  /* =====================================================
+     DELETE BUTTONS
+  ====================================================== */
+
+  document
+    .querySelectorAll(".delete-link-btn")
+    .forEach(btn => {
+
+      btn.addEventListener("click", async () => {
+
+        const id =
+          btn.dataset.id;
+
+        const confirmDelete =
+          confirm(
+            "¿Eliminar link?"
+          );
+
+        if (!confirmDelete) return;
+
+        await deleteDoc(
+          doc(db, "links", id)
+        );
+
+        btn.closest(".admin-item")
+          ?.remove();
+      });
+    });
+
+  /* =====================================================
+     TOP LINKS
+  ====================================================== */
+
+  topLinks.sort(
+    (a,b)=>
+      (b.clicks || 0)
+      - (a.clicks || 0)
+  );
+
+  renderChart(topLinks);
 }
 
 /* =========================================================
    CHART
 ========================================================= */
 
-function renderChart(clicks) {
+function renderChart(links) {
 
-  new Chart(
-    document.getElementById("globalChart"),
-    {
+  const ctx =
+    document.getElementById(
+      "globalChart"
+    );
 
-      type:"line",
+  if (!ctx) return;
 
-      data:{
+  new Chart(ctx, {
 
-        labels:[
-          "Lun",
-          "Mar",
-          "Mié",
-          "Jue",
-          "Vie",
-          "Sáb",
-          "Dom"
+    type:"bar",
+
+    data:{
+
+      labels:
+        links
+          .slice(0,7)
+          .map(l => l.id),
+
+      datasets:[{
+
+        label:"Clicks",
+
+        data:
+          links
+            .slice(0,7)
+            .map(l => l.clicks || 0),
+
+        backgroundColor:[
+          "#3b82f6",
+          "#6366f1",
+          "#8b5cf6",
+          "#60a5fa",
+          "#818cf8",
+          "#a78bfa",
+          "#2563eb"
         ],
 
-        datasets:[{
+        borderRadius:12
+      }]
+    },
 
-          label:"Actividad",
+    options:{
 
-          data:[
-            clicks*0.1,
-            clicks*0.2,
-            clicks*0.3,
-            clicks*0.4,
-            clicks*0.6,
-            clicks*0.8,
-            clicks
-          ],
+      responsive:true,
 
-          borderColor:"#3b82f6",
+      plugins:{
 
-          backgroundColor:
-            "rgba(59,130,246,.2)",
+        legend:{
+          display:false
+        }
+      },
 
-          fill:true,
+      scales:{
 
-          tension:.4
-        }]
+        y:{
+          beginAtZero:true,
+          grid:{
+            color:"rgba(255,255,255,.05)"
+          }
+        },
+
+        x:{
+          grid:{
+            display:false
+          }
+        }
       }
     }
-  );
+  });
 }
