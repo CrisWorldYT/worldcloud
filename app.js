@@ -1783,6 +1783,104 @@ function renderDeviceChart(devices) {
 }
 
 /* =========================================================
+   SAVE BRANDING
+========================================================= */
+
+$("saveBranding")
+  ?.addEventListener("click", saveBranding);
+
+async function saveBranding() {
+
+  if (
+    currentPlan !== "ENTERPRISE"
+  ) {
+
+    showToast(
+      "🏢 Solo ENTERPRISE"
+    );
+
+    return;
+  }
+
+  const userSnap =
+    await getDoc(
+      doc(db,"users",currentUser.uid)
+    );
+
+  const workspaceId =
+    userSnap.data().workspaceId;
+
+  const name =
+    $("workspaceName")
+      ?.value
+      .trim();
+
+  const logo =
+    $("workspaceLogo")
+      ?.value
+      .trim();
+
+  const color =
+    $("themeColorPicker")
+      ?.value ||
+      "#6366f1";
+
+  await updateDoc(
+    doc(db,"workspaces",workspaceId),
+    {
+
+      name:
+        name || "Workspace",
+
+      logo:
+        logo || "",
+
+      theme:
+        color
+    }
+  );
+
+  /* APPLY */
+
+  applyTheme(color);
+
+  /* UPDATE LOGO */
+
+  const logoEl =
+    document.querySelector(".logo");
+
+  if (logoEl) {
+
+    logoEl.innerHTML = `
+
+      ${
+        logo
+          ? `
+            <img
+              src="${logo}"
+              style="
+                width:28px;
+                height:28px;
+                border-radius:8px;
+                object-fit:cover;
+                margin-right:10px;
+                vertical-align:middle;
+              "
+            >
+          `
+          : "☁"
+      }
+
+      ${name || "World Cloud"}
+    `;
+  }
+
+  showToast(
+    "🎨 Branding actualizado"
+  );
+}
+
+/* =========================================================
    EXPORT CSV
 ========================================================= */
 
