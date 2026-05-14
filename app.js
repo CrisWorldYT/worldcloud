@@ -1976,3 +1976,634 @@ function showToast(message) {
 
   }, 3000);
 }
+
+/* =========================================================
+   RENDER LINKS
+========================================================= */
+
+function renderLinks(links) {
+
+  const list =
+    $("linksList");
+
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  if (!links.length) {
+
+    list.innerHTML = `
+      <p class="muted">
+        No hay enlaces todavía.
+      </p>
+    `;
+
+    return;
+  }
+
+  const isPro =
+    currentPlan === "PRO" ||
+    currentPlan === "ENTERPRISE";
+
+  links.forEach(link => {
+
+    const shortURL =
+      location.origin + "?c=" + link.id;
+
+    const isExpired =
+      link.expiresAt &&
+      Date.now() > link.expiresAt;
+
+    const div =
+      document.createElement("div");
+
+    div.className = "card";
+
+    div.style.cursor = "pointer";
+
+    if (isExpired) {
+      div.style.opacity = ".6";
+    }
+
+    div.innerHTML = `
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        gap:20px;
+        flex-wrap:wrap;
+      ">
+
+        <div>
+
+          <div style="
+            font-weight:700;
+            color:var(--primary);
+            margin-bottom:8px;
+          ">
+            ${shortURL}
+          </div>
+
+          <div class="muted"
+            style="font-size:13px"
+          >
+            ${link.originalURL}
+          </div>
+
+          <div style="
+            margin-top:10px;
+            font-size:13px;
+          ">
+            👆 ${link.clicks || 0} clicks
+          </div>
+
+          ${
+            link.password
+              ? `
+                <div class="password-lock"
+                  style="margin-top:10px"
+                >
+                  🔒 Protegido
+                </div>
+              `
+              : ""
+          }
+
+          ${
+            link.expiresAt
+              ? `
+                <div class="expiration-badge"
+                  style="margin-top:10px"
+                >
+                  ⏳ Expira:
+                  ${new Date(link.expiresAt)
+                    .toLocaleDateString()}
+                </div>
+              `
+              : ""
+          }
+
+        </div>
+
+        <div style="
+          display:flex;
+          gap:8px;
+          flex-wrap:wrap;
+        ">
+
+          <button class="btn-ghost stats-btn">
+            📊 Stats
+          </button>
+
+          <button class="btn-ghost copy-btn">
+            📋 Copiar
+          </button>
+
+          <button class="btn-ghost csv-btn">
+            📤 CSV
+          </button>
+
+          <button class="btn-ghost edit-btn">
+            ✏ Editar
+          </button>
+
+          <button class="btn-ghost delete-btn">
+            🗑
+          </button>
+
+        </div>
+
+      </div>
+    `;
+
+    /* COPY */
+
+    div.querySelector(".copy-btn")
+      .addEventListener("click", e => {
+
+        e.stopPropagation();
+
+        navigator.clipboard
+          .writeText(shortURL);
+
+        showToast("📋 Copiado");
+      });
+
+    /* DELETE */
+
+    div.querySelector(".delete-btn")
+      .addEventListener("click", async e => {
+
+        e.stopPropagation();
+
+        await deleteDoc(
+          doc(db,"links",link.id)
+        );
+
+        showToast("🗑 Link eliminado");
+      });
+
+    /* CSV */
+
+    div.querySelector(".csv-btn")
+      .addEventListener("click", e => {
+
+        e.stopPropagation();
+
+        if (!isPro) {
+
+          showToast("💎 Solo PRO");
+
+          return;
+        }
+
+        exportSingleCSV(link);
+      });
+
+    /* EDIT */
+
+    div.querySelector(".edit-btn")
+      .addEventListener("click", async e => {
+
+        e.stopPropagation();
+
+        if (!isPro) {
+
+          showToast("💎 Editar es PRO");
+
+          return;
+        }
+
+        const newURL =
+          prompt(
+            "Nueva URL:",
+            link.originalURL
+          );
+
+        if (!newURL) return;
+
+        await updateDoc(
+          doc(db,"links",link.id),
+          {
+            originalURL:newURL
+          }
+        );
+
+        showToast("✅ Link editado");
+      });
+
+    /* STATS */
+
+    div.querySelector(".stats-btn")
+      .addEventListener("click", e => {
+
+        e.stopPropagation();
+
+        openStats(link);
+      });
+
+    list.appendChild(div);
+  });
+}
+
+/* =========================================================
+   OPEN STATS
+========================================================= */
+
+async function openStats(link) {
+
+  $("statsModal")
+    ?.classList.remove("hidden");
+
+  $("modalClicks").textContent =
+    link.clicks || 0;
+
+  const isPro =
+    currentPlan === "PRO" ||
+    currentPlan === "ENTERPRISE";
+
+  if (!isPro) {
+
+    $("modalCountry").textContent =
+      "💎 PRO";
+
+    $("modalDevice").textContent =
+      "💎 PRO";
+
+    renderModalChart({
+      "Hoy": link.clicks || 0
+    });
+
+    return;
+  }
+
+  const analyticsSnap =
+    await getDocs(
+      query(
+        collection(
+          db,
+          "links",
+          link.id,
+          "analytics"
+        ),
+        orderBy("timestamp","asc")
+      )
+    );
+
+  const countries = {};
+  const devices = {};
+  const daily = {};
+
+  analyticsSnap.forEach(docu => {
+
+    const d =
+      docu.data();
+
+    countries[d.country] =
+      (countries[d.country] || 0) + 1;
+
+    devices[d.device] =
+      (devices[d.device] || 0) + 1;
+
+    const day =
+      new Date(d.timestamp)
+        .toLocaleDateString();
+
+    daily[day] =
+      (daily[day] || 0) + 1;
+  });
+
+  const topCountry =
+    Object.entries(countries)
+      .sort((a,b)=>b[1]-a[1])[0];
+
+  $("modalCountry").textContent =
+    topCountry
+      ? topCountry[0]
+      : "—";
+
+  const topDevice =
+    Object.entries(devices)
+      .sort((a,b)=>b[1]-a[1])[0];
+
+  $("modalDevice").textContent =
+    topDevice
+      ? topDevice[0]
+      : "—";
+
+  renderModalChart(daily);
+}
+
+/* =========================================================
+   CLOSE MODAL
+========================================================= */
+
+$("closeModal")
+  ?.addEventListener("click", () => {
+
+    $("statsModal")
+      ?.classList.add("hidden");
+  });
+
+/* =========================================================
+   MODAL CHART
+========================================================= */
+
+function renderModalChart(daily) {
+
+  const ctx =
+    $("modalChart");
+
+  if (!ctx) return;
+
+  modalChart?.destroy();
+
+  modalChart =
+    new Chart(ctx, {
+
+      type:"line",
+
+      data:{
+
+        labels:
+          Object.keys(daily),
+
+        datasets:[{
+
+          label:"Clicks",
+
+          data:
+            Object.values(daily),
+
+          borderColor:
+            "var(--primary)",
+
+          backgroundColor:
+            "rgba(var(--primary-rgb),.2)",
+
+          fill:true,
+
+          tension:.4
+        }]
+      }
+    });
+}
+
+/* =========================================================
+   DAILY CHART
+========================================================= */
+
+function renderDailyChart(daily) {
+
+  const ctx =
+    $("dailyChart");
+
+  if (!ctx) return;
+
+  dailyChart?.destroy();
+
+  dailyChart =
+    new Chart(ctx, {
+
+      type:"line",
+
+      data:{
+
+        labels:
+          Object.keys(daily),
+
+        datasets:[{
+
+          label:"Clicks",
+
+          data:
+            Object.values(daily),
+
+          borderColor:
+            "var(--primary)",
+
+          backgroundColor:
+            "rgba(var(--primary-rgb),.2)",
+
+          fill:true,
+
+          tension:.4
+        }]
+      }
+    });
+}
+
+/* =========================================================
+   COUNTRY CHART
+========================================================= */
+
+function renderCountryChart(countries) {
+
+  const ctx =
+    $("countryChart");
+
+  if (!ctx) return;
+
+  countryChart?.destroy();
+
+  countryChart =
+    new Chart(ctx, {
+
+      type:"bar",
+
+      data:{
+
+        labels:
+          Object.keys(countries),
+
+        datasets:[{
+
+          label:"Países",
+
+          data:
+            Object.values(countries),
+
+          backgroundColor:
+            "var(--primary)"
+        }]
+      }
+    });
+}
+
+/* =========================================================
+   DEVICE CHART
+========================================================= */
+
+function renderDeviceChart(devices) {
+
+  const ctx =
+    $("deviceChart");
+
+  if (!ctx) return;
+
+  deviceChart?.destroy();
+
+  deviceChart =
+    new Chart(ctx, {
+
+      type:"doughnut",
+
+      data:{
+
+        labels:
+          Object.keys(devices),
+
+        datasets:[{
+
+          data:
+            Object.values(devices),
+
+          backgroundColor:[
+            "var(--primary)",
+            "#6366f1",
+            "#8b5cf6"
+          ]
+        }]
+      }
+    });
+}
+
+/* =========================================================
+   EXPORT CSV
+========================================================= */
+
+$("exportCSV")
+  ?.addEventListener("click", exportAllCSV);
+
+async function exportAllCSV() {
+
+  let csv =
+    "Codigo,URL,Clicks\n";
+
+  allLinks.forEach(link => {
+
+    csv +=
+      `${link.id},"${link.originalURL}",${link.clicks}\n`;
+  });
+
+  downloadCSV(
+    csv,
+    "worldcloud-links.csv"
+  );
+
+  showToast("📤 CSV exportado");
+}
+
+function exportSingleCSV(link) {
+
+  let csv =
+    "Codigo,URL,Clicks\n";
+
+  csv +=
+    `${link.id},"${link.originalURL}",${link.clicks}`;
+
+  downloadCSV(
+    csv,
+    `${link.id}.csv`
+  );
+}
+
+function downloadCSV(content,file){
+
+  const blob =
+    new Blob([content],{
+      type:"text/csv"
+    });
+
+  const a =
+    document.createElement("a");
+
+  a.href =
+    URL.createObjectURL(blob);
+
+  a.download = file;
+
+  a.click();
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+const navButtons =
+  document.querySelectorAll(".nav-item");
+
+const sections =
+  document.querySelectorAll(".section");
+
+navButtons.forEach(btn => {
+
+  btn.addEventListener("click", () => {
+
+    const section =
+      btn.dataset.section;
+
+    navButtons.forEach(b =>
+      b.classList.remove("active")
+    );
+
+    btn.classList.add("active");
+
+    sections.forEach(sec => {
+
+      sec.classList.toggle(
+        "hidden",
+        sec.dataset.section !== section
+      );
+    });
+
+    $("sectionTitle").textContent =
+      btn.textContent
+        .replace("PRO","")
+        .trim();
+
+    $("sidebar")
+      ?.classList.remove("open");
+  });
+});
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+$("sidebarToggle")
+  ?.addEventListener("click", () => {
+
+    $("sidebar")
+      ?.classList.toggle("open");
+  });
+
+$("sidebarToggleMobile")
+  ?.addEventListener("click", () => {
+
+    $("sidebar")
+      ?.classList.toggle("open");
+  });
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(message) {
+
+  const toast =
+    $("toast");
+
+  if (!toast) return;
+
+  toast.textContent =
+    message;
+
+  toast.classList.remove("hidden");
+
+  setTimeout(() => {
+
+    toast.classList.add("hidden");
+
+  }, 3000);
+}
